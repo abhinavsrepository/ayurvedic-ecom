@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ayurvedic Brand Color Palette - CSS Variables */
+@layer base {
+  :root {
+    /* Base Colors */
+    --background: #F9FBE7;
+    --foreground: #1B5E20;
+    
+    /* Brand Colors */
+    --primary: #2E7D32;
+    --primary-light: #A5D6A7;
+    --primary-dark: #1B5E20;
+    
+    --secondary: #F9FBE7;
+    --accent: #C9A66B;
+    
+    /* Text Colors */
+    --text-primary: #1B5E20;
+    --text-secondary: #2E7D32;
+    --text-muted: #558B2F;
+    
+    /* Border Colors */
+    --border: #A5D6A7;
+    --border-light: #C5E1A5;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Disable dark mode - keep consistent calming colors */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #F9FBE7;
+      --foreground: #1B5E20;
+    }
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-light rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary;
+  }
+
+  /* Selection color */
+  ::selection {
+    @apply bg-primary-light text-primary-dark;
+  }
+
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-accent outline-2 outline-offset-2 rounded-sm;
+  }
+}
