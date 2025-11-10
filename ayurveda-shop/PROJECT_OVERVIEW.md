@@ -91,11 +91,24 @@ A beautiful, modern Next.js 15 eCommerce website for Ayurvedic and herbal produc
    - Read time indicators
    - Scroll-reveal animations
 
+8. **Doctor Chat Widget** (`components/shared/DoctorChatWidget.tsx`) ✨ NEW
+   - AI-powered health assistant using Google Gemini API
+   - Floating stethoscope icon with animations
+   - WhatsApp-style chat interface
+   - Quick action suggestions
+   - Urgent symptom detection
+   - Chat history persistence (localStorage)
+   - Topic restriction (health/wellness only)
+   - Minimize/maximize functionality
+   - Clear chat option
+   - Real-time typing indicators
+
 ### 📊 Data Layer
 - Demo product data (12 Ayurvedic products)
 - Testimonials data (4 customer reviews)
-- Blog posts data (3 wisdom articles)
+- Blog posts data (15 wisdom articles - expanded)
 - Product interface with TypeScript
+- Doctor chat configuration and templates
 
 ### 🛠 Utility Functions
 - `cn()` - Tailwind class merging
@@ -146,7 +159,7 @@ npm run dev
 - **Fonts**: Google Fonts (Inter, Playfair Display)
 - **Image Optimization**: Next.js Image component
 
-## 📁 Project Structure
+## 📁 Project Structure 
 
 ```
 ayurveda-shop/
@@ -198,6 +211,19 @@ ayurveda-shop/
 - ✅ Ayurvedic wisdom blog section
 - ✅ Benefits/features section
 - ✅ Navbar & Footer
+- ✅ Doctor Chat Widget (AI Assistant) ✨ NEW
+
+### Blog Pages (Completed) ✨ NEW
+- ✅ Blog listing page (`/blog`)
+  - 15 articles across 7 categories
+  - Search functionality
+  - Category filtering
+  - Newsletter subscription CTA
+- ✅ Blog detail page (`/blog/[slug]`)
+  - Full article view
+  - Social sharing buttons
+  - Related articles section
+  - Product & quiz CTAs
 
 ### To Be Built (Future)
 - [ ] Shop page with filters & sorting
@@ -205,7 +231,6 @@ ayurveda-shop/
 - [ ] Cart page
 - [ ] Checkout flow
 - [ ] Dosha quiz
-- [ ] Blog listing & detail pages
 - [ ] About page
 - [ ] Contact page
 - [ ] User account pages
@@ -307,6 +332,34 @@ npm run lint         # Run ESLint
 3. **Health-Focused**: Clean, minimal, trustworthy aesthetic
 4. **Mobile-First**: Responsive from the ground up
 5. **Accessible**: WCAG 2.1 AA compliant (color contrast, focus states)
+
+## 🩺 Doctor Chat Widget (AI Health Assistant)
+
+### Overview
+An intelligent AI-powered chatbot that provides instant Ayurvedic health guidance using Google's Gemini API. Appears as a floating widget on all pages.
+
+### Key Features
+- **AI-Powered**: Uses Google Gemini Pro for natural language understanding
+- **Topic Restriction**: Only responds to health, wellness, and Ayurveda queries
+- **Urgent Detection**: Identifies emergency symptoms and advises immediate care
+- **Chat Persistence**: Saves conversation history in browser localStorage
+- **Quick Actions**: Pre-defined prompts for common health questions
+- **Beautiful UI**: WhatsApp-style interface with smooth animations
+- **Privacy-First**: No server-side storage of conversations
+
+### Setup Required
+1. Get Google Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create `.env.local` file with: `GEMINI_API_KEY=your_key_here`
+3. Restart dev server
+
+### Documentation
+- 📘 Full Guide: [DOCTOR_CHAT_WIDGET_README.md](DOCTOR_CHAT_WIDGET_README.md)
+- 🚀 Quick Setup: [DOCTOR_CHAT_SETUP.md](DOCTOR_CHAT_SETUP.md)
+
+### Files
+- Component: `components/shared/DoctorChatWidget.tsx`
+- API Route: `app/api/doctor-chat/route.ts`
+- Config: `lib/config/doctorChatConfig.ts`
 
 ## 📄 License
 

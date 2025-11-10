@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Sparkles, ArrowRight } from "lucide-react";
-import { fadeInUp, fadeInLeft, fadeInRight, floatingHerb } from "@/lib/motion-variants";
+import { fadeInLeft, fadeInRight, floatingHerb } from "@/lib/motion-variants";
 
 export default function Hero() {
   return (
@@ -98,9 +99,9 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
               >
-                Discover the{" "}
+                Premium{" "}
                 <span className="text-primary relative">
-                  Healing Power
+                  Ayurvedic Hair Oil
                   <svg
                     className="absolute -bottom-2 left-0 w-full"
                     viewBox="0 0 300 12"
@@ -119,7 +120,7 @@ export default function Hero() {
                   </svg>
                 </span>
                 <br />
-                of Ayurveda
+                for Healthy Hair
               </motion.h1>
 
               <motion.p
@@ -128,9 +129,22 @@ export default function Hero() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
               >
-                Pure. Herbal. Wholesome. Bring natural balance to your life with
-                our premium Ayurvedic products crafted from ancient wisdom.
+                Traditional formula with bhringraj, amla, and hibiscus for thick, lustrous hair growth. Promotes healthy scalp and prevents premature graying.
               </motion.p>
+
+              {/* Special Offer Badge */}
+              <motion.div
+                className="inline-flex items-center gap-2 px-6 py-3 bg-accent/10 border-2 border-accent rounded-full"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.7 }}
+              >
+                <span className="text-2xl font-bold text-accent">₹649</span>
+                <span className="text-lg text-text-secondary line-through">₹799</span>
+                <span className="px-3 py-1 bg-accent text-white text-sm font-semibold rounded-full">
+                  SAVE 19%
+                </span>
+              </motion.div>
             </div>
 
             {/* CTA Buttons */}
@@ -146,18 +160,18 @@ export default function Hero() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Shop Now
+                  Buy Hair Oil Now
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </motion.button>
               </Link>
 
-              <Link href="/dosha-quiz">
+              <Link href="/shop">
                 <motion.button
                   className="px-8 py-4 bg-white text-primary font-semibold rounded-full border-2 border-primary hover:bg-primary hover:text-white transition-all shadow-md hover:shadow-lg"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Find Your Dosha
+                  View All Products
                 </motion.button>
               </Link>
             </motion.div>
@@ -170,9 +184,9 @@ export default function Hero() {
               transition={{ delay: 1 }}
             >
               {[
-                { icon: "✓", text: "Certified Organic" },
-                { icon: "✓", text: "Cruelty-Free" },
-                { icon: "✓", text: "Sustainable" },
+                { icon: "🌿", text: "100% Natural Herbs" },
+                { icon: "⭐", text: "4.9 Rating (345 Reviews)" },
+                { icon: "🚚", text: "Free Delivery" },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -202,33 +216,38 @@ export default function Hero() {
             <div className="relative">
               {/* Main Image Container */}
               <motion.div
-                className="relative w-full aspect-square rounded-3xl overflow-hidden shadow-2xl"
+                className="relative w-full aspect-square rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-primary-light/20 to-accent/10"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.4 }}
               >
-                {/* Placeholder for hero image */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-light to-accent/30 flex items-center justify-center">
-                  <svg
-                    viewBox="0 0 400 400"
-                    className="w-3/4 h-3/4 text-white/30"
-                  >
-                    <circle cx="200" cy="150" r="60" fill="currentColor" />
-                    <path
-                      d="M200,210 L200,350 M150,250 Q200,260 250,250 M140,290 Q200,300 260,290"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
+                {/* Hair Oil Product Image */}
+                <Image
+                  src="/images/hair oil.png"
+                  alt="Ayurvedic Hair Oil - Premium herbal formula"
+                  fill
+                  className="object-contain p-8"
+                  priority
+                />
 
-                {/* Overlay Text */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-white/60 font-serif text-2xl">
-                    [Hero Product Image]
-                  </p>
-                </div>
+                {/* Bestseller Badge */}
+                <motion.div
+                  className="absolute top-6 left-6 px-4 py-2 bg-accent text-white font-semibold rounded-full shadow-lg"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1 }}
+                >
+                  ⭐ Bestseller
+                </motion.div>
+
+                {/* New Product Badge */}
+                <motion.div
+                  className="absolute top-6 right-6 px-4 py-2 bg-primary text-white font-semibold rounded-full shadow-lg"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.1 }}
+                >
+                  🎉 NEW
+                </motion.div>
               </motion.div>
 
               {/* Floating Stats Cards */}

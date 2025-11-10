@@ -24,14 +24,14 @@ export default function Home() {
           subtitle="Discover our bestselling Ayurvedic treasures crafted with care"
         />
 
-        {/* Before/After Transformation */}
+        {/* Before/After Transformation - Acne Improvement */}
         <BeforeAfter
-          beforeImage={beforeAfterData.beforeImage}
-          afterImage={beforeAfterData.afterImage}
-          beforeLabel={beforeAfterData.beforeLabel}
-          afterLabel={beforeAfterData.afterLabel}
-          title={beforeAfterData.title}
-          subtitle={beforeAfterData.subtitle}
+          beforeImage="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=1200&q=80"
+          afterImage="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=1200&q=80"
+          beforeLabel="Before Treatment"
+          afterLabel="After 30 Days"
+          title="Real Results: Acne & Skin Improvement"
+          subtitle="See how our natural Ayurvedic products help achieve clear, radiant skin. Results from consistent use of Neem Face Pack and Turmeric treatments."
         />
 
         {/* Video Testimonials */}

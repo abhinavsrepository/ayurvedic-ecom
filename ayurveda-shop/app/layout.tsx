@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import DoctorChatWidget from "@/components/shared/DoctorChatWidget";
+import SpinWheel from "@/components/gamification/SpinWheel";
+import ScratchCard from "@/components/gamification/ScratchCard";
+import ReferralSystem from "@/components/gamification/ReferralSystem";
 
 // Modern sans-serif for body text
 const inter = Inter({
@@ -41,6 +45,10 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} antialiased`}
       >
         {children}
+        <DoctorChatWidget />
+        <SpinWheel />
+        <ScratchCard />
+        <ReferralSystem />
       </body>
     </html>
   );
