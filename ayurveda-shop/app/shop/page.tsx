@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductCard, { Product } from "@/components/product/ProductCard";
-import { allProducts, categories, doshaTypes, benefits, priceRanges } from "@/lib/data/allProducts";
+import { categories, doshaTypes, benefits, priceRanges } from "@/lib/data/allProducts";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/motion-variants";
 
 type SortOption = "featured" | "price-low" | "price-high" | "rating" | "newest";
 
 export default function ShopPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [selectedDosha, setSelectedDosha] = useState<string>("all");
@@ -21,9 +23,28 @@ export default function ShopPage() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showInStockOnly, setShowInStockOnly] = useState(false);
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        const data = await response.json();
+
+        if (data.success) {
+          setProducts(data.products);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   // Filter products
   const filteredProducts = useMemo(() => {
-    let filtered = [...allProducts];
+    let filtered = [...products];
 
     // Search filter
     if (searchQuery) {

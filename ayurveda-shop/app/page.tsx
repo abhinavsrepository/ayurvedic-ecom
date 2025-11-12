@@ -6,6 +6,7 @@ import Testimonials from "@/components/shared/Testimonials";
 import WisdomSection from "@/components/shared/WisdomSection";
 import BeforeAfter from "@/components/shared/BeforeAfter";
 import VideoTestimonials from "@/components/shared/VideoTestimonials";
+import BannerDisplay from "@/components/frontend/BannerDisplay";
 import { featuredProducts, testimonials, wisdomPosts, beforeAfterData, videoTestimonials } from "@/lib/data/products";
 
 export default function Home() {
@@ -93,11 +94,24 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Middle Banner */}
+        <section className="my-12 px-4">
+          <BannerDisplay position="middle" autoPlay={true} interval={6000} />
+        </section>
+
         {/* Ayurvedic Wisdom Blog */}
         <WisdomSection posts={wisdomPosts} />
 
         {/* Testimonials */}
         <Testimonials testimonials={testimonials} />
+
+        {/* Footer Banner */}
+        <section className="my-12 px-4">
+          <BannerDisplay position="footer" autoPlay={false} />
+        </section>
+
+        {/* Popup Banner */}
+        <BannerDisplay position="popup" />
       </main>
 
       <Footer />

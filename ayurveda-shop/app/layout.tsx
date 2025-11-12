@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import DoctorChatWidget from "@/components/shared/DoctorChatWidget";
-import SpinWheel from "@/components/gamification/SpinWheel";
-import ScratchCard from "@/components/gamification/ScratchCard";
-import ReferralSystem from "@/components/gamification/ReferralSystem";
+import GamificationWrapper from "@/components/gamification/GamificationWrapper";
+import { CartProvider } from "@/contexts/CartContext";
+import { Toaster } from "sonner";
 
 // Modern sans-serif for body text
 const inter = Inter({
@@ -44,11 +43,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} antialiased`}
       >
-        {children}
-        <DoctorChatWidget />
-        <SpinWheel />
-        <ScratchCard />
-        <ReferralSystem />
+        <CartProvider>
+          <Toaster position="top-right" richColors />
+          {children}
+          <GamificationWrapper />
+        </CartProvider>
       </body>
     </html>
   );

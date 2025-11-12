@@ -50,16 +50,25 @@ export default function SpinWheel() {
     const prize = selectPrize();
     const prizeIndex = prizes.findIndex((p) => p.id === prize.id);
     const segmentAngle = 360 / prizes.length;
+
+    // Calculate target angle - normalize to 0-360 range
+    const normalizedRotation = rotation % 360;
     const targetAngle = 360 - (prizeIndex * segmentAngle + segmentAngle / 2);
-    const spins = 5; // Number of full rotations
-    const finalRotation = rotation + spins * 360 + targetAngle;
+
+    // Add multiple full rotations for dramatic effect
+    const spins = 8;
+    const finalRotation = normalizedRotation + spins * 360 + targetAngle;
 
     setRotation(finalRotation);
 
+    // Delay matches animation duration
     setTimeout(() => {
       setIsSpinning(false);
       setWonPrize(prize);
       setHasSpun(true);
+
+      // Normalize rotation after animation completes to prevent overflow
+      setRotation(finalRotation % 360);
 
       // Save to localStorage
       if (typeof window !== "undefined") {
@@ -69,7 +78,7 @@ export default function SpinWheel() {
           JSON.stringify({ code: `SPIN${prize.discount}`, discount: prize.label })
         );
       }
-    }, 4000);
+    }, 5000); // Match with animation duration
   };
 
   const copyCode = () => {
@@ -79,20 +88,41 @@ export default function SpinWheel() {
     }
   };
 
+  const resetSpin = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("spinWheelUsed");
+      localStorage.removeItem("wonDiscount");
+      setHasSpun(false);
+      setWonPrize(null);
+      setRotation(0);
+    }
+  };
+
   // Check if user already spun
   useEffect(() => {
     setMounted(true);
     if (typeof window !== "undefined") {
       const used = localStorage.getItem("spinWheelUsed");
-      console.log("SpinWheel - localStorage check:", used);
-      console.log("SpinWheel - hasSpun state:", hasSpun);
       if (used === "true") {
         setHasSpun(true);
+
+        // Load the saved prize
+        const savedPrize = localStorage.getItem("wonDiscount");
+        if (savedPrize) {
+          try {
+            const { code } = JSON.parse(savedPrize);
+            // Find the prize by discount code
+            const prize = prizes.find(p => `SPIN${p.discount}` === code);
+            if (prize) {
+              setWonPrize(prize);
+            }
+          } catch (e) {
+            // Invalid saved data, ignore
+          }
+        }
       }
     }
   }, []);
-
-  console.log("SpinWheel render - isOpen:", isOpen, "hasSpun:", hasSpun, "mounted:", mounted);
 
   if (!mounted) {
     return null;
@@ -102,7 +132,7 @@ export default function SpinWheel() {
     <>
       {/* Floating Trigger Button */}
       <AnimatePresence>
-        {!isOpen && !hasSpun && (
+        {!isOpen && (
           <motion.button
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -110,34 +140,40 @@ export default function SpinWheel() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-24 right-6 z-40 w-16 h-16 bg-gradient-to-br from-accent to-yellow-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:shadow-accent/50 transition-all"
-            aria-label="Spin to Win"
+            className={`fixed bottom-24 right-6 z-40 w-16 h-16 ${
+              hasSpun
+                ? "bg-gradient-to-br from-gray-400 to-gray-600"
+                : "bg-gradient-to-br from-accent to-yellow-600"
+            } text-white rounded-full shadow-2xl flex items-center justify-center hover:shadow-accent/50 transition-all`}
+            aria-label={hasSpun ? "View Your Prize" : "Spin to Win"}
           >
             <motion.div
               animate={{
-                rotate: [0, 360],
+                rotate: hasSpun ? 0 : [0, 360],
               }}
               transition={{
                 duration: 3,
-                repeat: Infinity,
+                repeat: hasSpun ? 0 : Infinity,
                 ease: "linear",
               }}
             >
               <Gift className="w-7 h-7" />
             </motion.div>
 
-            {/* Pulse indicator */}
-            <motion.div
-              className="absolute inset-0 bg-accent rounded-full"
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.5, 0, 0.5],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-              }}
-            />
+            {/* Pulse indicator - only when not spun */}
+            {!hasSpun && (
+              <motion.div
+                className="absolute inset-0 bg-accent rounded-full"
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.5, 0, 0.5],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                }}
+              />
+            )}
           </motion.button>
         )}
       </AnimatePresence>
@@ -187,20 +223,43 @@ export default function SpinWheel() {
 
               {/* Wheel Container */}
               <div className="relative w-72 h-72 mx-auto mb-6">
-                {/* Pointer */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20">
+                {/* Spinning glow effect */}
+                {isSpinning && (
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-gradient-to-r from-accent via-yellow-400 to-accent blur-xl opacity-50"
+                    animate={{
+                      scale: [1, 1.1, 1],
+                      opacity: [0.3, 0.6, 0.3],
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                    }}
+                  />
+                )}
+                {/* Pointer - with pulse animation when spinning */}
+                <motion.div
+                  className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20"
+                  animate={isSpinning ? {
+                    scale: [1, 1.2, 1],
+                  } : {}}
+                  transition={{
+                    duration: 0.5,
+                    repeat: isSpinning ? Infinity : 0,
+                  }}
+                >
                   <div className="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[25px] border-t-red-600 drop-shadow-lg" />
-                </div>
+                </motion.div>
 
                 {/* Wheel */}
                 <motion.div
                   className="relative w-full h-full rounded-full border-8 border-white shadow-2xl overflow-hidden"
-                  style={{
+                  animate={{
                     rotate: rotation,
                   }}
                   transition={{
-                    duration: 4,
-                    ease: "easeOut",
+                    duration: 5,
+                    ease: [0.17, 0.67, 0.12, 0.99], // Custom easing for deceleration
                   }}
                 >
                   {/* Wheel Segments */}
@@ -211,21 +270,29 @@ export default function SpinWheel() {
                     return (
                       <div
                         key={prize.id}
-                        className="absolute w-full h-full"
+                        className="absolute inset-0"
                         style={{
                           transform: `rotate(${rotation}deg)`,
+                          transformOrigin: "center",
                         }}
                       >
                         <div
-                          className="absolute top-0 left-1/2 origin-bottom w-36 h-36 -translate-x-1/2 flex items-start justify-center pt-4"
+                          className="absolute w-full h-full flex items-center justify-center"
                           style={{
-                            clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+                            clipPath: `polygon(50% 50%, 50% 0%, ${
+                              50 + 50 * Math.sin((segmentAngle * Math.PI) / 180)
+                            }% ${
+                              50 - 50 * Math.cos((segmentAngle * Math.PI) / 180)
+                            }%)`,
                             backgroundColor: prize.color,
                           }}
                         >
                           <span
-                            className="text-white font-bold text-sm transform rotate-0"
-                            style={{ transform: `rotate(${segmentAngle / 2}deg)` }}
+                            className="text-white font-bold text-sm absolute"
+                            style={{
+                              top: "25%",
+                              transform: "translateY(-50%)",
+                            }}
                           >
                             {prize.label}
                           </span>
@@ -248,9 +315,24 @@ export default function SpinWheel() {
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSpin}
                   disabled={isSpinning}
-                  className="w-full px-8 py-4 bg-gradient-to-r from-accent to-yellow-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                  className="w-full px-8 py-4 bg-gradient-to-r from-accent to-yellow-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg relative overflow-hidden"
                 >
-                  {isSpinning ? "SPINNING..." : "SPIN NOW!"}
+                  {isSpinning && (
+                    <motion.div
+                      className="absolute inset-0 bg-white/20"
+                      animate={{
+                        x: ["-100%", "100%"],
+                      }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                    />
+                  )}
+                  <span className="relative z-10">
+                    {isSpinning ? "🎰 SPINNING..." : "🎯 SPIN NOW!"}
+                  </span>
                 </motion.button>
               ) : (
                 <motion.div
@@ -287,6 +369,19 @@ export default function SpinWheel() {
               <p className="text-xs text-text-secondary text-center mt-4">
                 * One spin per customer. Valid for 7 days.
               </p>
+
+              {/* Reset Button for Testing (Dev Only - Remove in Production) */}
+              {hasSpun && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={resetSpin}
+                  className="w-full px-4 py-2 mt-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-300 transition-all"
+                  title="Reset spin (for testing)"
+                >
+                  🔄 Reset Spin (Test Mode)
+                </motion.button>
+              )}
             </motion.div>
           </motion.div>
         )}

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Menu, X, Search, User, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { navItemVariants, mobileMenuVariants } from "@/lib/motion-variants";
+import { useCart } from "@/contexts/CartContext";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -19,7 +20,8 @@ const navigation = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0); // TODO: Connect to cart state
+  const { getCartCount } = useCart();
+  const cartCount = getCartCount();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -103,24 +105,27 @@ export default function Navbar() {
               </motion.button>
 
               {/* Cart */}
-              <motion.button
-                className="relative p-2 hover:bg-primary/10 rounded-full transition-colors"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                aria-label="Shopping cart"
-              >
-                <ShoppingCart className="w-5 h-5 text-foreground" />
-                {cartCount > 0 && (
-                  <motion.span
-                    className="absolute -top-1 -right-1 bg-accent text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
+              <Link href="/cart">
+                <motion.button
+                  className="relative p-2 hover:bg-primary/10 rounded-full transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label="Shopping cart"
+                >
+                  <ShoppingCart className="w-5 h-5 text-foreground" />
+                  {cartCount > 0 && (
+                    <motion.span
+                      className="absolute -top-1 -right-1 bg-green-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      key={cartCount}
                     transition={{ type: "spring", stiffness: 500 }}
                   >
                     {cartCount}
                   </motion.span>
                 )}
               </motion.button>
+              </Link>
 
               {/* Mobile Menu Toggle */}
               <motion.button
