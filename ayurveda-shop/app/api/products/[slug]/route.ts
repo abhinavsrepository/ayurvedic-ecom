@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { productDetailsData } from '@/lib/data/productDetails';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // GET product by slug
@@ -13,7 +13,7 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
 
     // In a real app, this would fetch from a database
     const product = productDetailsData[slug];
@@ -40,7 +40,7 @@ export async function PUT(
   { params }: RouteParams
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const body = await request.json();
 
     // In a real app, this would update in a database
@@ -75,7 +75,7 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
 
     // In a real app, this would delete from a database
     const product = productDetailsData[slug];

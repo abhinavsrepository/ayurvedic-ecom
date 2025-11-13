@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Product } from '@/Product';
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  category: string;
+  inStock: boolean;
+  rating: number;
+  reviewCount: number;
+}
 
 // Initialize products in localStorage or return existing
 function getProducts(): Product[] {

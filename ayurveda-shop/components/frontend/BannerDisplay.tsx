@@ -24,7 +24,7 @@ export default function BannerDisplay({ position, autoPlay = true, interval = 50
 
   useEffect(() => {
     if (banners.length > 0) {
-      // Track impression
+      
       incrementBannerImpressions(banners[currentIndex].id);
     }
   }, [currentIndex, banners]);

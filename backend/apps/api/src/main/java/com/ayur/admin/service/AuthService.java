@@ -1,0 +1,202 @@
+package com.ayur.admin.service;
+
+import com.ayur.admin.domain.User;
+import com.ayur.admin.repository.UserRepository;
+import com.ayur.admin.security.JwtUtil;
+import com.ayur.admin.service.dto.*;
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AuthService {
+
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+    private final GoogleAuthenticator googleAuthenticator;
+
+    @Transactional
+    public LoginResponse login(LoginRequest request) {
+        // Authenticate user
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+
+        User user = userRepository.findByUsername(request.getUsername())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Check 2FA if enabled
+        if (Boolean.TRUE.equals(user.getTwoFaEnabled())) {
+            if (request.getTwoFaCode() == null || request.getTwoFaCode().isBlank()) {
+                throw new IllegalStateException("2FA code required");
+            }
+            if (!googleAuthenticator.authorize(user.getTwoFaSecret(), Integer.parseInt(request.getTwoFaCode()))) {
+                throw new IllegalStateException("Invalid 2FA code");
+            }
+        }
+
+        // Update last login
+        user.setLastLoginAt(Instant.now());
+        user.setFailedLoginAttempts(0);
+        userRepository.save(user);
+
+        // Generate tokens
+        UserDetails userDetails = org.springframework.security.core.userdetails.User
+            .withUsername(user.getUsername())
+            .password(user.getPassword())
+            .authorities(user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .collect(Collectors.toList()))
+            .build();
+
+        String accessToken = jwtUtil.generateAccessToken(userDetails);
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+        log.info("User {} logged in successfully", user.getUsername());
+
+        return LoginResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .tokenType("Bearer")
+            .expiresIn(900L) // 15 minutes
+            .user(LoginResponse.UserInfo.builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .roles(user.getRoles().stream()
+                    .map(role -> role.getName().name())
+                    .collect(Collectors.toSet()))
+                .twoFaEnabled(user.getTwoFaEnabled())
+                .build())
+            .build();
+    }
+
+    @Transactional
+    public LoginResponse refreshToken(String refreshToken) {
+        String username = jwtUtil.extractUsername(refreshToken);
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        UserDetails userDetails = org.springframework.security.core.userdetails.User
+            .withUsername(user.getUsername())
+            .password(user.getPassword())
+            .authorities(user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .collect(Collectors.toList()))
+            .build();
+
+        String newAccessToken = jwtUtil.generateAccessToken(userDetails);
+        String newRefreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+        return LoginResponse.builder()
+            .accessToken(newAccessToken)
+            .refreshToken(newRefreshToken)
+            .tokenType("Bearer")
+            .expiresIn(900L)
+            .build();
+    }
+
+    @Transactional
+    public void logout(String username) {
+        log.info("User {} logged out", username);
+        // In a real implementation, you would invalidate the JWT tokens
+        // by storing them in Redis with expiration
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileResponse getCurrentUserProfile(String username) {
+        User user = userRepository.findByUsernameWithRoles(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return UserProfileResponse.builder()
+            .id(user.getId())
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .fullName(user.getFullName())
+            .phoneNumber(user.getPhoneNumber())
+            .roles(user.getRoles().stream()
+                .map(role -> role.getName().name())
+                .collect(Collectors.toSet()))
+            .twoFaEnabled(user.getTwoFaEnabled())
+            .lastLoginAt(user.getLastLoginAt())
+            .createdAt(user.getCreatedAt())
+            .build();
+    }
+
+    @Transactional
+    public TwoFaEnableResponse enableTwoFa(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (Boolean.TRUE.equals(user.getTwoFaEnabled())) {
+            throw new IllegalStateException("2FA is already enabled");
+        }
+
+        GoogleAuthenticatorKey key = googleAuthenticator.createCredentials();
+        user.setTwoFaSecret(key.getKey());
+        userRepository.save(user);
+
+        String qrCodeUrl = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL(
+            "Ayurveda Admin",
+            user.getEmail(),
+            key
+        );
+
+        log.info("2FA setup initiated for user {}", username);
+
+        return TwoFaEnableResponse.builder()
+            .secret(key.getKey())
+            .qrCodeUrl(qrCodeUrl)
+            .build();
+    }
+
+    @Transactional
+    public void verifyTwoFa(String username, String code) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (user.getTwoFaSecret() == null) {
+            throw new IllegalStateException("2FA is not set up");
+        }
+
+        boolean isValid = googleAuthenticator.authorize(user.getTwoFaSecret(), Integer.parseInt(code));
+        if (!isValid) {
+            throw new IllegalStateException("Invalid 2FA code");
+        }
+
+        user.setTwoFaEnabled(true);
+        userRepository.save(user);
+
+        log.info("2FA enabled successfully for user {}", username);
+    }
+
+    @Transactional
+    public void disableTwoFa(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setTwoFaEnabled(false);
+        user.setTwoFaSecret(null);
+        userRepository.save(user);
+
+        log.info("2FA disabled for user {}", username);
+    }
+}
