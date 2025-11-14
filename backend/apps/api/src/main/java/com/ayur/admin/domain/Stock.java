@@ -1,3 +1,4 @@
+
 package com.ayur.admin.domain;
 
 import jakarta.persistence.*;

@@ -1,7 +1,7 @@
 plugins {
     java
     id("org.springframework.boot") version "3.2.5" apply false
-    id("io.spring.dependency-management") version "1.1.4" apply false
+    id("io.spring.dependency-management") version "1.1.5" apply false
     id("com.diffplug.spotless") version "6.25.0"
     id("com.github.spotbugs") version "6.0.7" apply false
     id("org.owasp.dependencycheck") version "9.0.9"
@@ -16,6 +16,7 @@ allprojects {
         mavenCentral()
         maven { url = uri("https://repo.spring.io/milestone") }
     }
+
 }
 
 subprojects {

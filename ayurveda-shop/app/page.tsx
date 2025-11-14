@@ -14,7 +14,7 @@ export default function Home() {
     <div className="min-h-screen">
       <Navbar />
 
-      <main>
+      <main id="main-content">
         {/* Hero Section */}
         <Hero />
 
@@ -80,9 +80,11 @@ export default function Home() {
                 <div
                   key={index}
                   className="text-center p-8 bg-secondary rounded-2xl hover:shadow-lg transition-shadow"
+                  role="article"
+                  aria-labelledby={`benefit-${index}`}
                 >
-                  <div className="text-5xl mb-4">{benefit.icon}</div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">
+                  <div className="text-5xl mb-4" role="img" aria-label={benefit.title}>{benefit.icon}</div>
+                  <h3 id={`benefit-${index}`} className="text-xl font-semibold text-foreground mb-3">
                     {benefit.title}
                   </h3>
                   <p className="text-text-secondary">

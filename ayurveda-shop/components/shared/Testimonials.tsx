@@ -123,9 +123,9 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
                       whileHover={{ scale: 1.1 }}
                     />
                     <div className="text-left">
-                      <h4 className="font-semibold text-lg text-foreground">
+                      <h3 className="font-semibold text-lg text-foreground">
                         {currentTestimonial.name}
-                      </h4>
+                      </h3>
                       <p className="text-text-muted text-sm">
                         {currentTestimonial.role}
                       </p>
@@ -168,10 +168,10 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
                   setDirection(index > currentIndex ? 1 : -1);
                   setCurrentIndex(index);
                 }}
-                className={`h-2 rounded-full transition-all ${
+                className={`h-3 rounded-full transition-all ${
                   index === currentIndex
                     ? "w-8 bg-primary"
-                    : "w-2 bg-primary/30 hover:bg-primary/50"
+                    : "w-3 bg-primary/30 hover:bg-primary/50"
                 }`}
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}

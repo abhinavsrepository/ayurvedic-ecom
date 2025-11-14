@@ -4,10 +4,19 @@ plugins {
     java
 }
 
-ext["snakeyaml.version"] = "1.33"
+// Force snakeyaml 1.33 to avoid Android variant issues
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.yaml" && requested.name == "snakeyaml") {
+            useVersion("1.33")
+            because("Android variant not available for 2.x versions")
+        }
+    }
+    exclude(group = "org.yaml", module = "snakeyaml")
+}
 
 dependencies {
-    // Fix snakeyaml android variant issue
+    // Add snakeyaml 1.33 as a direct dependency first
     implementation("org.yaml:snakeyaml:1.33")
 
     // Spring Boot Starters

@@ -161,13 +161,16 @@ export default function ShopPage() {
           <div className="flex gap-4 mb-8">
             {/* Search Bar */}
             <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+              <label htmlFor="product-search" className="sr-only">Search products</label>
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" aria-hidden="true" />
               <input
+                id="product-search"
                 type="text"
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-primary outline-none transition-colors"
+                aria-label="Search products"
               />
             </div>
 
@@ -175,11 +178,12 @@ export default function ShopPage() {
             <button
               onClick={() => setShowMobileFilters(true)}
               className="lg:hidden flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-full font-semibold relative"
+              aria-label={`Open filters ${activeFiltersCount > 0 ? `(${activeFiltersCount} active)` : ''}`}
             >
-              <SlidersHorizontal className="w-5 h-5" />
+              <SlidersHorizontal className="w-5 h-5" aria-hidden="true" />
               Filters
               {activeFiltersCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-6 h-6 rounded-full flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-6 h-6 rounded-full flex items-center justify-center" aria-label={`${activeFiltersCount} active filters`}>
                   {activeFiltersCount}
                 </span>
               )}
@@ -217,11 +221,15 @@ export default function ShopPage() {
 
                 {/* Sort Dropdown */}
                 <div className="relative group">
-                  <button className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-full hover:border-primary transition-colors">
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-full hover:border-primary transition-colors"
+                    aria-label="Sort products"
+                    aria-haspopup="true"
+                  >
                     <span className="text-sm font-medium">
                       Sort: {sortBy === "featured" ? "Featured" : sortBy === "price-low" ? "Price: Low to High" : sortBy === "price-high" ? "Price: High to Low" : sortBy === "rating" ? "Highest Rated" : "Newest"}
                     </span>
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="w-4 h-4" aria-hidden="true" />
                   </button>
                   <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
                     {[
@@ -304,8 +312,9 @@ export default function ShopPage() {
                   <button
                     onClick={() => setShowMobileFilters(false)}
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    aria-label="Close filters"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-6 h-6" aria-hidden="true" />
                   </button>
                 </div>
                 <FilterSidebar
@@ -381,7 +390,7 @@ function FilterSidebar({
 
       {/* Category Filter */}
       <div>
-        <h3 className="font-semibold text-lg text-foreground mb-3">Category</h3>
+        <h2 className="font-semibold text-lg text-foreground mb-3">Category</h2>
         <div className="space-y-2">
           {categories.map((category) => (
             <button
@@ -401,7 +410,7 @@ function FilterSidebar({
 
       {/* Dosha Type Filter */}
       <div>
-        <h3 className="font-semibold text-lg text-foreground mb-3">Dosha Type</h3>
+        <h2 className="font-semibold text-lg text-foreground mb-3">Dosha Type</h2>
         <div className="space-y-2">
           {doshaTypes.map((dosha) => (
             <button
@@ -422,7 +431,7 @@ function FilterSidebar({
 
       {/* Price Range Filter */}
       <div>
-        <h3 className="font-semibold text-lg text-foreground mb-3">Price Range</h3>
+        <h2 className="font-semibold text-lg text-foreground mb-3">Price Range</h2>
         <div className="space-y-2">
           {priceRanges.map((range, index) => (
             <button
@@ -448,7 +457,7 @@ function FilterSidebar({
 
       {/* Benefits Filter */}
       <div>
-        <h3 className="font-semibold text-lg text-foreground mb-3">Benefits</h3>
+        <h2 className="font-semibold text-lg text-foreground mb-3">Benefits</h2>
         <div className="flex flex-wrap gap-2">
           {benefits.map((benefit) => (
             <button

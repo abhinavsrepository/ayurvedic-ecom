@@ -83,6 +83,7 @@ export default function BannerDisplay({ position, autoPlay = true, interval = 50
           <button
             onClick={() => setShowPopup(false)}
             className="absolute top-4 right-4 z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100"
+            aria-label="Close banner"
           >
             <X className="w-5 h-5 text-gray-600" />
           </button>
@@ -99,7 +100,7 @@ export default function BannerDisplay({ position, autoPlay = true, interval = 50
             <div
               className="absolute inset-0 flex flex-col items-center justify-center text-center p-8"
               style={{
-                backgroundColor: currentBanner.backgroundColor ? `${currentBanner.backgroundColor}cc` : '#10b981cc',
+                backgroundColor: currentBanner.backgroundColor ? `${currentBanner.backgroundColor}ee` : '#10b981ee',
                 color: currentBanner.textColor || '#ffffff',
               }}
             >
@@ -176,7 +177,7 @@ export default function BannerDisplay({ position, autoPlay = true, interval = 50
           <div
             className="absolute inset-0 flex flex-col items-start justify-center p-8 md:p-12"
             style={{
-              backgroundColor: currentBanner.backgroundColor ? `${currentBanner.backgroundColor}cc` : 'transparent',
+              backgroundColor: currentBanner.backgroundColor ? `${currentBanner.backgroundColor}ee` : 'rgba(0, 0, 0, 0.6)',
               color: currentBanner.textColor || '#ffffff',
             }}
           >
@@ -212,12 +213,14 @@ export default function BannerDisplay({ position, autoPlay = true, interval = 50
           <button
             onClick={prevBanner}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-lg hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Previous banner"
           >
             <ChevronLeft className="w-6 h-6 text-gray-900" />
           </button>
           <button
             onClick={nextBanner}
             className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-lg hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Next banner"
           >
             <ChevronRight className="w-6 h-6 text-gray-900" />
           </button>
@@ -228,11 +231,12 @@ export default function BannerDisplay({ position, autoPlay = true, interval = 50
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-all ${
+                className={`w-3 h-3 rounded-full transition-all ${
                   idx === currentIndex
                     ? 'bg-white w-8'
                     : 'bg-white/50 hover:bg-white/75'
                 }`}
+                aria-label={`Go to banner ${idx + 1}`}
               />
             ))}
           </div>

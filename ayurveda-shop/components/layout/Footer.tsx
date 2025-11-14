@@ -111,6 +111,7 @@ export default function Footer() {
                   )}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  aria-label="Subscribe to newsletter"
                 >
                   {isSubmitting ? "..." : <Send className="w-4 h-4" />}
                 </motion.button>

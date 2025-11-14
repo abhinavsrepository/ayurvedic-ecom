@@ -40,9 +40,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        {/* Performance: Preconnect to external domains */}
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://i.pravatar.cc" />
+        <link rel="dns-prefetch" href="https://i.pravatar.cc" />
+      </head>
       <body
         className={`${inter.variable} ${playfair.variable} antialiased`}
       >
+        {/* Accessibility: Skip to main content link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg"
+        >
+          Skip to main content
+        </a>
+
         <CartProvider>
           <Toaster position="top-right" richColors />
           {children}
