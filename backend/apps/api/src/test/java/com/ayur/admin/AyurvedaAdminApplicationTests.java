@@ -8,8 +8,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class AyurvedaAdminApplicationTests {
 
-    @Test
-    void contextLoads() {
-        // Test that Spring context loads successfully
-    }
+  @Test
+  void contextLoads() {
+    // Test that Spring context loads successfully
+  }
 }

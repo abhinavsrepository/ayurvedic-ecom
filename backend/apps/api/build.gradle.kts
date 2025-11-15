@@ -1,25 +1,17 @@
 plugins {
-    id("org.springframework.boot")
-    id("io.spring.dependency-management")
+    id("org.springframework.boot")          // no version here
+    id("io.spring.dependency-management")   // no version here
     java
 }
-
-// Force snakeyaml 1.33 to avoid Android variant issues
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.yaml" && requested.name == "snakeyaml") {
-            useVersion("1.33")
-            because("Android variant not available for 2.x versions")
-        }
-    }
-    exclude(group = "org.yaml", module = "snakeyaml")
-}
+// Force Hibernate 6.4.4 to avoid HBX-6.2 regression
+ext["hibernate.version"] = "6.4.4.Final"
 
 dependencies {
-    // Add snakeyaml 1.33 as a direct dependency first
+    // SnakeYAML 1.33 - compatible with Spring Boot 3.1.6 (no Android variant issues)
     implementation("org.yaml:snakeyaml:1.33")
+    implementation("org.hibernate.orm:hibernate-envers")
 
-    // Spring Boot Starters
+    // Spring Boot Starters (Envers is pulled automatically by the platform)
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
@@ -30,10 +22,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-cache")
 
     // Database
-    runtimeOnly("org.postgresql:postgresql:42.7.3")
+     runtimeOnly("org.postgresql:postgresql:42.7.3")
     implementation("org.flywaydb:flyway-core:10.10.0")
     implementation("org.flywaydb:flyway-database-postgresql:10.10.0")
-    implementation("org.hibernate.orm:hibernate-envers:6.4.4.Final")
+    implementation("org.hibernate.orm:hibernate-envers")  
+    // Hibernate Envers is provided by the platform at 6.4.4.Final
 
     // Redis
     implementation("io.lettuce:lettuce-core")
@@ -75,4 +68,12 @@ tasks.bootJar {
 
 tasks.test {
     useJUnitPlatform()
+}
+allprojects {
+    group = "com.ayur"
+    version = "0.0.1-SNAPSHOT"
+
+    repositories {
+        mavenCentral()
+    }
 }

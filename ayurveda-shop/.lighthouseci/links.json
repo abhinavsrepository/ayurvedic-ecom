@@ -1,0 +1,5 @@
+{
+  "http://localhost:3000/": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1763123203780-2369.report.html",
+  "http://localhost:3000/shop": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1763123205512-80401.report.html",
+  "http://localhost:3000/product/ashwagandha": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1763123207381-58198.report.html"
+}

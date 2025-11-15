@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { getMockSocket } from '@/lib/mocks/socket';
 import { toast, Toaster } from 'sonner';
+import { AdminAuthProvider, useAdminAuth } from '@/contexts/AdminAuthContext';
+import ProtectedRoute from '@/components/admin/ProtectedRoute';
 
 interface NavItem {
   name: string;
@@ -33,27 +35,27 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['admin', 'ops', 'finance'] },
-  { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, roles: ['admin', 'ops', 'finance'] },
-  { name: 'Products', href: '/admin/products', icon: Package, roles: ['admin', 'ops'] },
-  { name: 'Inventory', href: '/admin/inventory', icon: Package, roles: ['admin', 'ops'] },
-  { name: 'Customers', href: '/admin/customers', icon: Users, roles: ['admin', 'ops'] },
-  { name: 'Banners', href: '/admin/banners', icon: Image, roles: ['admin', 'ops'] },
-  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, roles: ['admin', 'finance'] },
-  { name: 'Traffic Sources', href: '/admin/traffic-sources', icon: Globe, roles: ['admin', 'finance'] },
-  { name: 'Device Analytics', href: '/admin/device-analytics', icon: Smartphone, roles: ['admin', 'finance'] },
-  { name: 'Geographic', href: '/admin/geographic', icon: MapPin, roles: ['admin', 'finance'] },
-  { name: 'ML & AI', href: '/admin/ml', icon: Brain, roles: ['admin'] },
-  { name: 'Settings', href: '/admin/settings', icon: Settings, roles: ['admin'] },
+  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['ROLE_ADMIN', 'ROLE_OPS', 'ROLE_FINANCE'] },
+  { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, roles: ['ROLE_ADMIN', 'ROLE_OPS', 'ROLE_FINANCE'] },
+  { name: 'Products', href: '/admin/products', icon: Package, roles: ['ROLE_ADMIN', 'ROLE_OPS'] },
+  { name: 'Inventory', href: '/admin/inventory', icon: Package, roles: ['ROLE_ADMIN', 'ROLE_OPS'] },
+  { name: 'Customers', href: '/admin/customers', icon: Users, roles: ['ROLE_ADMIN', 'ROLE_OPS'] },
+  { name: 'Banners', href: '/admin/banners', icon: Image, roles: ['ROLE_ADMIN', 'ROLE_OPS'] },
+  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, roles: ['ROLE_ADMIN', 'ROLE_FINANCE'] },
+  { name: 'Traffic Sources', href: '/admin/traffic-sources', icon: Globe, roles: ['ROLE_ADMIN', 'ROLE_FINANCE'] },
+  { name: 'Device Analytics', href: '/admin/device-analytics', icon: Smartphone, roles: ['ROLE_ADMIN', 'ROLE_FINANCE'] },
+  { name: 'Geographic', href: '/admin/geographic', icon: MapPin, roles: ['ROLE_ADMIN', 'ROLE_FINANCE'] },
+  { name: 'ML & AI', href: '/admin/ml', icon: Brain, roles: ['ROLE_ADMIN'] },
+  { name: 'Settings', href: '/admin/settings', icon: Settings, roles: ['ROLE_ADMIN'] },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [userRole] = useState<string>('admin'); // Mock role
   const [notifications, setNotifications] = useState(0);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { user, logout } = useAdminAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -111,7 +113,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   };
 
-  const filteredNav = navigation.filter(item => item.roles.includes(userRole));
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user) return 'AD';
+    const names = user.fullName.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[1][0]}`.toUpperCase();
+    }
+    return user.fullName.substring(0, 2).toUpperCase();
+  };
+
+  // Filter navigation based on user roles
+  const filteredNav = navigation.filter(item => {
+    if (!user) return false;
+    return item.roles.some(role => user.roles.includes(role));
+  });
 
   // Prevent hydration mismatch
   if (!mounted) {
@@ -168,17 +192,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-medium">AD</span>
+                <span className="text-white font-medium">{getUserInitials()}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  Admin User
+                  {user?.fullName || 'Admin User'}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate capitalize">
-                  {userRole}
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {user?.email || 'admin@ayurveda.com'}
                 </p>
               </div>
-              <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <button
+                onClick={handleLogout}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                title="Logout"
+              >
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
@@ -232,5 +260,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
       )}
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AdminAuthProvider>
+      <ProtectedRoute>
+        <AdminLayoutContent>{children}</AdminLayoutContent>
+      </ProtectedRoute>
+    </AdminAuthProvider>
   );
 }

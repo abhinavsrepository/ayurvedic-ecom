@@ -1,0 +1,34 @@
+[
+  {
+    "name": "minScore",
+    "expected": 0.9,
+    "actual": 0.59,
+    "values": [
+      0.59,
+      0.59,
+      0.59
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "accessibility",
+    "auditId": "categories",
+    "level": "error",
+    "url": "http://localhost:3000/shop"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.9,
+    "actual": 0.67,
+    "values": [
+      0.67,
+      0.67,
+      0.67
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "seo",
+    "auditId": "categories",
+    "level": "error",
+    "url": "http://localhost:3000/shop"
+  }
+]

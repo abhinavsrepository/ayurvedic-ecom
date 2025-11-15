@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -30,6 +30,13 @@ export default function CheckoutPage() {
   const shipping = subtotal > 999 ? 0 : 50;
   const tax = Math.round(subtotal * 0.18);
   const total = subtotal + shipping + tax;
+
+  // Redirect to cart if empty - must be in useEffect to avoid setState during render
+  useEffect(() => {
+    if (items.length === 0) {
+      router.push('/cart');
+    }
+  }, [items.length, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -71,8 +78,8 @@ export default function CheckoutPage() {
     router.push(`/order-success?orderId=${order.id}`);
   };
 
+  // Show loading state while redirecting if cart is empty
   if (items.length === 0) {
-    router.push('/cart');
     return null;
   }
 

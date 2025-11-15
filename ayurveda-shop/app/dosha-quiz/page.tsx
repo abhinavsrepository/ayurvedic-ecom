@@ -11,6 +11,8 @@ import {
 } from "@/lib/data/doshaQuiz";
 import { fadeInUp } from "@/lib/motion-variants";
 import Link from "next/link";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 export default function DoshaQuizPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -82,8 +84,10 @@ export default function DoshaQuizPage() {
   const isAnswered = answers[currentQuestion] !== undefined;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-secondary via-white to-secondary py-12">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-b from-secondary via-white to-secondary">
+      <Navbar />
+      <main id="main-content" className="py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <motion.div
           className="text-center mb-8"
@@ -235,7 +239,9 @@ export default function DoshaQuizPage() {
             )}
           </motion.button>
         </div>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
@@ -252,8 +258,10 @@ function QuizResults({
   const doshaInfo = doshaInformation[dominantDosha.dosha];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-secondary via-white to-secondary py-12">
-      <div className="container mx-auto px-4 max-w-5xl">
+    <div className="min-h-screen bg-gradient-to-b from-secondary via-white to-secondary">
+      <Navbar />
+      <main id="main-content" className="py-12">
+        <div className="container mx-auto px-4 max-w-5xl">
         {/* Header */}
         <motion.div
           className="text-center mb-12"
@@ -432,7 +440,9 @@ function QuizResults({
             Retake Quiz
           </motion.button>
         </motion.div>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

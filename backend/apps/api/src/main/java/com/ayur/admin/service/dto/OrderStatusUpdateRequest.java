@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderStatusUpdateRequest {
 
-    @NotBlank(message = "Status is required")
-    private String status;
+  @NotBlank(message = "Status is required")
+  private String status;
 
-    private String paymentStatus;
-    private String fulfillmentStatus;
-    private String trackingNumber;
-    private String carrier;
-    private String notes;
+  private String paymentStatus;
+  private String fulfillmentStatus;
+  private String trackingNumber;
+  private String carrier;
+  private String notes;
 }

@@ -1,12 +1,13 @@
 spring:
   application:
     name: ayurveda-admin-api
+  
 
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/ayurveda_admin}
+    url: jdbc:postgresql://localhost:5432/ayurveda_admin?user=postgres&password=postgres&sslmode=disable
     username: ${DATABASE_USERNAME:postgres}
     password: ${DATABASE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -16,6 +17,9 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+      leak-detection-threshold: 5000
+      connection-test-query: "SELECT 1"
+      validation-timeout: 2000
 
   jpa:
     hibernate:
@@ -123,6 +127,9 @@ logging:
     org.springframework.security: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.zaxxer.hikari: DEBUG
+    org.postgresql: DEBUG
+    sun.net.www.protocol.http: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 

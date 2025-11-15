@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class AyurvedaAdminApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(AyurvedaAdminApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(AyurvedaAdminApplication.class, args);
+  }
 }

@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TwoFaEnableResponse {
-    private String secret;
-    private String qrCodeUrl;
+  private String secret;
+  private String qrCodeUrl;
 }
