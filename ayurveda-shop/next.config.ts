@@ -17,6 +17,25 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.pravatar.cc",
       },
+      // AWS S3 bucket - Update with your bucket name
+      {
+        protocol: "https",
+        hostname: "ayurveda-uploads.s3.us-east-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "ayurveda-uploads.s3.amazonaws.com",
+      },
+      // CloudFront CDN (if configured)
+      {
+        protocol: "https",
+        hostname: "*.cloudfront.net",
+      },
+      // Cloudinary (alternative to S3)
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
     ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
