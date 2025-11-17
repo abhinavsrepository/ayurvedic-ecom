@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Hero from "@/components/shared/Hero";
@@ -8,10 +9,77 @@ import BeforeAfter from "@/components/shared/BeforeAfter";
 import VideoTestimonials from "@/components/shared/VideoTestimonials";
 import BannerDisplay from "@/components/frontend/BannerDisplay";
 import { featuredProducts, testimonials, wisdomPosts, beforeAfterData, videoTestimonials } from "@/lib/data/products";
+import { generatePageMetadata, REVALIDATION_TIMES } from '@/lib/seo/config';
+import StructuredData, { generateArticleSchema } from '@/components/seo/StructuredData';
+
+// Enable ISR - revalidate homepage every 30 minutes
+export const revalidate = REVALIDATION_TIMES.homepage;
+
+// Enhanced homepage metadata
+export const metadata: Metadata = generatePageMetadata({
+  title: 'Ayurveda Haven - Pure Herbal & Natural Wellness Products',
+  description: 'Discover the healing power of Ayurveda. Premium herbal supplements, natural oils, and wellness products for holistic health. 100% organic, cruelty-free, and sustainably sourced. Free shipping on orders above ₹999.',
+  path: '/',
+  keywords: [
+    'ayurvedic products',
+    'herbal supplements',
+    'natural wellness',
+    'organic ayurveda',
+    'ayurvedic oils',
+    'natural skincare',
+    'herbal remedies',
+    'holistic health',
+    'dosha balance',
+    'ayurvedic medicine',
+  ],
+});
+
+// Generate FAQ schema for homepage
+const homepageFAQ = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What is Ayurveda?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Ayurveda is an ancient Indian system of natural and holistic medicine. It uses natural herbs, oils, and lifestyle practices to promote health and wellness.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Are your products 100% natural?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, all our products are 100% natural, organic, and cruelty-free. We source our ingredients from trusted farms and use traditional Ayurvedic formulations.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do you offer free shipping?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, we offer free shipping on all orders above ₹999. Orders below this amount have a nominal shipping fee.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How long does delivery take?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Typically, orders are delivered within 3-7 business days depending on your location. We use trusted courier partners to ensure safe delivery.',
+      },
+    },
+  ],
+};
 
 export default function Home() {
   return (
     <div className="min-h-screen">
+      {/* FAQ Structured Data */}
+      <StructuredData data={homepageFAQ} />
+
       <Navbar />
 
       <main id="main-content">
