@@ -72,3 +72,11 @@ export function debounce<T extends (...args: any[]) => any>(
     timeout = setTimeout(later, wait)
   }
 }
+
+// Alias for formatCurrency for backward compatibility
+export const formatPrice = formatCurrency
+
+export function calculateDiscount(originalPrice: number, discountedPrice: number): number {
+  if (originalPrice <= 0) return 0
+  return Math.round(((originalPrice - discountedPrice) / originalPrice) * 100)
+}

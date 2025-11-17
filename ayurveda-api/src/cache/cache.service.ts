@@ -6,7 +6,7 @@
 
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class CacheService {
@@ -75,7 +75,8 @@ export class CacheService {
    */
   async reset(): Promise<void> {
     try {
-      await this.cacheManager.reset();
+      // Type assertion needed as reset() is not in the current Cache type definition
+      await (this.cacheManager as any).reset();
       this.logger.warn('Cache RESET: All keys cleared');
     } catch (error) {
       this.logger.error('Cache RESET error:', error);

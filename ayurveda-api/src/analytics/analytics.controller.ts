@@ -22,7 +22,7 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { AnalyticsService } from './analytics.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { CreateDeviceDto } from './dto/create-device.dto';

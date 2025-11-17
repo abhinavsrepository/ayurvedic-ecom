@@ -28,7 +28,8 @@ import { CacheService } from './cache.service';
 
         return {
           store: store as any,
-        };
+          ttl: parseInt(process.env.CACHE_TTL || '3600') * 1000,
+        } as any;
       },
     }),
   ],
