@@ -1,17 +1,65 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, Download, AlertTriangle, TrendingDown, Package } from 'lucide-react';
-import { getMockProducts, saveMockProducts } from '@/lib/mocks/products';
-import type { Product } from '@/lib/mocks/products';
+import type { Product } from '@/types/product';
 import { toast } from 'sonner';
 
 export default function InventoryPage() {
-  const [products, setProducts] = useState<Product[]>(getMockProducts());
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
   const [editingStock, setEditingStock] = useState<string | null>(null);
   const [stockValues, setStockValues] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/products');
+      const data = await response.json();
+
+      if (data.success && data.products) {
+        // Transform products to include inventory fields
+        const productsWithInventory = data.products.map((p: any) => ({
+          ...p,
+          stock: p.stock || 0,
+          lowStockThreshold: p.lowStockThreshold || 20,
+          sku: p.sku || p.id,
+          mrp: p.mrp || p.price,
+          status: p.status || 'active',
+          variants: p.variants || [],
+          images: p.images || [],
+          ingredients: p.ingredients || [],
+          benefits: p.benefits || [],
+          createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
+          updatedAt: p.updatedAt ? new Date(p.updatedAt) : new Date(),
+        }));
+        setProducts(productsWithInventory);
+      } else {
+        setProducts([]);
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch products:', error);
+
+      // Handle 401 errors differently (authentication issues)
+      if (error.response?.status === 401) {
+        // Don't show error toast - the API client will handle redirect to login
+        setProducts([]);
+      } else {
+        toast.error('Failed to load inventory', {
+          description: 'Please check if the backend is running'
+        });
+        setProducts([]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredProducts = useMemo(() => {
     let filtered = products.filter(product =>
@@ -41,21 +89,46 @@ export default function InventoryPage() {
     setStockValues({ ...stockValues, [productId]: currentStock });
   };
 
-  const handleStockSave = (productId: string) => {
+  const handleStockSave = async (productId: string) => {
     const newStock = stockValues[productId];
     if (newStock === undefined || newStock < 0) {
       toast.error('Invalid stock value');
       return;
     }
 
-    const updatedProducts = products.map(p =>
-      p.id === productId ? { ...p, stock: newStock, updatedAt: new Date() } : p
-    );
+    try {
+      // Update product via API
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
 
-    setProducts(updatedProducts);
-    saveMockProducts(updatedProducts);
-    setEditingStock(null);
-    toast.success('Stock updated successfully');
+      const response = await fetch(`/api/products/${product.slug || product.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...product,
+          stock: newStock,
+          updatedAt: new Date(),
+        }),
+      });
+
+      if (response.ok) {
+        const updatedProducts = products.map(p =>
+          p.id === productId ? { ...p, stock: newStock, updatedAt: new Date() } : p
+        );
+        setProducts(updatedProducts);
+        setEditingStock(null);
+        toast.success('Stock updated successfully');
+      } else {
+        toast.error('Failed to update stock');
+      }
+    } catch (error) {
+      console.error('Error updating stock:', error);
+      toast.error('Failed to update stock', {
+        description: 'Please check if the backend is running'
+      });
+    }
   };
 
   const handleExportCSV = () => {
@@ -79,6 +152,17 @@ export default function InventoryPage() {
     a.download = `inventory-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading inventory...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -217,15 +301,31 @@ export default function InventoryPage() {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredProducts.map((product) => {
-                const isLowStock = product.stock <= product.lowStockThreshold;
-                const isOutOfStock = product.stock === 0;
-                const isEditing = editingStock === product.id;
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-6 py-12 text-center">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Package className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                      <p className="text-lg font-medium">No products found</p>
+                      <p className="text-sm mt-2">
+                        {products.length === 0
+                          ? 'No products in the inventory yet. Products will appear here once they are added to the backend.'
+                          : 'Try adjusting your search criteria.'
+                        }
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredProducts.map((product) => {
+                  const isLowStock = product.stock <= product.lowStockThreshold;
+                  const isOutOfStock = product.stock === 0;
+                  const isEditing = editingStock === product.id;
 
-                return (
-                  <tr key={product.id} className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${
-                    isOutOfStock ? 'bg-red-50 dark:bg-red-900/10' : isLowStock ? 'bg-orange-50 dark:bg-orange-900/10' : ''
-                  }`}>
+                  return (
+                    <tr key={product.id} className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                      isOutOfStock ? 'bg-red-50 dark:bg-red-900/10' : isLowStock ? 'bg-orange-50 dark:bg-orange-900/10' : ''
+                    }`}>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center flex-shrink-0">
@@ -310,7 +410,8 @@ export default function InventoryPage() {
                     </td>
                   </tr>
                 );
-              })}
+              })
+              )}
             </tbody>
           </table>
         </div>

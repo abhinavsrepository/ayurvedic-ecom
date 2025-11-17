@@ -101,7 +101,7 @@ public class RegistrationController {
               .password(user.getPassword())
               .authorities(
                   user.getRoles().stream()
-                      .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                      .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().name()))
                       .collect(Collectors.toList()))
               .build();
 

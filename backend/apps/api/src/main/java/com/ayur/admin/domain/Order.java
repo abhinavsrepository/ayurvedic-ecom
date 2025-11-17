@@ -111,8 +111,8 @@ public class Order {
   private String cancelledReason;
 
   @CreatedDate
-@Column(name = "created_at", nullable = false, updatable = false)
-private Instant createdAt;
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private Instant createdAt;
 
   @LastModifiedDate
   @Column(nullable = false)

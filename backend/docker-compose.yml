@@ -72,33 +72,34 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ayurveda-api
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=local
-      - DATABASE_URL=jdbc:postgresql://postgres:5432/ayurveda_admin
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/ayurveda_admin?sslmode=disable
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - PYTHON_ML_SERVICE_HOST=python-ml-service
-      - PYTHON_ML_SERVICE_PORT=50051
-      - JWT_SECRET=your-secret-key-here-change-in-production-minimum-256-bits-required-for-HS256
-      - MOCK_DATA_ENABLED=true
+      - JWT_SECRET=your-secret-key-here-change-in-production-minimum-256-bits-required-for-HS256-algorithm
+      - MOCK_DATA_ENABLED=false
+      - ADMIN_UI_URL=http://localhost:3000
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-      # python-ml-service:
-      #   condition: service_started
-    volumes:
-      - ./apps/api/src:/app/src
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 60s
+    networks:
+      - ayur-net
 
 volumes:
   postgres_data:

@@ -7,7 +7,7 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ayurveda_admin?user=postgres&password=postgres&sslmode=disable
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ayurveda_admin?user=postgres&password=postgres&sslmode=disable}
     username: ${DATABASE_USERNAME:postgres}
     password: ${DATABASE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver

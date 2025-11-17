@@ -1,0 +1,456 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username              String     @unique @db.VarChar(100)
+  email                 String     @unique @db.VarChar(255)
+  password              String     @db.VarChar(255)
+  full_name             String?    @db.VarChar(200)
+  phone_number          String?    @db.VarChar(20)
+  enabled               Boolean    @default(true)
+  account_locked        Boolean?   @default(false)
+  two_fa_enabled        Boolean?   @default(false)
+  two_fa_secret         String?    @db.VarChar(255)
+  last_login_at         DateTime?  @db.Timestamp(6)
+  failed_login_attempts Int?       @default(0)
+  created_at            DateTime   @default(now()) @db.Timestamp(6)
+  updated_at            DateTime   @default(now()) @db.Timestamp(6)
+  version               BigInt?    @default(0)
+  user_roles            UserRole[]
+
+  @@index([email], map: "idx_user_email")
+  @@index([username], map: "idx_user_username")
+  @@map("users")
+}
+
+model Role {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String     @unique @db.VarChar(50)
+  description String?    @db.VarChar(500)
+  created_at  DateTime   @default(now()) @db.Timestamp(6)
+  user_roles  UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  user_id String @db.Uuid
+  role_id String @db.Uuid
+  roles   Role   @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, role_id])
+  @@map("user_roles")
+}
+
+model Product {
+  id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sku               String           @unique @db.VarChar(100)
+  name              String           @db.VarChar(500)
+  slug              String           @unique @db.VarChar(200)
+  description       String?
+  short_description String?          @db.VarChar(1000)
+  price             Decimal          @db.Decimal(10, 2)
+  compare_at_price  Decimal?         @db.Decimal(10, 2)
+  cost_price        Decimal?         @db.Decimal(10, 2)
+  status            String           @default("DRAFT") @db.VarChar(50)
+  category          String?          @db.VarChar(200)
+  brand             String?          @db.VarChar(200)
+  weight_grams      Int?
+  is_featured       Boolean?         @default(false)
+  seo_title         String?          @db.VarChar(200)
+  seo_description   String?          @db.VarChar(500)
+  deleted_at        DateTime?        @db.Timestamp(6)
+  created_at        DateTime         @default(now()) @db.Timestamp(6)
+  updated_at        DateTime         @default(now()) @db.Timestamp(6)
+  version           BigInt?          @default(0)
+  order_items       OrderItem[]
+  product_images    product_images[] @ignore
+  product_tags      product_tags[]   @ignore
+  stock             stock[]
+
+  @@index([sku], map: "idx_product_sku")
+  @@index([slug], map: "idx_product_slug")
+  @@index([status], map: "idx_product_status")
+  @@map("products")
+}
+
+model Order {
+  id                     String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_number           String      @unique @db.VarChar(50)
+  customer_id            String      @db.Uuid
+  status                 String      @default("PENDING") @db.VarChar(50)
+  payment_status         String      @default("PENDING") @db.VarChar(50)
+  fulfillment_status     String?     @default("UNFULFILLED") @db.VarChar(50)
+  subtotal               Decimal     @default(0) @db.Decimal(10, 2)
+  tax_amount             Decimal?    @default(0) @db.Decimal(10, 2)
+  shipping_amount        Decimal?    @default(0) @db.Decimal(10, 2)
+  discount_amount        Decimal?    @default(0) @db.Decimal(10, 2)
+  total                  Decimal     @default(0) @db.Decimal(10, 2)
+  coupon_code            String?     @db.VarChar(50)
+  shipping_address_line1 String?     @db.VarChar(255)
+  shipping_address_line2 String?     @db.VarChar(255)
+  shipping_city          String?     @db.VarChar(100)
+  shipping_state         String?     @db.VarChar(100)
+  shipping_postal_code   String?     @db.VarChar(20)
+  shipping_country       String?     @db.VarChar(100)
+  tracking_number        String?     @db.VarChar(100)
+  carrier                String?     @db.VarChar(100)
+  utm_source             String?     @db.VarChar(100)
+  utm_medium             String?     @db.VarChar(100)
+  utm_campaign           String?     @db.VarChar(100)
+  notes                  String?
+  cancelled_at           DateTime?   @db.Timestamp(6)
+  cancelled_reason       String?     @db.VarChar(500)
+  created_at             DateTime    @default(now()) @db.Timestamp(6)
+  updated_at             DateTime    @default(now()) @db.Timestamp(6)
+  version                BigInt?     @default(0)
+  order_items            OrderItem[]
+  customers              Customer    @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([created_at], map: "idx_order_created_at")
+  @@index([customer_id], map: "idx_order_customer")
+  @@index([order_number], map: "idx_order_number")
+  @@index([status], map: "idx_order_status")
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id        String   @db.Uuid
+  product_id      String   @db.Uuid
+  sku             String   @db.VarChar(100)
+  product_name    String   @db.VarChar(500)
+  quantity        Int
+  unit_price      Decimal  @db.Decimal(10, 2)
+  line_total      Decimal  @db.Decimal(10, 2)
+  discount_amount Decimal? @default(0) @db.Decimal(10, 2)
+  created_at      DateTime @default(now()) @db.Timestamp(6)
+  version         BigInt?  @default(0)
+  orders          Order    @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  products        Product  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("order_items")
+}
+
+model Customer {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                 String    @unique @db.VarChar(255)
+  first_name            String    @db.VarChar(100)
+  last_name             String    @db.VarChar(100)
+  phone_number          String?   @db.VarChar(20)
+  total_orders          Int?      @default(0)
+  total_spent           Decimal?  @default(0) @db.Decimal(10, 2)
+  lifetime_value        Decimal?  @default(0) @db.Decimal(10, 2)
+  average_order_value   Decimal?  @default(0) @db.Decimal(10, 2)
+  last_order_at         DateTime? @db.Timestamp(6)
+  address_line1         String?   @db.VarChar(255)
+  address_line2         String?   @db.VarChar(255)
+  city                  String?   @db.VarChar(100)
+  state                 String?   @db.VarChar(100)
+  postal_code           String?   @db.VarChar(20)
+  country               String?   @db.VarChar(100)
+  billing_address_line1 String?   @db.VarChar(255)
+  billing_address_line2 String?   @db.VarChar(255)
+  billing_city          String?   @db.VarChar(100)
+  billing_state         String?   @db.VarChar(100)
+  billing_postal_code   String?   @db.VarChar(20)
+  billing_country       String?   @db.VarChar(100)
+  accepts_marketing     Boolean?  @default(false)
+  notes                 String?   @db.VarChar(500)
+  deleted_at            DateTime? @db.Timestamp(6)
+  created_at            DateTime  @default(now()) @db.Timestamp(6)
+  updated_at            DateTime  @default(now()) @db.Timestamp(6)
+  version               BigInt?   @default(0)
+  orders                Order[]
+
+  @@index([email], map: "idx_customer_email")
+  @@index([phone_number], map: "idx_customer_phone")
+  @@map("customers")
+}
+
+model AuditEvent {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     String?  @db.Uuid
+  username    String?  @db.VarChar(100)
+  action      String   @db.VarChar(100)
+  entity_type String   @db.VarChar(100)
+  entity_id   String?  @db.Uuid
+  ip_address  String?  @db.VarChar(50)
+  user_agent  String?  @db.VarChar(500)
+  old_value   String?
+  new_value   String?
+  details     String?
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([created_at], map: "idx_audit_created_at")
+  @@index([entity_type], map: "idx_audit_entity_type")
+  @@index([user_id], map: "idx_audit_user")
+  @@map("audit_events")
+}
+
+model customers_aud {
+  id                    String    @db.Uuid
+  rev                   Int
+  revtype               Int?      @db.SmallInt
+  email                 String?   @db.VarChar(255)
+  first_name            String?   @db.VarChar(100)
+  last_name             String?   @db.VarChar(100)
+  phone_number          String?   @db.VarChar(20)
+  total_orders          Int?
+  total_spent           Decimal?  @db.Decimal(10, 2)
+  lifetime_value        Decimal?  @db.Decimal(10, 2)
+  average_order_value   Decimal?  @db.Decimal(10, 2)
+  last_order_at         DateTime? @db.Timestamp(6)
+  address_line1         String?   @db.VarChar(255)
+  address_line2         String?   @db.VarChar(255)
+  city                  String?   @db.VarChar(100)
+  state                 String?   @db.VarChar(100)
+  postal_code           String?   @db.VarChar(20)
+  country               String?   @db.VarChar(100)
+  billing_address_line1 String?   @db.VarChar(255)
+  billing_address_line2 String?   @db.VarChar(255)
+  billing_city          String?   @db.VarChar(100)
+  billing_state         String?   @db.VarChar(100)
+  billing_postal_code   String?   @db.VarChar(20)
+  billing_country       String?   @db.VarChar(100)
+  accepts_marketing     Boolean?
+  notes                 String?   @db.VarChar(500)
+  deleted_at            DateTime? @db.Timestamp(6)
+  created_at            DateTime? @db.Timestamp(6)
+  updated_at            DateTime? @db.Timestamp(6)
+  version               BigInt?
+  revinfo               revinfo   @relation(fields: [rev], references: [rev], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id, rev])
+}
+
+model flyway_schema_history {
+  installed_rank Int      @id(map: "flyway_schema_history_pk")
+  version        String?  @db.VarChar(50)
+  description    String   @db.VarChar(200)
+  type           String   @db.VarChar(20)
+  script         String   @db.VarChar(1000)
+  checksum       Int?
+  installed_by   String   @db.VarChar(100)
+  installed_on   DateTime @default(now()) @db.Timestamp(6)
+  execution_time Int
+  success        Boolean
+
+  @@index([success], map: "flyway_schema_history_s_idx")
+}
+
+model order_items_aud {
+  id              String    @db.Uuid
+  rev             Int
+  revtype         Int?      @db.SmallInt
+  order_id        String?   @db.Uuid
+  product_id      String?   @db.Uuid
+  sku             String?   @db.VarChar(100)
+  product_name    String?   @db.VarChar(500)
+  quantity        Int?
+  unit_price      Decimal?  @db.Decimal(10, 2)
+  line_total      Decimal?  @db.Decimal(10, 2)
+  discount_amount Decimal?  @db.Decimal(10, 2)
+  created_at      DateTime? @db.Timestamp(6)
+  version         BigInt?
+  revinfo         revinfo   @relation(fields: [rev], references: [rev], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id, rev])
+}
+
+model orders_aud {
+  id                     String    @db.Uuid
+  rev                    Int
+  revtype                Int?      @db.SmallInt
+  order_number           String?   @db.VarChar(50)
+  customer_id            String?   @db.Uuid
+  status                 String?   @db.VarChar(50)
+  payment_status         String?   @db.VarChar(50)
+  fulfillment_status     String?   @db.VarChar(50)
+  subtotal               Decimal?  @db.Decimal(10, 2)
+  tax_amount             Decimal?  @db.Decimal(10, 2)
+  shipping_amount        Decimal?  @db.Decimal(10, 2)
+  discount_amount        Decimal?  @db.Decimal(10, 2)
+  total                  Decimal?  @db.Decimal(10, 2)
+  coupon_code            String?   @db.VarChar(50)
+  shipping_address_line1 String?   @db.VarChar(255)
+  shipping_address_line2 String?   @db.VarChar(255)
+  shipping_city          String?   @db.VarChar(100)
+  shipping_state         String?   @db.VarChar(100)
+  shipping_postal_code   String?   @db.VarChar(20)
+  shipping_country       String?   @db.VarChar(100)
+  tracking_number        String?   @db.VarChar(100)
+  carrier                String?   @db.VarChar(100)
+  utm_source             String?   @db.VarChar(100)
+  utm_medium             String?   @db.VarChar(100)
+  utm_campaign           String?   @db.VarChar(100)
+  notes                  String?
+  cancelled_at           DateTime? @db.Timestamp(6)
+  cancelled_reason       String?   @db.VarChar(500)
+  created_at             DateTime? @db.Timestamp(6)
+  updated_at             DateTime? @db.Timestamp(6)
+  version                BigInt?
+  revinfo                revinfo   @relation(fields: [rev], references: [rev], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id, rev])
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model product_images {
+  product_id  String  @db.Uuid
+  url         String? @db.VarChar(1000)
+  alt_text    String? @db.VarChar(500)
+  image_order Int
+  products    Product @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@ignore
+}
+
+model product_images_aud {
+  product_id  String  @db.Uuid
+  rev         Int
+  revtype     Int?    @db.SmallInt
+  url         String? @db.VarChar(1000)
+  alt_text    String? @db.VarChar(500)
+  image_order Int
+  revinfo     revinfo @relation(fields: [rev], references: [rev], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([product_id, rev, image_order])
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model product_tags {
+  product_id String  @db.Uuid
+  tag        String  @db.VarChar(255)
+  products   Product @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@ignore
+}
+
+model product_tags_aud {
+  product_id String  @db.Uuid
+  rev        Int
+  revtype    Int?    @db.SmallInt
+  tag        String  @db.VarChar(255)
+  revinfo    revinfo @relation(fields: [rev], references: [rev], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([product_id, rev, tag])
+}
+
+model products_aud {
+  id                String    @db.Uuid
+  rev               Int
+  revtype           Int?      @db.SmallInt
+  sku               String?   @db.VarChar(100)
+  name              String?   @db.VarChar(500)
+  slug              String?   @db.VarChar(200)
+  description       String?
+  short_description String?   @db.VarChar(1000)
+  price             Decimal?  @db.Decimal(10, 2)
+  compare_at_price  Decimal?  @db.Decimal(10, 2)
+  cost_price        Decimal?  @db.Decimal(10, 2)
+  status            String?   @db.VarChar(50)
+  category          String?   @db.VarChar(200)
+  brand             String?   @db.VarChar(200)
+  weight_grams      Int?
+  is_featured       Boolean?
+  seo_title         String?   @db.VarChar(200)
+  seo_description   String?   @db.VarChar(500)
+  deleted_at        DateTime? @db.Timestamp(6)
+  created_at        DateTime? @db.Timestamp(6)
+  updated_at        DateTime? @db.Timestamp(6)
+  version           BigInt?
+  revinfo           revinfo   @relation(fields: [rev], references: [rev], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id, rev])
+}
+
+model revinfo {
+  rev                Int                  @id
+  revtstmp           BigInt?
+  customers_aud      customers_aud[]
+  order_items_aud    order_items_aud[]
+  orders_aud         orders_aud[]
+  product_images_aud product_images_aud[]
+  product_tags_aud   product_tags_aud[]
+  products_aud       products_aud[]
+  stock_aud          stock_aud[]
+  user_roles_aud     user_roles_aud[]
+  users_aud          users_aud[]
+}
+
+model stock {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sku                 String   @unique @db.VarChar(100)
+  product_id          String   @db.Uuid
+  quantity            Int      @default(0)
+  reserved_quantity   Int?     @default(0)
+  low_stock_threshold Int?     @default(10)
+  warehouse_location  String?  @db.VarChar(100)
+  created_at          DateTime @default(now()) @db.Timestamp(6)
+  updated_at          DateTime @default(now()) @db.Timestamp(6)
+  version             BigInt?  @default(0)
+  products            Product  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([quantity], map: "idx_stock_quantity")
+  @@index([sku], map: "idx_stock_sku")
+}
+
+model stock_aud {
+  id                  String    @db.Uuid
+  rev                 Int
+  revtype             Int?      @db.SmallInt
+  sku                 String?   @db.VarChar(100)
+  product_id          String?   @db.Uuid
+  quantity            Int?
+  reserved_quantity   Int?
+  low_stock_threshold Int?
+  warehouse_location  String?   @db.VarChar(100)
+  created_at          DateTime? @db.Timestamp(6)
+  updated_at          DateTime? @db.Timestamp(6)
+  version             BigInt?
+  revinfo             revinfo   @relation(fields: [rev], references: [rev], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id, rev])
+}
+
+model user_roles_aud {
+  user_id String  @db.Uuid
+  rev     Int
+  revtype Int?    @db.SmallInt
+  role_id String  @db.Uuid
+  revinfo revinfo @relation(fields: [rev], references: [rev], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, rev, role_id])
+}
+
+model users_aud {
+  id                    String    @db.Uuid
+  rev                   Int
+  revtype               Int?      @db.SmallInt
+  username              String?   @db.VarChar(100)
+  email                 String?   @db.VarChar(255)
+  password              String?   @db.VarChar(255)
+  full_name             String?   @db.VarChar(200)
+  phone_number          String?   @db.VarChar(20)
+  enabled               Boolean?
+  account_locked        Boolean?
+  two_fa_enabled        Boolean?
+  two_fa_secret         String?   @db.VarChar(255)
+  last_login_at         DateTime? @db.Timestamp(6)
+  failed_login_attempts Int?
+  created_at            DateTime? @db.Timestamp(6)
+  updated_at            DateTime? @db.Timestamp(6)
+  version               BigInt?
+  revinfo               revinfo   @relation(fields: [rev], references: [rev], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id, rev])
+}

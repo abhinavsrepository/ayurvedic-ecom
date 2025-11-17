@@ -22,7 +22,7 @@ import {
   MapPin,
   Image,
 } from 'lucide-react';
-import { getMockSocket } from '@/lib/mocks/socket';
+import { getSocket } from '@/lib/socket';
 import { toast, Toaster } from 'sonner';
 import { AdminAuthProvider, useAdminAuth } from '@/contexts/AdminAuthContext';
 import ProtectedRoute from '@/components/admin/ProtectedRoute';
@@ -35,18 +35,18 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['ROLE_ADMIN', 'ROLE_OPS', 'ROLE_FINANCE'] },
-  { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, roles: ['ROLE_ADMIN', 'ROLE_OPS', 'ROLE_FINANCE'] },
-  { name: 'Products', href: '/admin/products', icon: Package, roles: ['ROLE_ADMIN', 'ROLE_OPS'] },
-  { name: 'Inventory', href: '/admin/inventory', icon: Package, roles: ['ROLE_ADMIN', 'ROLE_OPS'] },
-  { name: 'Customers', href: '/admin/customers', icon: Users, roles: ['ROLE_ADMIN', 'ROLE_OPS'] },
-  { name: 'Banners', href: '/admin/banners', icon: Image, roles: ['ROLE_ADMIN', 'ROLE_OPS'] },
-  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, roles: ['ROLE_ADMIN', 'ROLE_FINANCE'] },
-  { name: 'Traffic Sources', href: '/admin/traffic-sources', icon: Globe, roles: ['ROLE_ADMIN', 'ROLE_FINANCE'] },
-  { name: 'Device Analytics', href: '/admin/device-analytics', icon: Smartphone, roles: ['ROLE_ADMIN', 'ROLE_FINANCE'] },
-  { name: 'Geographic', href: '/admin/geographic', icon: MapPin, roles: ['ROLE_ADMIN', 'ROLE_FINANCE'] },
-  { name: 'ML & AI', href: '/admin/ml', icon: Brain, roles: ['ROLE_ADMIN'] },
-  { name: 'Settings', href: '/admin/settings', icon: Settings, roles: ['ROLE_ADMIN'] },
+  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['ADMIN', 'OPS', 'FINANCE'] },
+  { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, roles: ['ADMIN', 'OPS', 'FINANCE'] },
+  { name: 'Products', href: '/admin/products', icon: Package, roles: ['ADMIN', 'OPS'] },
+  { name: 'Inventory', href: '/admin/inventory', icon: Package, roles: ['ADMIN', 'OPS'] },
+  { name: 'Customers', href: '/admin/customers', icon: Users, roles: ['ADMIN', 'OPS'] },
+  { name: 'Banners', href: '/admin/banners', icon: Image, roles: ['ADMIN', 'OPS'] },
+  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, roles: ['ADMIN', 'FINANCE'] },
+  { name: 'Traffic Sources', href: '/admin/traffic-sources', icon: Globe, roles: ['ADMIN', 'FINANCE'] },
+  { name: 'Device Analytics', href: '/admin/device-analytics', icon: Smartphone, roles: ['ADMIN', 'FINANCE'] },
+  { name: 'Geographic', href: '/admin/geographic', icon: MapPin, roles: ['ADMIN', 'FINANCE'] },
+  { name: 'ML & AI', href: '/admin/ml', icon: Brain, roles: ['ADMIN'] },
+  { name: 'Settings', href: '/admin/settings', icon: Settings, roles: ['ADMIN'] },
 ];
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
@@ -71,7 +71,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Setup real-time order notifications
-    const socket = getMockSocket();
+    const socket = getSocket();
 
     socket.on('order:new', (order: any) => {
       setNotifications(prev => prev + 1);

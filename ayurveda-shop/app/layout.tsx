@@ -4,6 +4,7 @@ import "./globals.css";
 import GamificationWrapper from "@/components/gamification/GamificationWrapper";
 import { CartProvider } from "@/contexts/CartContext";
 import { Toaster } from "sonner";
+import QueryProvider from "@/lib/providers/QueryProvider";
 
 // Modern sans-serif for body text
 const inter = Inter({
@@ -39,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         {/* Performance: Preconnect to external domains */}
         <link rel="preconnect" href="https://images.unsplash.com" />
@@ -49,6 +50,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${inter.variable} ${playfair.variable} antialiased`}
+        suppressHydrationWarning
       >
         {/* Accessibility: Skip to main content link */}
         <a
@@ -58,11 +60,13 @@ export default function RootLayout({
           Skip to main content
         </a>
 
-        <CartProvider>
-          <Toaster position="top-right" richColors />
-          {children}
-          <GamificationWrapper />
-        </CartProvider>
+        <QueryProvider>
+          <CartProvider>
+            <Toaster position="top-right" richColors />
+            {children}
+            <GamificationWrapper />
+          </CartProvider>
+        </QueryProvider>
       </body>
     </html>
   );

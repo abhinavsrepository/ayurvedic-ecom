@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getActiveBanners, incrementBannerImpressions, incrementBannerClicks, type Banner } from '@/lib/mocks/banners';
+import { bannersApi } from '@/lib/api/banners';
+import type { Banner } from '@/types/banner';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface BannerDisplayProps {
@@ -24,8 +25,7 @@ export default function BannerDisplay({ position, autoPlay = true, interval = 50
 
   useEffect(() => {
     if (banners.length > 0) {
-      
-      incrementBannerImpressions(banners[currentIndex].id);
+      bannersApi.incrementImpressions(banners[currentIndex].id);
     }
   }, [currentIndex, banners]);
 
@@ -50,13 +50,13 @@ export default function BannerDisplay({ position, autoPlay = true, interval = 50
     }
   }, [position, banners, mounted]);
 
-  const loadBanners = () => {
-    const activeBanners = getActiveBanners(position);
+  const loadBanners = async () => {
+    const activeBanners = await bannersApi.getActiveBanners(position);
     setBanners(activeBanners);
   };
 
   const handleBannerClick = (banner: Banner) => {
-    incrementBannerClicks(banner.id);
+    bannersApi.incrementClicks(banner.id);
   };
 
   const nextBanner = () => {

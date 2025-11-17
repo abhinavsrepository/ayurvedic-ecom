@@ -7,7 +7,7 @@ INSERT INTO users (username, email, password, full_name, enabled, two_fa_enabled
 VALUES (
     'admin',
     'admin@ayurveda.com',
-    '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYzLNhpe8i.',
+    '$2a$12$ZQ3o8gHQW2hp5JjqNdzouOK2kXERmP6T.mCkCZNP.HJjfP2tjLJGi',
     'Admin User',
     true,
     false

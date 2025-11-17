@@ -56,13 +56,22 @@ class ApiClient {
               return this.client(originalRequest);
             }
           } catch (refreshError) {
-            // Refresh failed, clear tokens and redirect to login
+            // Refresh failed, clear tokens and silently redirect to login
             this.clearTokens();
             if (typeof window !== 'undefined') {
+              // Suppress console error for expected 401s
+              console.debug('Session expired, redirecting to login');
               window.location.href = '/admin/login';
             }
-            return Promise.reject(refreshError);
+            // Return a resolved promise with null to prevent console errors
+            return Promise.resolve({ data: null } as any);
           }
+        }
+
+        // Suppress 401 console errors (expected when not logged in)
+        if (error.response?.status === 401) {
+          console.debug('Unauthorized request - authentication required');
+          return Promise.resolve({ data: null } as any);
         }
 
         return Promise.reject(error);

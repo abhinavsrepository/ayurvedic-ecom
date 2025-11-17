@@ -1,75 +1,599 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Brain, TrendingUp, AlertCircle, Zap, Target, Play } from 'lucide-react';
-import { Line } from 'react-chartjs-2';
-import {
-  getMockRecommendations,
-  getMockForecasts,
-  getMockAnomalies,
-  generateCustomerPredictions,
-  generateABTests,
-  runPlaygroundPrediction,
-  type PlaygroundInput,
-} from '@/lib/mocks/ml';
+import { Brain, TrendingUp, AlertCircle, Zap, Target, Play, Activity } from 'lucide-react';
+import mlApi from '@/lib/api/ml';
+import { toast } from 'sonner';
 
 export default function MLPage() {
-  const [activeTab, setActiveTab] = useState<'recommendations' | 'forecast' | 'anomalies' | 'predictions' | 'ab-tests' | 'playground'>('recommendations');
+  const [activeTab, setActiveTab] = useState<'recommendations' | 'forecast' | 'anomalies' | 'playground' | 'models'>('recommendations');
+  const [loading, setLoading] = useState(false);
+  const [mlServiceHealth, setMlServiceHealth] = useState<boolean | null>(null);
+
+  // Data states
   const [recommendations, setRecommendations] = useState<any[]>([]);
-  const [forecasts, setForecasts] = useState<any[]>([]);
+  const [forecasts, setForecasts] = useState<any>(null);
   const [anomalies, setAnomalies] = useState<any[]>([]);
-  const [predictions, setPredictions] = useState<any[]>([]);
-  const [abTests, setAbTests] = useState<any[]>([]);
-  const [playgroundInput, setPlaygroundInput] = useState<PlaygroundInput>({
+  const [modelsInfo, setModelsInfo] = useState<any>(null);
+  const [playgroundOutput, setPlaygroundOutput] = useState<any>(null);
+
+  // Playground input
+  const [playgroundInput, setPlaygroundInput] = useState({
     orderHistory: 5,
     totalSpent: 10000,
     daysSinceLastOrder: 30,
     avgOrderValue: 2000,
     categoryPreference: 'Immunity Boosters',
   });
-  const [playgroundOutput, setPlaygroundOutput] = useState<any>(null);
 
   useEffect(() => {
-    setRecommendations(getMockRecommendations());
-    setForecasts(getMockForecasts());
-    setAnomalies(getMockAnomalies());
-    setPredictions(generateCustomerPredictions());
-    setAbTests(generateABTests());
+    checkMLServiceHealth();
+    loadModelsInfo();
   }, []);
 
-  const handlePlaygroundRun = () => {
-    const output = runPlaygroundPrediction(playgroundInput);
-    setPlaygroundOutput(output);
+  const checkMLServiceHealth = async () => {
+    try {
+      const health = await mlApi.healthCheck();
+      setMlServiceHealth(health.status === 'healthy');
+      if (health.status === 'healthy') {
+        toast.success('ML Service Connected', {
+          description: `Version: ${health.version}`
+        });
+      }
+    } catch (error) {
+      setMlServiceHealth(false);
+      console.error('ML service health check failed:', error);
+    }
   };
 
-  const getForecastChart = (forecast: any) => {
-    return {
-      labels: forecast.forecasts.map((f: any) => new Date(f.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })),
-      datasets: [
-        {
-          label: 'Predicted Demand',
-          data: forecast.forecasts.map((f: any) => f.predicted),
-          borderColor: 'rgb(34, 197, 94)',
-          backgroundColor: 'rgba(34, 197, 94, 0.1)',
-          fill: true,
-          tension: 0.4,
-        },
-        {
-          label: 'Upper Bound',
-          data: forecast.forecasts.map((f: any) => f.upper),
-          borderColor: 'rgba(59, 130, 246, 0.5)',
-          borderDash: [5, 5],
-          fill: false,
-        },
-        {
-          label: 'Lower Bound',
-          data: forecast.forecasts.map((f: any) => f.lower),
-          borderColor: 'rgba(239, 68, 68, 0.5)',
-          borderDash: [5, 5],
-          fill: false,
-        },
-      ],
-    };
+  const loadModelsInfo = async () => {
+    try {
+      const info = await mlApi.getModelsInfo();
+      setModelsInfo(info);
+    } catch (error) {
+      console.error('Failed to load models info:', error);
+    }
+  };
+
+  const fetchRecommendations = async () => {
+    try {
+      setLoading(true);
+      const data = await mlApi.getRecommendations('customer123', 5);
+      setRecommendations(data.recommendations);
+      toast.success('Recommendations loaded');
+    } catch (error: any) {
+      toast.error('Failed to load recommendations', {
+        description: error.message || 'ML service may not be running'
+      });
+      setRecommendations([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchForecast = async () => {
+    try {
+      setLoading(true);
+      const data = await mlApi.getDemandForecast('product456', 30);
+      setForecasts(data);
+      toast.success('Forecast generated');
+    } catch (error: any) {
+      toast.error('Failed to generate forecast', {
+        description: error.message
+      });
+      setForecasts(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAnomalies = async () => {
+    try {
+      setLoading(true);
+      const data = await mlApi.getAnomalies('revenue');
+      setAnomalies(data.anomalies);
+      toast.success('Anomalies detected');
+    } catch (error: any) {
+      toast.error('Failed to detect anomalies', {
+        description: error.message
+      });
+      setAnomalies([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runPlayground = async () => {
+    try {
+      setLoading(true);
+      const result = await mlApi.runPlayground(playgroundInput);
+      setPlaygroundOutput(result);
+      toast.success('Predictions generated');
+    } catch (error: any) {
+      toast.error('Prediction failed', {
+        description: error.message
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderContent = () => {
+    if (mlServiceHealth === false) {
+      return (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <AlertCircle className="w-6 h-6 text-yellow-600" />
+            <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-100">
+              ML Service Not Available
+            </h3>
+          </div>
+          <p className="text-yellow-800 dark:text-yellow-200 mb-4">
+            The ML service is not running. Please start it to use ML features.
+          </p>
+          <div className="bg-white dark:bg-gray-800 rounded p-4 font-mono text-sm">
+            <p className="text-gray-700 dark:text-gray-300 mb-2">To start the ML service:</p>
+            <code className="block text-green-600 dark:text-green-400">
+              start-ml-service.bat
+            </code>
+            <p className="text-gray-600 dark:text-gray-400 mt-2 text-xs">
+              OR: cd ml-service && python app.py
+            </p>
+          </div>
+          <button
+            onClick={checkMLServiceHealth}
+            className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+          >
+            Retry Connection
+          </button>
+        </div>
+      );
+    }
+
+    switch (activeTab) {
+      case 'recommendations':
+        return (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Product Recommendations
+              </h2>
+              <button
+                onClick={fetchRecommendations}
+                disabled={loading}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              >
+                {loading ? 'Loading...' : 'Generate Recommendations'}
+              </button>
+            </div>
+
+            {recommendations.length === 0 ? (
+              <div className="text-center py-12">
+                <Target className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">
+                  Click "Generate Recommendations" to see ML-powered product suggestions
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recommendations.map((rec, idx) => (
+                  <div key={idx} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{rec.name}</h3>
+                      <span className="text-sm font-medium text-green-600">
+                        {(rec.score * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{rec.reason}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'forecast':
+        return (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Demand Forecast
+              </h2>
+              <button
+                onClick={fetchForecast}
+                disabled={loading}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              >
+                {loading ? 'Generating...' : 'Generate Forecast'}
+              </button>
+            </div>
+
+            {!forecasts ? (
+              <div className="text-center py-12">
+                <TrendingUp className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">
+                  Click "Generate Forecast" to see demand predictions
+                </p>
+              </div>
+            ) : (
+              <div>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Product ID</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {forecasts.productId}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Model</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {forecasts.model}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Accuracy</p>
+                      <p className="text-lg font-semibold text-green-600">
+                        {(forecasts.accuracy * 100).toFixed(0)}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Forecasts</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {forecasts.forecasts?.length || 0} days
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Date</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Predicted</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Lower</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Upper</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Confidence</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {forecasts.forecasts?.slice(0, 10).map((f: any, idx: number) => (
+                        <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                            {new Date(f.date).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white">
+                            {f.predicted.toFixed(0)}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {f.lower.toFixed(0)}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                            {f.upper.toFixed(0)}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-green-600">
+                            {(f.confidence * 100).toFixed(0)}%
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'anomalies':
+        return (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Anomaly Detection
+              </h2>
+              <button
+                onClick={fetchAnomalies}
+                disabled={loading}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              >
+                {loading ? 'Detecting...' : 'Detect Anomalies'}
+              </button>
+            </div>
+
+            {anomalies.length === 0 ? (
+              <div className="text-center py-12">
+                <AlertCircle className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">
+                  Click "Detect Anomalies" to find unusual patterns
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {anomalies.map((anomaly, idx) => (
+                  <div
+                    key={idx}
+                    className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 ${
+                      anomaly.severity === 'high'
+                        ? 'border-red-500'
+                        : anomaly.severity === 'medium'
+                        ? 'border-yellow-500'
+                        : 'border-blue-500'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {anomaly.metric} Anomaly
+                          </h3>
+                          <span
+                            className={`px-2 py-1 text-xs font-semibold rounded ${
+                              anomaly.severity === 'high'
+                                ? 'bg-red-100 text-red-800'
+                                : anomaly.severity === 'medium'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-blue-100 text-blue-800'
+                            }`}
+                          >
+                            {anomaly.severity}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 mb-3">{anomaly.reason}</p>
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-xs text-gray-500">Expected</p>
+                            <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                              ₹{anomaly.expected.toLocaleString('en-IN')}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Actual</p>
+                            <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                              ₹{anomaly.actual.toLocaleString('en-IN')}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Anomaly Score</p>
+                            <p className="text-lg font-semibold text-red-600">
+                              {(anomaly.anomaly_score * 100).toFixed(0)}%
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'playground':
+        return (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              Model Playground
+            </h2>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Input Form */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Customer Input
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Order History
+                    </label>
+                    <input
+                      type="number"
+                      value={playgroundInput.orderHistory}
+                      onChange={(e) =>
+                        setPlaygroundInput({ ...playgroundInput, orderHistory: Number(e.target.value) })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Total Spent (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={playgroundInput.totalSpent}
+                      onChange={(e) =>
+                        setPlaygroundInput({ ...playgroundInput, totalSpent: Number(e.target.value) })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Days Since Last Order
+                    </label>
+                    <input
+                      type="number"
+                      value={playgroundInput.daysSinceLastOrder}
+                      onChange={(e) =>
+                        setPlaygroundInput({
+                          ...playgroundInput,
+                          daysSinceLastOrder: Number(e.target.value),
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Average Order Value (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={playgroundInput.avgOrderValue}
+                      onChange={(e) =>
+                        setPlaygroundInput({ ...playgroundInput, avgOrderValue: Number(e.target.value) })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+                  <button
+                    onClick={runPlayground}
+                    disabled={loading}
+                    className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    <Play className="w-4 h-4" />
+                    {loading ? 'Running...' : 'Run Prediction'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Output */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Predictions
+                </h3>
+                {!playgroundOutput ? (
+                  <div className="text-center py-12">
+                    <Brain className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Run prediction to see results
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Churn Prediction */}
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                        Churn Prediction
+                      </h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            Churn Probability
+                          </span>
+                          <span className="text-lg font-bold text-red-600">
+                            {(playgroundOutput.predictions.churn.churn_probability * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Risk Level</span>
+                          <span
+                            className={`px-2 py-1 text-xs font-semibold rounded ${
+                              playgroundOutput.predictions.churn.risk_level === 'high'
+                                ? 'bg-red-100 text-red-800'
+                                : playgroundOutput.predictions.churn.risk_level === 'medium'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-green-100 text-green-800'
+                            }`}
+                          >
+                            {playgroundOutput.predictions.churn.risk_level}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CLV Prediction */}
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                        Lifetime Value
+                      </h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            Predicted CLV
+                          </span>
+                          <span className="text-lg font-bold text-green-600">
+                            ₹
+                            {playgroundOutput.predictions.lifetime_value.predicted_clv.toLocaleString(
+                              'en-IN'
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Tier</span>
+                          <span className="px-2 py-1 text-xs font-semibold rounded bg-purple-100 text-purple-800">
+                            {playgroundOutput.predictions.lifetime_value.tier}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            Expected Orders
+                          </span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {playgroundOutput.predictions.lifetime_value.expected_orders_next_year}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'models':
+        return (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              ML Models Information
+            </h2>
+
+            {!modelsInfo ? (
+              <div className="text-center py-12">
+                <Activity className="w-16 h-16 mx-auto text-gray-400 mb-4 animate-pulse" />
+                <p className="text-gray-600 dark:text-gray-400">Loading models...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {modelsInfo.models.map((model: any, idx: number) => (
+                  <div key={idx} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {model.name}
+                      </h3>
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded ${
+                          model.status === 'active'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {model.status}
+                      </span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">Type</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {model.type}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">Accuracy</span>
+                        <span className="font-medium text-green-600">
+                          {(model.accuracy * 100).toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">Last Trained</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {new Date(model.lastTrained).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
@@ -80,9 +604,22 @@ export default function MLPage() {
           <Brain className="w-8 h-8 mr-3 text-purple-600" />
           ML & AI Insights
         </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Leverage machine learning for predictions, recommendations, and anomaly detection
-        </p>
+        <div className="mt-2 flex items-center gap-2">
+          <p className="text-gray-600 dark:text-gray-400">
+            Leverage machine learning for predictions, recommendations, and anomaly detection
+          </p>
+          {mlServiceHealth !== null && (
+            <span
+              className={`px-2 py-1 text-xs font-semibold rounded ${
+                mlServiceHealth
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+              }`}
+            >
+              {mlServiceHealth ? 'ML Service Online' : 'ML Service Offline'}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
@@ -92,454 +629,30 @@ export default function MLPage() {
             { id: 'recommendations', label: 'Product Recommendations', icon: Target },
             { id: 'forecast', label: 'Demand Forecast', icon: TrendingUp },
             { id: 'anomalies', label: 'Anomaly Detection', icon: AlertCircle },
-            { id: 'predictions', label: 'Customer Predictions', icon: Brain },
-            { id: 'ab-tests', label: 'A/B Tests', icon: Zap },
             { id: 'playground', label: 'Model Playground', icon: Play },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'border-green-500 text-green-600 dark:text-green-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-              }`}
-            >
-              <tab.icon className="w-4 h-4 mr-2" />
-              {tab.label}
-            </button>
-          ))}
+            { id: 'models', label: 'Models Info', icon: Activity },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'border-purple-500 text-purple-600 dark:text-purple-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            );
+          })}
         </nav>
       </div>
 
-      {/* Product Recommendations */}
-      {activeTab === 'recommendations' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              AI-Powered Product Recommendations
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Products predicted to drive maximum revenue based on historical patterns
-            </p>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recommendations.map((rec, idx) => (
-                <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{rec.productName}</h3>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      rec.confidence >= 0.8 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                      rec.confidence >= 0.7 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                    }`}>
-                      {(rec.confidence * 100).toFixed(0)}%
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{rec.reason}</p>
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Expected Revenue</span>
-                    <span className="text-sm font-bold text-green-600 dark:text-green-400">
-                      ₹{rec.expectedRevenue.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Demand Forecast */}
-      {activeTab === 'forecast' && (
-        <div className="space-y-6">
-          {forecasts.map((forecast, idx) => (
-            <div key={idx} className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {forecast.productName} - 30 Day Forecast
-                    </h2>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Model: {forecast.model} | Accuracy: {(forecast.accuracy * 100).toFixed(1)}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="h-80">
-                  <Line
-                    data={getForecastChart(forecast)}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: 'top' as const,
-                        },
-                      },
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Anomaly Detection */}
-      {activeTab === 'anomalies' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Detected Anomalies
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Unusual patterns that require attention
-            </p>
-          </div>
-          <div className="p-6 space-y-4">
-            {anomalies.map((anomaly, idx) => (
-              <div
-                key={idx}
-                className={`border-l-4 p-4 rounded ${
-                  anomaly.severity === 'high' ? 'border-red-500 bg-red-50 dark:bg-red-900/20' :
-                  anomaly.severity === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' :
-                  'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center">
-                      <AlertCircle className={`w-5 h-5 mr-2 ${
-                        anomaly.severity === 'high' ? 'text-red-600' :
-                        anomaly.severity === 'medium' ? 'text-yellow-600' : 'text-blue-600'
-                      }`} />
-                      <h3 className="font-semibold text-gray-900 dark:text-white capitalize">
-                        {anomaly.metric.replace('_', ' ')} Anomaly
-                      </h3>
-                      <span className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${
-                        anomaly.severity === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
-                        anomaly.severity === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                        'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-                      }`}>
-                        {anomaly.severity}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                      {anomaly.description}
-                    </p>
-                    <div className="grid grid-cols-3 gap-4 mt-3">
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Actual Value</p>
-                        <p className="font-semibold text-gray-900 dark:text-white">
-                          {anomaly.value.toFixed(0)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Expected Value</p>
-                        <p className="font-semibold text-gray-900 dark:text-white">
-                          {anomaly.expected.toFixed(0)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Deviation</p>
-                        <p className="font-semibold text-red-600">
-                          {(anomaly.deviation * 100).toFixed(1)}%
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-4">
-                    {new Date(anomaly.timestamp).toLocaleString('en-IN')}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Customer Predictions */}
-      {activeTab === 'predictions' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Customer Churn & Purchase Predictions
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              AI predictions for customer behavior and recommended actions
-            </p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                    Churn Risk
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                    Next Purchase
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                    Predicted LTV
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                    Recommended Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {predictions.map((pred, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                      {pred.customerName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex flex-col items-center">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          pred.churnProbability >= 0.7 ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
-                          pred.churnProbability >= 0.4 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                          'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                        }`}>
-                          {(pred.churnProbability * 100).toFixed(0)}%
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span className="text-sm text-gray-900 dark:text-white">
-                        {(pred.nextPurchaseProbability * 100).toFixed(0)}%
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900 dark:text-white">
-                      ₹{pred.predictedLTV.toLocaleString('en-IN')}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      <ul className="list-disc list-inside">
-                        {pred.recommendedActions.map((action: string, i: number) => (
-                          <li key={i}>{action}</li>
-                        ))}
-                      </ul>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* A/B Tests */}
-      {activeTab === 'ab-tests' && (
-        <div className="space-y-6">
-          {abTests.map((test, idx) => (
-            <div key={idx} className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{test.name}</h2>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{test.description}</p>
-                  </div>
-                  <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                    test.status === 'running' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                    test.status === 'completed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
-                    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                  }`}>
-                    {test.status}
-                  </span>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {test.variants.map((variant: any) => (
-                    <div
-                      key={variant.id}
-                      className={`border-2 rounded-lg p-4 ${
-                        test.winner === variant.id
-                          ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                          : 'border-gray-200 dark:border-gray-700'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">{variant.name}</h3>
-                        {test.winner === variant.id && (
-                          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 rounded-full">
-                            Winner
-                          </span>
-                        )}
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Traffic:</span>
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            {variant.traffic.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Conversions:</span>
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            {variant.conversions.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Revenue:</span>
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            ₹{variant.revenue.toLocaleString('en-IN')}
-                          </span>
-                        </div>
-                        <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
-                          <span className="text-gray-600 dark:text-gray-400">Conversion Rate:</span>
-                          <span className="font-bold text-green-600 dark:text-green-400">
-                            {variant.conversionRate.toFixed(2)}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Model Playground */}
-      {activeTab === 'playground' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              ML Model Playground
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Test predictions with custom customer inputs
-            </p>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Input Form */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Customer Input</h3>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Order History (count)
-                  </label>
-                  <input
-                    type="number"
-                    value={playgroundInput.orderHistory}
-                    onChange={(e) => setPlaygroundInput({ ...playgroundInput, orderHistory: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Total Spent (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={playgroundInput.totalSpent}
-                    onChange={(e) => setPlaygroundInput({ ...playgroundInput, totalSpent: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Days Since Last Order
-                  </label>
-                  <input
-                    type="number"
-                    value={playgroundInput.daysSinceLastOrder}
-                    onChange={(e) => setPlaygroundInput({ ...playgroundInput, daysSinceLastOrder: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Average Order Value (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={playgroundInput.avgOrderValue}
-                    onChange={(e) => setPlaygroundInput({ ...playgroundInput, avgOrderValue: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <button
-                  onClick={handlePlaygroundRun}
-                  className="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <Play className="w-5 h-5 mr-2" />
-                  Run Prediction
-                </button>
-              </div>
-
-              {/* Output */}
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Prediction Output</h3>
-                {playgroundOutput ? (
-                  <div className="space-y-4">
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Churn Probability</p>
-                      <div className="flex items-center mt-2">
-                        <div className="flex-1 h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${
-                              playgroundOutput.churnProbability >= 0.7 ? 'bg-red-500' :
-                              playgroundOutput.churnProbability >= 0.4 ? 'bg-yellow-500' : 'bg-green-500'
-                            }`}
-                            style={{ width: `${playgroundOutput.churnProbability * 100}%` }}
-                          />
-                        </div>
-                        <span className="ml-3 font-bold text-gray-900 dark:text-white">
-                          {(playgroundOutput.churnProbability * 100).toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Next Purchase In</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                        ~{playgroundOutput.nextPurchaseDays} days
-                      </p>
-                    </div>
-
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Predicted Order Value</p>
-                      <p className="text-2xl font-bold text-green-600 mt-1">
-                        ₹{playgroundOutput.predictedOrderValue.toFixed(0).toLocaleString('en-IN')}
-                      </p>
-                    </div>
-
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Recommended Products</p>
-                      <ul className="space-y-1">
-                        {playgroundOutput.recommendedProducts.map((product: string, i: number) => (
-                          <li key={i} className="text-sm text-gray-900 dark:text-white">• {product}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Model Confidence</p>
-                      <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">
-                        {(playgroundOutput.confidence * 100).toFixed(1)}%
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8">
-                    Run a prediction to see results
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Content */}
+      <div>{renderContent()}</div>
     </div>
   );
 }

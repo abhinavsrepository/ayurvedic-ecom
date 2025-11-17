@@ -1,10 +1,24 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Download, Filter, Eye } from 'lucide-react';
-import { getMockOrders } from '@/lib/mocks/orders';
-import type { Order, OrderStatus } from '@/lib/mocks/orders';
+import { ordersApi } from '@/lib/api/admin';
+import { toast } from 'sonner';
+
+type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'refunded';
+
+interface Order {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  status: OrderStatus;
+  paymentStatus: 'pending' | 'paid' | 'failed';
+  total: number;
+  createdAt: string;
+  items: any[];
+}
 
 const statusColors: Record<OrderStatus, string> = {
   pending: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
@@ -18,11 +32,45 @@ const statusColors: Record<OrderStatus, string> = {
 };
 
 export default function OrdersPage() {
-  const [orders] = useState<Order[]>(getMockOrders());
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+
+  // Fetch orders from API
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const response = await ordersApi.list({ page: 0, size: 100 });
+
+        if (response && response.content) {
+          setOrders(response.content);
+        } else {
+          setOrders([]);
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch orders:', error);
+
+        // Handle 401 errors differently (authentication issues)
+        if (error.response?.status === 401) {
+          // Don't show error toast - the API client will handle redirect to login
+          setOrders([]);
+        } else {
+          toast.error('Failed to load orders', {
+            description: error.response?.data?.message || 'Please check if the backend is running'
+          });
+          setOrders([]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
@@ -65,6 +113,17 @@ export default function OrdersPage() {
     a.click();
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading orders...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -77,7 +136,8 @@ export default function OrdersPage() {
         </div>
         <button
           onClick={handleExportCSV}
-          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          disabled={orders.length === 0}
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download className="w-4 h-4 mr-2" />
           Export CSV
@@ -184,8 +244,23 @@ export default function OrdersPage() {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {paginatedOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+              {paginatedOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-12 text-center">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <p className="text-lg font-medium">No orders found</p>
+                      <p className="text-sm mt-2">
+                        {orders.length === 0
+                          ? 'No orders in the database yet. Start by creating some orders.'
+                          : 'Try adjusting your search or filter criteria.'
+                        }
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                paginatedOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
                       {order.orderNumber}
@@ -233,7 +308,8 @@ export default function OrdersPage() {
                     </Link>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -58,5 +57,5 @@ public class AuditEvent {
   private String details;
 
   @Column(name = "created_at", nullable = false, updatable = false)
-private Instant createdAt;
+  private Instant createdAt;
 }
