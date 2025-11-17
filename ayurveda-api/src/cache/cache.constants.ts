@@ -71,6 +71,18 @@ export const CACHE_KEYS = {
   USER_CART: (userId: string) => `user:cart:${userId}`,
   USER_WISHLIST: (userId: string) => `user:wishlist:${userId}`,
   USER_PROFILE: (userId: string) => `user:profile:${userId}`,
+
+  // Orders
+  ORDER_BY_ID: (id: string) => `order:id:${id}`,
+  ORDER_BY_NUMBER: (orderNumber: string) => `order:number:${orderNumber}`,
+  ORDER_LIST: (customerId: string, page: number, size: number, filter: string = '') =>
+    `orders:customer:${customerId}:${page}:${size}:${filter}`,
+
+  // Customers
+  CUSTOMER_BY_ID: (id: string) => `customer:id:${id}`,
+  CUSTOMER_BY_EMAIL: (email: string) => `customer:email:${email}`,
+  CUSTOMER_LIST: (page: number, size: number, filter: string = '') =>
+    `customers:list:${page}:${size}:${filter}`,
 };
 
 // Patterns for bulk deletion
@@ -81,5 +93,7 @@ export const CACHE_PATTERNS = {
   ALL_SEARCH: 'search:*',
   ALL_ML: 'ml:*',
   ALL_STATS: 'stats:*',
+  ALL_ORDERS: 'orders:*',
+  ALL_CUSTOMERS: 'customers:*',
   USER_DATA: (userId: string) => `user:*:${userId}`,
 };
