@@ -1,23 +1,24 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { getProductBySlug, getProducts } from '@/app/actions/products';
 import ProductDetailSkeleton from '@/components/products/ProductDetailSkeleton';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import ProductClient from './ProductClient';
+import Breadcrumbs, { type BreadcrumbItem } from '@/components/seo/Breadcrumbs';
+import StructuredData, { generateProductSchema } from '@/components/seo/StructuredData';
+import { REVALIDATION_TIMES, SITE_CONFIG, getAbsoluteUrl } from '@/lib/seo/config';
 import {
-  ChevronRight,
   Shield,
   Truck,
   RefreshCw,
   Award,
 } from 'lucide-react';
 
-// Enable ISR with 60 second revalidation
-export const revalidate = 60;
+// Enable ISR with 1 hour revalidation for better SEO performance
+export const revalidate = REVALIDATION_TIMES.product;
 
 // Generate static params for popular products
 export async function generateStaticParams() {
@@ -32,24 +33,75 @@ export async function generateStaticParams() {
   }
 }
 
-// Generate metadata for SEO
+// Enhanced metadata generation for product pages
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
-      title: 'Product Not Found',
+      title: 'Product Not Found | Ayurveda Haven',
+      description: 'The product you are looking for could not be found.',
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
+  const title = product.seoTitle || `${product.name} - Premium Ayurvedic ${product.category || 'Product'}`;
+  const description = product.seoDescription || product.shortDescription || product.description;
+  const productUrl = getAbsoluteUrl(`/product/${slug}`);
+  const image = product.images.length > 0 ? product.images[0].url : `${SITE_CONFIG.url}/og-image.jpg`;
+
   return {
-    title: product.seoTitle || `${product.name} - Ayurveda Shop`,
-    description: product.seoDescription || product.shortDescription || product.description,
+    title,
+    description,
+    keywords: [
+      product.name,
+      product.category || '',
+      product.brand || '',
+      ...(product.tags || []),
+      'ayurvedic',
+      'natural',
+      'organic',
+      'herbal',
+    ].filter(Boolean),
     openGraph: {
-      title: product.name,
-      description: product.shortDescription || product.description,
-      images: product.images.length > 0 ? [product.images[0].url] : [],
+      type: 'product',
+      url: productUrl,
+      title,
+      description,
+      siteName: SITE_CONFIG.name,
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 1200,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      site: SITE_CONFIG.twitterHandle,
+      images: [image],
+    },
+    alternates: {
+      canonical: productUrl,
+    },
+    robots: {
+      index: product.status === 'active',
+      follow: true,
+      googleBot: {
+        index: product.status === 'active',
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
   };
 }
@@ -65,27 +117,49 @@ async function ProductContent({ slug }: { slug: string }) {
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
 
+  // Generate breadcrumb items
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { name: 'Shop', url: '/shop' },
+  ];
+
+  if (product.category) {
+    breadcrumbItems.push({
+      name: product.category,
+      url: `/shop?category=${encodeURIComponent(product.category)}`,
+    });
+  }
+
+  breadcrumbItems.push({
+    name: product.name,
+    url: `/product/${slug}`,
+  });
+
+  // Generate product structured data
+  const productSchema = generateProductSchema({
+    name: product.name,
+    description: product.description,
+    image: product.images.length > 0 ? product.images[0].url : undefined,
+    sku: product.sku,
+    brand: product.brand,
+    price: product.price,
+    currency: 'INR',
+    availability: product.stockQuantity > 0 ? 'InStock' : 'OutOfStock',
+    url: getAbsoluteUrl(`/product/${slug}`),
+    rating: product.rating,
+    reviewCount: product.reviewCount,
+    category: product.category,
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Product Structured Data */}
+      <StructuredData data={productSchema} />
+
       <Navbar />
 
       <main className="container mx-auto px-4 py-8 mt-20">
-        {/* Breadcrumb */}
-        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
-          <Link href="/" className="hover:text-green-600">Home</Link>
-          <ChevronRight className="w-4 h-4" />
-          <Link href="/shop" className="hover:text-green-600">Shop</Link>
-          <ChevronRight className="w-4 h-4" />
-          {product.category && (
-            <>
-              <Link href={`/shop?category=${product.category}`} className="hover:text-green-600">
-                {product.category}
-              </Link>
-              <ChevronRight className="w-4 h-4" />
-            </>
-          )}
-          <span className="text-gray-900 font-medium">{product.name}</span>
-        </nav>
+        {/* SEO-Optimized Breadcrumbs */}
+        <Breadcrumbs items={breadcrumbItems} className="mb-8" />
 
         {/* Product Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
