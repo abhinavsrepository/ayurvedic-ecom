@@ -1,116 +1,294 @@
-# 🌿 AyurShop Mobile App
+# 🌿 AyurShop - Ayurvedic eCommerce Mobile App
 
-Simple, fast, and optimized React Native app for Ayurvedic e-commerce.
+A premium, full-featured Ayurvedic products eCommerce mobile application built with **Expo (React Native)** and **TypeScript**.
 
-## ✅ Features
+## ✨ Features
 
-- 🏠 **Home Screen** - Welcome page with navigation
-- 🛒 **Product Shop** - Browse products from your NestJS backend
-- 🧘 **Dosha Quiz** - Interactive 5-question assessment
+### 🛍️ Core eCommerce Features
+- **Product Browsing**: Grid layout with beautiful product cards
+- **Product Details**: Image slider, detailed descriptions, reviews, and related products
+- **Shopping Cart**: Add/remove items, quantity management, swipe-to-delete
+- **Wishlist**: Save favorite products with heart animation
+- **Checkout**: Complete checkout flow with address and payment options
+- **Search**: Advanced search with suggestions and filters
 
-## 🚀 Quick Start
+### 🎨 Premium UI/UX
+- **Ayurvedic Theme**: Calming green colors (#2E7D32, #A5D6A7, #F9FBE7)
+- **Smooth Animations**: Fade-in, slide-in, and spring animations
+- **Glassmorphism**: Modern UI effects on cards
+- **Custom Components**: Reusable, professionally designed components
+- **Responsive Design**: Works beautifully on all device sizes
 
-```bash
-# 1. Navigate to app folder
-cd ayur-mobile
+### 🔐 Authentication
+- Login and Signup screens
+- Social login UI (Google, Facebook)
+- Persistent user sessions with AsyncStorage
 
-# 2. Start the app
-npm start
+### 📱 Navigation
+- Stack Navigation for main flow
+- Bottom Tab Navigation (Home, Products, Wishlist, Profile)
+- Smooth transitions between screens
 
-# 3. Options:
-# - Press 'a' for Android emulator
-# - Scan QR code with Expo Go app
-# - Press 'w' for web browser
-```
+### 🧘 Ayurvedic Features
+- **Dosha Tags**: Products tagged with Vata, Pitta, Kapha, or Tridosha
+- **Category Browsing**: Oils, Powders, Tablets, Teas, Skincare, Hair Care, Wellness
+- **Product Benefits**: Detailed health benefits for each product
+- **Natural Ingredients**: Full ingredient lists
 
-## 📱 Testing on Device
+### 💾 Data Persistence
+- **AsyncStorage**: Cart and wishlist persist across sessions
+- **Context API**: Global state management
+- **Mock Data**: 15 realistic Ayurvedic products with reviews
 
-1. **Install Expo Go** on your phone
-   - Android: [Play Store](https://play.google.com/store/apps/details?id=host.exp.exponent)
-   - iOS: [App Store](https://apps.apple.com/app/expo-go/id982107779)
-
-2. **Scan QR code** from terminal
-
-3. **App loads** in Expo Go
-
-## 🔌 Backend Connection
-
-The app connects to your NestJS backend at:
-- **Android Emulator**: `http://10.0.2.2:3333/api`
-- **iOS Simulator**: `http://localhost:3333/api`
-- **Physical Device**: Update `api.ts` with your IP
-
-### Start Backend
-
-```bash
-cd ../ayurveda-api
-pnpm run start:dev
-```
-
-## 📂 Structure
+## 📁 Project Structure
 
 ```
 ayur-mobile/
-├── App.tsx              # Main app with navigation
-├── api.ts               # Backend API client
-├── screens/
-│   ├── HomeScreen.tsx   # Landing page
-│   ├── ProductsScreen.tsx  # Product list
-│   └── QuizScreen.tsx   # Dosha quiz
-└── package.json
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── Button.tsx
+│   │   ├── ProductCard.tsx
+│   │   ├── CategoryCard.tsx
+│   │   ├── Input.tsx
+│   │   ├── Header.tsx
+│   │   ├── LoadingSpinner.tsx
+│   │   ├── EmptyState.tsx
+│   │   └── index.ts
+│   ├── context/             # Context providers
+│   │   ├── AuthContext.tsx
+│   │   ├── CartContext.tsx
+│   │   ├── WishlistContext.tsx
+│   │   └── index.ts
+│   ├── data/                # Mock data
+│   │   ├── products.json    # 15 Ayurvedic products
+│   │   └── reviews.json     # Product reviews
+│   ├── hooks/               # Custom hooks
+│   │   ├── useAuth.ts
+│   │   ├── useCart.ts
+│   │   ├── useWishlist.ts
+│   │   ├── useProducts.ts
+│   │   └── index.ts
+│   ├── navigation/          # Navigation setup
+│   │   └── AppNavigator.tsx
+│   ├── screens/             # All app screens
+│   │   ├── LoginScreen.tsx
+│   │   ├── SignupScreen.tsx
+│   │   ├── HomeScreen.tsx
+│   │   ├── ProductListingScreen.tsx
+│   │   ├── ProductDetailsScreen.tsx
+│   │   ├── CartScreen.tsx
+│   │   ├── CheckoutScreen.tsx
+│   │   ├── WishlistScreen.tsx
+│   │   ├── ProfileScreen.tsx
+│   │   ├── SearchScreen.tsx
+│   │   └── index.ts
+│   ├── styles/              # Theme and styling
+│   │   └── theme.ts
+│   ├── types/               # TypeScript types
+│   │   └── index.ts
+│   └── utils/               # Utility functions
+├── App.tsx                  # Root component
+├── app.json                 # Expo configuration
+├── package.json             # Dependencies
+├── tsconfig.json            # TypeScript config
+└── README.md                # This file
 ```
 
-## 🎨 Customize
+## 🚀 Getting Started
 
-### Change API URL
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+- Expo CLI (`npm install -g expo-cli`)
+- Expo Go app on your mobile device (for testing)
 
-Edit `api.ts`:
+### Installation
+
+1. **Navigate to the mobile app directory**:
+   ```bash
+   cd ayur-mobile
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**:
+   ```bash
+   npm start
+   ```
+
+4. **Run on device/emulator**:
+   - For iOS: Press `i` or run `npm run ios`
+   - For Android: Press `a` or run `npm run android`
+   - Scan QR code with Expo Go app on your phone
+
+## 📱 Screens Overview
+
+### Authentication Flow
+- **Login Screen**: Email/password login with social login options
+- **Signup Screen**: User registration with validation
+
+### Main App Flow
+- **Home Screen**: Hero banner, categories, featured products, best sellers
+- **Product Listing**: Grid view with filters and sorting
+- **Product Details**: Full product information with reviews
+- **Cart**: Shopping cart with quantity management
+- **Checkout**: Address selection and payment options
+- **Wishlist**: Saved products
+- **Profile**: User profile and settings
+- **Search**: Advanced product search
+
+## 🎨 Design System
+
+### Colors
 ```typescript
-const API_URL = 'http://YOUR_IP:3333/api';
+Primary Green: #2E7D32
+Light Green: #A5D6A7
+Herbal Cream: #F9FBE7
+Earth Brown: #4E342E
 ```
 
-### Change Colors
+### Typography
+- **Headings**: Playfair Display (would be loaded via Expo Font)
+- **Body**: Inter (would be loaded via Expo Font)
 
-Edit screen files, change `#10b981` to your brand color.
+### Spacing
+```typescript
+xs: 4px, sm: 8px, md: 16px, lg: 24px, xl: 32px, xxl: 48px
+```
 
-## 📦 Build for Production
+## 🔧 Technologies Used
 
+- **Framework**: Expo SDK ~54.0
+- **Language**: TypeScript
+- **Navigation**: React Navigation 7 (Stack + Bottom Tabs)
+- **State Management**: Context API
+- **Storage**: AsyncStorage
+- **UI**: React Native
+- **Animations**: React Native Animated API
+- **Icons**: @expo/vector-icons (Ionicons)
+- **Gradients**: expo-linear-gradient
+
+## 📦 Key Dependencies
+
+```json
+{
+  "@react-native-async-storage/async-storage": "^2.1.0",
+  "@react-navigation/bottom-tabs": "^7.2.0",
+  "@react-navigation/native": "^7.1.20",
+  "@react-navigation/native-stack": "^7.6.3",
+  "expo-linear-gradient": "~14.0.3",
+  "react-native-gesture-handler": "~2.22.1",
+  "react-native-reanimated": "~4.0.1"
+}
+```
+
+## 🧪 Sample Products
+
+The app includes 15 realistic Ayurvedic products:
+1. Ashwagandha Root Powder
+2. Brahmi Memory Oil
+3. Triphala Tablets
+4. Tulsi Green Tea
+5. Kumkumadi Radiance Face Oil
+6. Neem & Turmeric Face Wash
+7. Shatavari Women's Wellness Tablets
+8. Bhringraj Hair Growth Oil
+9. Chyawanprash Immune Booster
+10. Turmeric Curcumin Capsules
+11. Rose & Sandalwood Face Mist
+12. Amla Vitamin C Powder
+13. Lavender Chamomile Sleep Tea
+14. Neem & Aloe Vera Shampoo
+15. Giloy Immunity Juice
+
+## 🎯 State Management
+
+The app uses Context API for:
+- **AuthContext**: User authentication and profile
+- **CartContext**: Shopping cart with AsyncStorage persistence
+- **WishlistContext**: Wishlist with AsyncStorage persistence
+
+## 🔐 Mock Authentication
+
+The app includes mock authentication:
+- Any email/password combination works for login
+- User data is persisted in AsyncStorage
+- Logout clears user session
+
+## 📝 Code Quality
+
+- **TypeScript**: Full type safety across the app
+- **Clean Architecture**: Separated concerns (screens, components, hooks, context)
+- **Reusable Components**: DRY principles
+- **Comments**: Comprehensive JSDoc comments
+- **Naming Conventions**: Clear and consistent
+
+## 🚧 Future Enhancements
+
+- [ ] Real API integration
+- [ ] Payment gateway integration
+- [ ] Push notifications
+- [ ] Real-time order tracking
+- [ ] Dosha quiz for personalized recommendations
+- [ ] Product ratings and reviews (user-generated)
+- [ ] Multi-language support
+- [ ] Dark mode
+- [ ] Lottie animations for loading states
+
+## 📄 License
+
+This project is for demonstration purposes.
+
+## 👨‍💻 Developer Notes
+
+### Running Tests
 ```bash
-# Android APK
-npm run android
-
-# Build with EAS (requires account)
-npm install -g eas-cli
-eas build --platform android
+# Tests would be added here
+npm test
 ```
 
-## 🐛 Troubleshooting
-
-### "Can't fetch products"
-- Start backend: `cd ../ayurveda-api && pnpm run start:dev`
-- Check backend is on port 3333
-
-### "Port already in use"
+### Building for Production
 ```bash
-npm start -- --port 8082
+# iOS
+expo build:ios
+
+# Android
+expo build:android
 ```
 
-### Clear cache
-```bash
-npm start -- --clear
+### Environment Variables
+Create a `.env` file for API endpoints:
+```
+API_URL=https://api.yourbackend.com
 ```
 
-## 📊 App Size
+## 🆘 Troubleshooting
 
-- **Expo Go**: ~20MB (development)
-- **Standalone APK**: ~25-30MB (production)
-- **Optimized**: Fast performance, minimal dependencies
+### Common Issues
 
-## 🎯 Next Steps
+1. **Metro bundler not starting**:
+   ```bash
+   expo start --clear
+   ```
 
-1. Test all features
-2. Customize branding
-3. Add more screens
-4. Build for Play Store/App Store
+2. **Dependencies not installing**:
+   ```bash
+   rm -rf node_modules
+   npm install
+   ```
 
-Happy coding! 🚀
+3. **TypeScript errors**:
+   Check `tsconfig.json` and ensure all types are properly imported
+
+## 📞 Support
+
+For issues and questions:
+- Check the [Expo Documentation](https://docs.expo.dev/)
+- Review [React Navigation Docs](https://reactnavigation.org/)
+
+---
+
+**Built with ❤️ for Ayurvedic wellness**
