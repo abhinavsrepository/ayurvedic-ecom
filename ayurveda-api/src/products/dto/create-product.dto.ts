@@ -101,11 +101,48 @@ export class CreateProductDto {
   @MaxLength(100)
   category?: string;
 
+  @ApiPropertyOptional({ description: 'Product subcategory', maxLength: 100 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  subcategory?: string;
+
   @ApiPropertyOptional({ description: 'Product brand', maxLength: 100 })
   @IsOptional()
   @IsString()
   @MaxLength(100)
   brand?: string;
+
+  // Ayurveda-specific fields
+  @ApiPropertyOptional({ description: 'Product ingredients' })
+  @IsOptional()
+  @IsString()
+  ingredients?: string;
+
+  @ApiPropertyOptional({ description: 'Product benefits' })
+  @IsOptional()
+  @IsString()
+  benefits?: string;
+
+  @ApiPropertyOptional({ description: 'Suitable for Vata dosha' })
+  @IsOptional()
+  @IsBoolean()
+  doshaVata?: boolean;
+
+  @ApiPropertyOptional({ description: 'Suitable for Pitta dosha' })
+  @IsOptional()
+  @IsBoolean()
+  doshaPitta?: boolean;
+
+  @ApiPropertyOptional({ description: 'Suitable for Kapha dosha' })
+  @IsOptional()
+  @IsBoolean()
+  doshaKapha?: boolean;
+
+  @ApiPropertyOptional({ description: 'Usage instructions' })
+  @IsOptional()
+  @IsString()
+  usageInstructions?: string;
 
   @ApiPropertyOptional({ description: 'Product tags' })
   @IsOptional()
