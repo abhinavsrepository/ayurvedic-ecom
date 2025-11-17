@@ -1,20 +1,120 @@
-name: Backend CI
+name: Backend CI/CD
 
 on:
   pull_request:
     branches: [main, develop]
     paths:
       - 'ayurveda-api/**'
+      - '.github/workflows/backend-ci.yml'
   push:
     branches: [main, develop]
+    paths:
+      - 'ayurveda-api/**'
+      - '.github/workflows/backend-ci.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  WORKING_DIRECTORY: './ayurveda-api'
+  COVERAGE_THRESHOLD: 80
 
 jobs:
-  lint-and-test:
-    name: Lint & Test NestJS
+  # Job 1: Lint & Format Check
+  lint:
+    name: Lint & Format Check
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./ayurveda-api
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: |
+            ${{ env.WORKING_DIRECTORY }}/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-backend-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check || true
+
+  # Job 2: Type Check & Build
+  typecheck-and-build:
+    name: Type Check & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.WORKING_DIRECTORY }}/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-backend-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: ${{ env.WORKING_DIRECTORY }}/dist
+          retention-days: 7
+
+  # Job 3: Unit Tests
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     services:
       postgres:
@@ -48,14 +148,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: './ayurveda-api/package-lock.json'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.WORKING_DIRECTORY }}/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-backend-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Prisma generate
+      - name: Generate Prisma Client
         run: npx prisma generate
 
       - name: Run Prisma migrations
@@ -63,15 +173,111 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/ayurveda_test
 
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Run unit tests
-        run: npm run test
+      - name: Run unit tests with coverage
+        run: npm run test:cov
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/ayurveda_test
           REDIS_HOST: localhost
           REDIS_PORT: 6379
+          JWT_SECRET: test-secret
+          NODE_ENV: test
+
+      - name: Check coverage threshold
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            coverage=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+            echo "Current coverage: $coverage%"
+            if (( $(echo "$coverage < ${{ env.COVERAGE_THRESHOLD }}" | bc -l) )); then
+              echo "Coverage $coverage% is below threshold ${{ env.COVERAGE_THRESHOLD }}%"
+              exit 1
+            fi
+          fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ env.WORKING_DIRECTORY }}/coverage/lcov.info
+          flags: backend
+          name: ayurveda-api
+          fail_ci_if_error: false
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: ${{ env.WORKING_DIRECTORY }}/coverage
+          retention-days: 30
+
+  # Job 4: E2E Tests
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: ayurveda_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.WORKING_DIRECTORY }}/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-backend-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run Prisma migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/ayurveda_test
+
+      - name: Seed test database
+        run: npx prisma db seed || true
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/ayurveda_test
 
       - name: Run e2e tests
         run: npm run test:e2e
@@ -79,6 +285,160 @@ jobs:
           DATABASE_URL: postgresql://test:test@localhost:5432/ayurveda_test
           REDIS_HOST: localhost
           REDIS_PORT: 6379
+          JWT_SECRET: test-secret
+          NODE_ENV: test
 
-      - name: Build application
-        run: npm run build
+      - name: Upload e2e test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-e2e-results
+          path: ${{ env.WORKING_DIRECTORY }}/test-results
+          retention-days: 7
+
+  # Job 5: Security Scan
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate || true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: ${{ env.WORKING_DIRECTORY }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Job 6: Docker Build
+  docker-build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck-and-build, unit-tests]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/ayurveda-api
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.WORKING_DIRECTORY }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ayurveda-api:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ayurveda-api:buildcache,mode=max
+
+  # Job 7: Deploy Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [docker-build, e2e-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to staging
+        run: |
+          echo "Deploying to staging environment..."
+          # Add your deployment commands here
+          # Example: kubectl, helm, terraform, etc.
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests..."
+          # Add smoke tests here
+
+      - name: Notify team on Slack
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: ':rocket: Backend API deployed to staging',
+              attachments: [{
+                color: 'good',
+                text: `Commit: ${process.env.AS_COMMIT}\nBranch: ${process.env.AS_REF}\nAuthor: ${process.env.AS_AUTHOR}`
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # Job 8: Deploy Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    if: github.event_name == 'release'
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production environment..."
+          # Add your deployment commands here
+
+      - name: Run smoke tests
+        run: |
+          echo "Running production smoke tests..."
+          # Add smoke tests here
+
+      - name: Create deployment notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: ':tada: Backend API deployed to production!',
+              attachments: [{
+                color: 'good',
+                text: `Version: ${{ github.event.release.tag_name }}\nAuthor: ${process.env.AS_AUTHOR}`
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

@@ -1,29 +1,128 @@
 {
   "expo": {
-    "name": "ayur-mobile",
-    "slug": "ayur-mobile",
+    "name": "Ayurveda Haven",
+    "slug": "ayurveda-haven",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#22c55e"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "package": "com.ayurshop.mobile",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#10b981"
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ayurveda.haven",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need camera access to scan QR codes and upload product images",
+        "NSPhotoLibraryUsageDescription": "We need photo library access to upload product images",
+        "NSLocationWhenInUseUsageDescription": "We need location access to show nearby Ayurveda stores",
+        "NSFaceIDUsageDescription": "We use Face ID to secure your account and enable quick login"
+      },
+      "associatedDomains": [
+        "applinks:ayurvedahaven.com",
+        "applinks:www.ayurvedahaven.com"
+      ],
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#22c55e"
+      },
+      "package": "com.ayurveda.haven",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "ayurvedahaven.com",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.ayurvedahaven.com",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#22c55e",
+          "sounds": [
+            "./assets/sounds/notification.wav"
+          ]
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0",
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          },
+          "ios": {
+            "deploymentTarget": "14.0"
+          }
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Ayurveda Haven to use Face ID for secure authentication"
+        }
+      ]
+    ],
+    "scheme": "ayurveda",
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/your-project-id"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }
