@@ -5,23 +5,21 @@ import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 
-// Providers
-import { AuthProvider, CartProvider, WishlistProvider } from './src/context';
-
 // Navigation
 import { AppNavigator } from './src/navigation/AppNavigator';
 
-// Hooks
-import { useAuth } from './src/hooks/useAuth';
+// Zustand Stores (no Context providers needed!)
+import { useAuthStore } from './src/store/authStore';
 
 // Keep splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
 /**
- * App Root Component with Providers
+ * App Root Component
+ * Now using Zustand stores only - no Context providers!
  */
 function AppContent() {
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [appIsReady, setAppIsReady] = useState(false);
 
   useEffect(() => {
@@ -55,19 +53,16 @@ function AppContent() {
 
 /**
  * Main App Component
- * Sets up all providers and navigation
+ * Clean architecture with Zustand stores only
+ * ✅ Removed duplicate Context providers
+ * ✅ All state management via Zustand + MMKV
+ * ✅ Better performance, simpler code
  */
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <AppContent />
-            </WishlistProvider>
-          </CartProvider>
-        </AuthProvider>
+        <AppContent />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
