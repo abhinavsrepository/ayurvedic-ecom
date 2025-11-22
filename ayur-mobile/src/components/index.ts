@@ -5,6 +5,7 @@
 
 export { Button } from './Button';
 export { ProductCard } from './ProductCard';
+export { ModernProductCard } from './ProductCard.modern';
 export { CategoryCard } from './CategoryCard';
 export { Input } from './Input';
 export { Header } from './Header';
