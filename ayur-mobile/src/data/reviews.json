@@ -1,0 +1,56 @@
+[
+  {
+    "id": "rev_001",
+    "productId": "prod_001",
+    "userName": "Priya Sharma",
+    "rating": 5,
+    "comment": "Absolutely love this Ashwagandha powder! I've been using it for 3 months and my energy levels have improved significantly. Sleep quality is also much better.",
+    "date": "2025-01-10",
+    "helpful": 24
+  },
+  {
+    "id": "rev_002",
+    "productId": "prod_001",
+    "userName": "Rajesh Kumar",
+    "rating": 5,
+    "comment": "Best quality Ashwagandha I've tried. Mixes easily and no bitter aftertaste. Noticed reduced stress within 2 weeks.",
+    "date": "2025-01-08",
+    "helpful": 18
+  },
+  {
+    "id": "rev_003",
+    "productId": "prod_002",
+    "userName": "Anjali Patel",
+    "rating": 5,
+    "comment": "This oil is amazing! Not only has my hair fall reduced, but I also feel more relaxed after the massage. Highly recommend!",
+    "date": "2025-01-12",
+    "helpful": 31
+  },
+  {
+    "id": "rev_004",
+    "productId": "prod_003",
+    "userName": "Vikram Singh",
+    "rating": 5,
+    "comment": "Triphala is a game-changer for digestion. Been taking it for 6 months - no more bloating or irregularity!",
+    "date": "2025-01-05",
+    "helpful": 42
+  },
+  {
+    "id": "rev_005",
+    "productId": "prod_005",
+    "userName": "Neha Gupta",
+    "rating": 5,
+    "comment": "This face oil is pure luxury! My skin looks brighter and more radiant. The saffron glow is real!",
+    "date": "2025-01-14",
+    "helpful": 56
+  },
+  {
+    "id": "rev_006",
+    "productId": "prod_009",
+    "userName": "Amit Desai",
+    "rating": 5,
+    "comment": "My family has been taking Chyawanprash for years. This brand is authentic and tastes great. Perfect immunity booster!",
+    "date": "2025-01-11",
+    "helpful": 38
+  }
+]

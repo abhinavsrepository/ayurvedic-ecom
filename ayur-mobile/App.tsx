@@ -1,43 +1,74 @@
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from './screens/HomeScreen';
-import ProductsScreen from './screens/ProductsScreen';
-import QuizScreen from './screens/QuizScreen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as SplashScreen from 'expo-splash-screen';
 
-const Stack = createNativeStackNavigator();
+// Providers
+import { AuthProvider, CartProvider, WishlistProvider } from './src/context';
 
-export default function App() {
+// Navigation
+import { AppNavigator } from './src/navigation/AppNavigator';
+
+// Hooks
+import { useAuth } from './src/hooks/useAuth';
+
+// Keep splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
+
+/**
+ * App Root Component with Providers
+ */
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        // Pre-load fonts, make any API calls you need to do here
+        // Simulate loading
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+        await SplashScreen.hideAsync();
+      }
+    }
+
+    prepare();
+  }, []);
+
+  if (!appIsReady) {
+    return null;
+  }
+
   return (
     <NavigationContainer>
       <StatusBar style="light" />
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#10b981',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      >
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ title: '🌿 AyurShop' }}
-        />
-        <Stack.Screen
-          name="Products"
-          component={ProductsScreen}
-          options={{ title: 'Shop Products' }}
-        />
-        <Stack.Screen
-          name="Quiz"
-          component={QuizScreen}
-          options={{ title: 'Dosha Quiz' }}
-        />
-      </Stack.Navigator>
+      <AppNavigator isAuthenticated={isAuthenticated} />
     </NavigationContainer>
+  );
+}
+
+/**
+ * Main App Component
+ * Sets up all providers and navigation
+ */
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <AppContent />
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

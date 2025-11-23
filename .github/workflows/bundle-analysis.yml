@@ -1,0 +1,63 @@
+name: Bundle Analysis
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'ayurveda-shop/**'
+  push:
+    branches: [main]
+
+jobs:
+  analyze:
+    name: Analyze Bundle Size
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ayurveda-shop
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './ayurveda-shop/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Restore next build
+        uses: actions/cache@v4
+        id: restore-build-cache
+        env:
+          cache-name: cache-next-build
+        with:
+          path: ./ayurveda-shop/.next/cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('ayurveda-shop/package-lock.json') }}
+
+      - name: Build with bundle analyzer
+        run: ANALYZE=true npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
+      - name: Upload bundle analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-analysis
+          path: |
+            ./ayurveda-shop/.next/analyze/client.html
+            ./ayurveda-shop/.next/analyze/nodejs.html
+          retention-days: 30
+
+      - name: Comment PR with bundle size
+        if: github.event_name == 'pull_request'
+        uses: andresz1/size-limit-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          package_manager: npm
+          directory: ./ayurveda-shop

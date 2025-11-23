@@ -1,0 +1,463 @@
+[
+  {
+    "id": "prod_001",
+    "name": "Ashwagandha Root Powder",
+    "description": "Premium organic Ashwagandha root powder, sourced from the finest farms in India. Known as the king of Ayurvedic herbs, Ashwagandha is a powerful adaptogen that helps reduce stress, improve energy levels, and support overall vitality. This pure, unadulterated powder contains no fillers or additives, ensuring maximum potency and effectiveness.",
+    "shortDescription": "Reduce stress and boost energy naturally",
+    "price": 24.99,
+    "originalPrice": 34.99,
+    "discount": 29,
+    "category": "Powders",
+    "doshaTypes": ["Vata", "Kapha"],
+    "images": [
+      "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800",
+      "https://images.unsplash.com/photo-1505944357-2695ac19c1f2?w=800",
+      "https://images.unsplash.com/photo-1609252315108-8e3a0d4e98e7?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400",
+    "rating": 4.8,
+    "reviewCount": 234,
+    "inStock": true,
+    "stockQuantity": 150,
+    "benefits": [
+      "Reduces stress and anxiety",
+      "Improves energy and stamina",
+      "Enhances cognitive function",
+      "Supports immune system",
+      "Promotes restful sleep"
+    ],
+    "ingredients": ["100% Pure Ashwagandha Root Powder (Withania somnifera)"],
+    "usage": "Mix 1/2 to 1 teaspoon with warm water or milk. Take twice daily, preferably with meals. Can also be added to smoothies or teas.",
+    "isFeatured": true,
+    "isBestSeller": true,
+    "tags": ["Organic", "Stress Relief", "Energy", "Adaptogen"]
+  },
+  {
+    "id": "prod_002",
+    "name": "Brahmi Memory Oil",
+    "description": "Traditional Ayurvedic hair and scalp oil infused with Brahmi (Bacopa monnieri), known for its cognitive-enhancing properties. This therapeutic oil not only nourishes the hair and scalp but also calms the mind and improves concentration. The cooling properties of Brahmi make it perfect for head massage, promoting relaxation and mental clarity.",
+    "shortDescription": "Enhance memory and nourish hair naturally",
+    "price": 18.99,
+    "category": "Oils",
+    "doshaTypes": ["Pitta", "Vata"],
+    "images": [
+      "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800",
+      "https://images.unsplash.com/photo-1620411375959-2bc0ab3ce1d0?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400",
+    "rating": 4.7,
+    "reviewCount": 189,
+    "inStock": true,
+    "stockQuantity": 200,
+    "benefits": [
+      "Improves memory and concentration",
+      "Nourishes hair and prevents hair fall",
+      "Cools and calms the mind",
+      "Promotes restful sleep",
+      "Reduces scalp inflammation"
+    ],
+    "ingredients": ["Brahmi Extract", "Sesame Oil", "Amla", "Bhringraj", "Neem"],
+    "usage": "Apply to scalp and hair roots. Massage gently for 10-15 minutes. Leave for at least 30 minutes or overnight. Wash with mild shampoo. Use 2-3 times weekly.",
+    "isFeatured": true,
+    "isBestSeller": false,
+    "tags": ["Hair Care", "Memory", "Cooling", "Traditional"]
+  },
+  {
+    "id": "prod_003",
+    "name": "Triphala Tablets",
+    "description": "Authentic Triphala tablets combining three powerful fruits: Amalaki, Bibhitaki, and Haritaki. This classical Ayurvedic formulation is renowned for its detoxifying and rejuvenating properties. Triphala supports digestive health, promotes regular elimination, and acts as a gentle yet effective cleanser for the entire body.",
+    "shortDescription": "Detoxify and rejuvenate your body",
+    "price": 16.99,
+    "originalPrice": 21.99,
+    "discount": 23,
+    "category": "Tablets",
+    "doshaTypes": ["Tridosha"],
+    "images": [
+      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800",
+      "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
+    "rating": 4.9,
+    "reviewCount": 412,
+    "inStock": true,
+    "stockQuantity": 300,
+    "benefits": [
+      "Supports digestive health",
+      "Gentle detoxification",
+      "Promotes regular bowel movements",
+      "Rich in antioxidants",
+      "Balances all three doshas"
+    ],
+    "ingredients": ["Amalaki (Indian Gooseberry)", "Bibhitaki", "Haritaki"],
+    "usage": "Take 2 tablets twice daily with warm water, preferably before meals or at bedtime. For best results, use consistently for at least 3 months.",
+    "isFeatured": false,
+    "isBestSeller": true,
+    "tags": ["Detox", "Digestive Health", "Tridoshic", "Antioxidant"]
+  },
+  {
+    "id": "prod_004",
+    "name": "Tulsi Green Tea",
+    "description": "A harmonious blend of sacred Tulsi (Holy Basil) and premium green tea leaves, creating a powerful antioxidant-rich beverage. This wellness tea combines the adaptogenic properties of Tulsi with the metabolism-boosting benefits of green tea. Perfect for daily consumption, it supports immunity, reduces stress, and promotes overall well-being.",
+    "shortDescription": "Sacred Tulsi meets green tea wellness",
+    "price": 12.99,
+    "category": "Teas",
+    "doshaTypes": ["Kapha", "Vata"],
+    "images": [
+      "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800",
+      "https://images.unsplash.com/photo-1597318281882-673f86d3f59b?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",
+    "rating": 4.6,
+    "reviewCount": 156,
+    "inStock": true,
+    "stockQuantity": 250,
+    "benefits": [
+      "Boosts immunity",
+      "Rich in antioxidants",
+      "Supports metabolism",
+      "Reduces stress and anxiety",
+      "Promotes respiratory health"
+    ],
+    "ingredients": ["Organic Tulsi Leaves", "Green Tea", "Natural Flavors"],
+    "usage": "Steep one tea bag in hot water for 3-5 minutes. Enjoy 2-3 cups daily. Can be consumed with or without honey. Best enjoyed in the morning or evening.",
+    "isFeatured": true,
+    "isBestSeller": false,
+    "tags": ["Immunity", "Antioxidant", "Sacred Herb", "Organic"]
+  },
+  {
+    "id": "prod_005",
+    "name": "Kumkumadi Radiance Face Oil",
+    "description": "Luxurious Ayurvedic face oil crafted with saffron and 16 precious herbs. Kumkumadi oil is a time-honored beauty elixir that brightens complexion, reduces dark spots, and imparts a natural glow. This golden oil penetrates deep into the skin, nourishing from within and revealing radiant, youthful-looking skin.",
+    "shortDescription": "Illuminate your skin with saffron magic",
+    "price": 39.99,
+    "originalPrice": 49.99,
+    "discount": 20,
+    "category": "Skincare",
+    "doshaTypes": ["Pitta", "Vata"],
+    "images": [
+      "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=800",
+      "https://images.unsplash.com/photo-1571875257727-256c39da42af?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400",
+    "rating": 4.9,
+    "reviewCount": 298,
+    "inStock": true,
+    "stockQuantity": 120,
+    "benefits": [
+      "Brightens and evens skin tone",
+      "Reduces dark spots and pigmentation",
+      "Anti-aging properties",
+      "Deeply nourishing",
+      "Improves skin texture"
+    ],
+    "ingredients": ["Saffron", "Sandalwood", "Manjistha", "Licorice", "Sesame Oil", "Almond Oil"],
+    "usage": "Apply 3-4 drops to clean face and neck. Massage gently in upward circular motions until absorbed. Use nightly for best results. Can also be mixed with your moisturizer.",
+    "isFeatured": true,
+    "isBestSeller": true,
+    "tags": ["Luxury", "Glow", "Anti-Aging", "Saffron"]
+  },
+  {
+    "id": "prod_006",
+    "name": "Neem & Turmeric Face Wash",
+    "description": "Gentle yet effective face cleanser combining the antibacterial properties of Neem with the anti-inflammatory benefits of Turmeric. This soap-free formula cleanses deep into pores, removes impurities, and prevents acne without stripping natural oils. Ideal for oily and acne-prone skin, leaving it clean, clear, and refreshed.",
+    "shortDescription": "Purify and protect your skin naturally",
+    "price": 14.99,
+    "category": "Skincare",
+    "doshaTypes": ["Kapha", "Pitta"],
+    "images": [
+      "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800",
+      "https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400",
+    "rating": 4.5,
+    "reviewCount": 203,
+    "inStock": true,
+    "stockQuantity": 180,
+    "benefits": [
+      "Deep cleanses pores",
+      "Prevents acne and breakouts",
+      "Reduces inflammation",
+      "Antibacterial and antifungal",
+      "Brightens complexion"
+    ],
+    "ingredients": ["Neem Extract", "Turmeric", "Aloe Vera", "Coconut Oil", "Tea Tree Oil"],
+    "usage": "Wet face with water. Take a small amount and lather. Massage gently in circular motions. Rinse thoroughly with water. Use twice daily for best results.",
+    "isFeatured": false,
+    "isBestSeller": true,
+    "tags": ["Acne Care", "Natural", "Antibacterial", "Daily Use"]
+  },
+  {
+    "id": "prod_007",
+    "name": "Shatavari Women's Wellness Tablets",
+    "description": "Specially formulated tablets featuring Shatavari, the queen of herbs for women's health. This powerful adaptogen supports hormonal balance, reproductive health, and overall vitality in women. Traditionally used to nurture and strengthen the female reproductive system throughout all life stages.",
+    "shortDescription": "Support women's health naturally",
+    "price": 22.99,
+    "category": "Tablets",
+    "doshaTypes": ["Vata", "Pitta"],
+    "images": [
+      "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800",
+      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400",
+    "rating": 4.8,
+    "reviewCount": 267,
+    "inStock": true,
+    "stockQuantity": 160,
+    "benefits": [
+      "Supports hormonal balance",
+      "Promotes reproductive health",
+      "Enhances vitality and strength",
+      "Supports lactation in nursing mothers",
+      "Cooling and nourishing"
+    ],
+    "ingredients": ["Shatavari Root Extract (Asparagus racemosus)", "Ashoka", "Lodhra"],
+    "usage": "Take 2 tablets twice daily with warm water or milk, preferably after meals. Consult healthcare provider if pregnant or nursing.",
+    "isFeatured": true,
+    "isBestSeller": false,
+    "tags": ["Women's Health", "Hormonal Balance", "Cooling", "Adaptogen"]
+  },
+  {
+    "id": "prod_008",
+    "name": "Bhringraj Hair Growth Oil",
+    "description": "Traditional hair oil powered by Bhringraj, the king of herbs for hair. This potent formula stimulates hair follicles, promotes hair growth, and prevents premature graying. Enriched with coconut and sesame oils, it nourishes the scalp, strengthens hair roots, and adds natural shine and volume.",
+    "shortDescription": "Revitalize hair from root to tip",
+    "price": 21.99,
+    "category": "Hair Care",
+    "doshaTypes": ["Pitta", "Kapha"],
+    "images": [
+      "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800",
+      "https://images.unsplash.com/photo-1620411375959-2bc0ab3ce1d0?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400",
+    "rating": 4.7,
+    "reviewCount": 341,
+    "inStock": true,
+    "stockQuantity": 210,
+    "benefits": [
+      "Promotes hair growth",
+      "Prevents hair fall",
+      "Reduces premature graying",
+      "Strengthens hair roots",
+      "Adds shine and volume"
+    ],
+    "ingredients": ["Bhringraj Extract", "Coconut Oil", "Sesame Oil", "Amla", "Hibiscus"],
+    "usage": "Apply generously to scalp and hair. Massage for 5-10 minutes. Leave for 1-2 hours or overnight. Wash with mild shampoo. Use 2-3 times weekly.",
+    "isFeatured": false,
+    "isBestSeller": true,
+    "tags": ["Hair Growth", "Anti-Graying", "Strengthening", "Natural"]
+  },
+  {
+    "id": "prod_009",
+    "name": "Chyawanprash Immune Booster",
+    "description": "Ancient Ayurvedic superfood jam made with Amla and over 40 herbs and spices. This time-tested formulation builds immunity, enhances vitality, and promotes longevity. Rich in Vitamin C and antioxidants, Chyawanprash supports respiratory health and helps the body adapt to stress and seasonal changes.",
+    "shortDescription": "Traditional immunity and vitality booster",
+    "price": 28.99,
+    "originalPrice": 36.99,
+    "discount": 22,
+    "category": "Wellness",
+    "doshaTypes": ["Tridosha"],
+    "images": [
+      "https://images.unsplash.com/photo-1609252315108-8e3a0d4e98e7?w=800",
+      "https://images.unsplash.com/photo-1505944357-2695ac19c1f2?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1609252315108-8e3a0d4e98e7?w=400",
+    "rating": 4.9,
+    "reviewCount": 456,
+    "inStock": true,
+    "stockQuantity": 190,
+    "benefits": [
+      "Boosts immunity",
+      "Rich in antioxidants",
+      "Supports respiratory health",
+      "Increases energy and stamina",
+      "Promotes longevity"
+    ],
+    "ingredients": ["Amla (Indian Gooseberry)", "Ashwagandha", "Shatavari", "Ghee", "Honey", "40+ Herbs & Spices"],
+    "usage": "Take 1-2 teaspoons with warm water or milk, twice daily. Best consumed in the morning and evening. Suitable for all ages above 3 years.",
+    "isFeatured": true,
+    "isBestSeller": true,
+    "tags": ["Immunity", "Superfood", "Longevity", "Traditional"]
+  },
+  {
+    "id": "prod_010",
+    "name": "Turmeric Curcumin Capsules",
+    "description": "High-potency turmeric capsules with 95% curcuminoids and BioPerine for enhanced absorption. This golden spice is nature's most powerful anti-inflammatory, supporting joint health, digestion, and overall wellness. Our standardized extract ensures consistent quality and maximum benefits.",
+    "shortDescription": "Nature's golden anti-inflammatory",
+    "price": 19.99,
+    "category": "Tablets",
+    "doshaTypes": ["Kapha", "Vata"],
+    "images": [
+      "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800",
+      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400",
+    "rating": 4.8,
+    "reviewCount": 389,
+    "inStock": true,
+    "stockQuantity": 280,
+    "benefits": [
+      "Powerful anti-inflammatory",
+      "Supports joint health",
+      "Aids digestion",
+      "Rich in antioxidants",
+      "Supports brain health"
+    ],
+    "ingredients": ["Turmeric Root Extract (95% Curcuminoids)", "BioPerine (Black Pepper Extract)"],
+    "usage": "Take 1-2 capsules daily with meals and water. For best results, use consistently for at least 2-3 months.",
+    "isFeatured": false,
+    "isBestSeller": true,
+    "tags": ["Anti-Inflammatory", "Joint Health", "High Potency", "Bioavailable"]
+  },
+  {
+    "id": "prod_011",
+    "name": "Rose & Sandalwood Face Mist",
+    "description": "Refreshing facial mist infused with pure rose water and sandalwood hydrosol. This cooling spray instantly hydrates, tones, and revitalizes skin throughout the day. The aromatherapeutic properties calm the mind while balancing and soothing all skin types, especially sensitive and inflamed skin.",
+    "shortDescription": "Refresh and rejuvenate instantly",
+    "price": 16.99,
+    "category": "Skincare",
+    "doshaTypes": ["Pitta", "Vata"],
+    "images": [
+      "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=800",
+      "https://images.unsplash.com/photo-1571875257727-256c39da42af?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400",
+    "rating": 4.6,
+    "reviewCount": 178,
+    "inStock": true,
+    "stockQuantity": 165,
+    "benefits": [
+      "Instantly hydrates skin",
+      "Cooling and soothing",
+      "Balances skin pH",
+      "Calms inflammation",
+      "Aromatherapeutic benefits"
+    ],
+    "ingredients": ["Pure Rose Water", "Sandalwood Hydrosol", "Glycerin", "Vitamin E"],
+    "usage": "Spray on face from 6-8 inches away with eyes closed. Use after cleansing, throughout the day for refreshment, or to set makeup. Can also be used on hair and body.",
+    "isFeatured": true,
+    "isBestSeller": false,
+    "tags": ["Hydrating", "Cooling", "Toner", "Aromatherapy"]
+  },
+  {
+    "id": "prod_012",
+    "name": "Amla Vitamin C Powder",
+    "description": "Pure Indian Gooseberry (Amla) powder, nature's richest source of Vitamin C. This superfood powder is a powerful antioxidant that supports immunity, enhances digestion, and promotes healthy skin and hair. Unlike synthetic Vitamin C, Amla is gentle on the stomach and easily absorbed by the body.",
+    "shortDescription": "Nature's richest Vitamin C source",
+    "price": 15.99,
+    "category": "Powders",
+    "doshaTypes": ["Tridosha"],
+    "images": [
+      "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800",
+      "https://images.unsplash.com/photo-1505944357-2695ac19c1f2?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400",
+    "rating": 4.7,
+    "reviewCount": 221,
+    "inStock": true,
+    "stockQuantity": 240,
+    "benefits": [
+      "Rich in natural Vitamin C",
+      "Powerful antioxidant",
+      "Boosts immunity",
+      "Promotes healthy hair and skin",
+      "Supports digestion"
+    ],
+    "ingredients": ["100% Pure Amla (Indian Gooseberry) Powder"],
+    "usage": "Mix 1 teaspoon with water, juice, or smoothie. Take once or twice daily, preferably in the morning. Can also be mixed with honey for better taste.",
+    "isFeatured": false,
+    "isBestSeller": false,
+    "tags": ["Vitamin C", "Superfood", "Antioxidant", "Immunity"]
+  },
+  {
+    "id": "prod_013",
+    "name": "Lavender Chamomile Sleep Tea",
+    "description": "Calming herbal blend designed to promote restful sleep and relaxation. This caffeine-free tea combines the soothing properties of lavender and chamomile with traditional Ayurvedic herbs like Brahmi and Jatamansi. Perfect for unwinding after a long day and preparing for deep, restorative sleep.",
+    "shortDescription": "Drift into peaceful, restful sleep",
+    "price": 13.99,
+    "category": "Teas",
+    "doshaTypes": ["Vata", "Pitta"],
+    "images": [
+      "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800",
+      "https://images.unsplash.com/photo-1597318281882-673f86d3f59b?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",
+    "rating": 4.8,
+    "reviewCount": 312,
+    "inStock": true,
+    "stockQuantity": 195,
+    "benefits": [
+      "Promotes restful sleep",
+      "Reduces anxiety and stress",
+      "Calms the nervous system",
+      "No morning grogginess",
+      "Caffeine-free"
+    ],
+    "ingredients": ["Lavender Flowers", "Chamomile", "Brahmi", "Jatamansi", "Cardamom", "Cinnamon"],
+    "usage": "Steep one tea bag in hot water for 5-7 minutes. Drink 30-60 minutes before bedtime. Can add honey if desired. Avoid screen time after drinking for best results.",
+    "isFeatured": true,
+    "isBestSeller": false,
+    "tags": ["Sleep", "Relaxation", "Caffeine-Free", "Calming"]
+  },
+  {
+    "id": "prod_014",
+    "name": "Neem & Aloe Vera Shampoo",
+    "description": "Gentle, sulfate-free shampoo enriched with Neem and Aloe Vera for healthy scalp and beautiful hair. This natural formula cleanses without stripping natural oils, controls dandruff, and soothes scalp irritation. Suitable for all hair types, it leaves hair soft, manageable, and naturally lustrous.",
+    "shortDescription": "Gentle cleansing for healthy hair",
+    "price": 17.99,
+    "category": "Hair Care",
+    "doshaTypes": ["Kapha", "Pitta"],
+    "images": [
+      "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800",
+      "https://images.unsplash.com/photo-1620411375959-2bc0ab3ce1d0?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400",
+    "rating": 4.5,
+    "reviewCount": 198,
+    "inStock": true,
+    "stockQuantity": 175,
+    "benefits": [
+      "Sulfate-free gentle cleansing",
+      "Controls dandruff",
+      "Soothes scalp irritation",
+      "Adds natural shine",
+      "Suitable for all hair types"
+    ],
+    "ingredients": ["Neem Extract", "Aloe Vera", "Coconut-derived Cleansers", "Shikakai", "Reetha"],
+    "usage": "Wet hair thoroughly. Apply shampoo and massage into scalp. Lather and rinse. Repeat if necessary. For best results, follow with a natural conditioner.",
+    "isFeatured": false,
+    "isBestSeller": false,
+    "tags": ["Sulfate-Free", "Natural", "Dandruff Control", "Gentle"]
+  },
+  {
+    "id": "prod_015",
+    "name": "Giloy Immunity Juice",
+    "description": "Pure Giloy (Guduchi) juice, revered as the ultimate immune booster in Ayurveda. This potent herb purifies blood, supports liver function, and enhances the body's natural defense mechanisms. Known as the root of immortality, Giloy is particularly beneficial during seasonal changes and for building overall resilience.",
+    "shortDescription": "Ultimate immunity and vitality elixir",
+    "price": 23.99,
+    "originalPrice": 29.99,
+    "discount": 20,
+    "category": "Wellness",
+    "doshaTypes": ["Tridosha"],
+    "images": [
+      "https://images.unsplash.com/photo-1609252315108-8e3a0d4e98e7?w=800",
+      "https://images.unsplash.com/photo-1505944357-2695ac19c1f2?w=800"
+    ],
+    "thumbnail": "https://images.unsplash.com/photo-1609252315108-8e3a0d4e98e7?w=400",
+    "rating": 4.9,
+    "reviewCount": 367,
+    "inStock": true,
+    "stockQuantity": 145,
+    "benefits": [
+      "Powerful immune booster",
+      "Purifies blood",
+      "Supports liver function",
+      "Anti-inflammatory properties",
+      "Enhances vitality"
+    ],
+    "ingredients": ["Pure Giloy (Tinospora cordifolia) Extract", "Natural Preservatives"],
+    "usage": "Take 15-30 ml with equal amount of water, twice daily on empty stomach. Best taken in the morning and evening. Shake well before use.",
+    "isFeatured": true,
+    "isBestSeller": true,
+    "tags": ["Immunity", "Blood Purifier", "Liver Support", "Adaptogen"]
+  }
+]

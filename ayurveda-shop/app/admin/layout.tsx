@@ -21,6 +21,11 @@ import {
   Smartphone,
   MapPin,
   Image,
+  Tag,
+  FileText,
+  Shield,
+  Zap,
+  Flag,
 } from 'lucide-react';
 import { getSocket } from '@/lib/socket';
 import { toast, Toaster } from 'sonner';
@@ -40,12 +45,17 @@ const navigation: NavItem[] = [
   { name: 'Products', href: '/admin/products', icon: Package, roles: ['ADMIN', 'OPS'] },
   { name: 'Inventory', href: '/admin/inventory', icon: Package, roles: ['ADMIN', 'OPS'] },
   { name: 'Customers', href: '/admin/customers', icon: Users, roles: ['ADMIN', 'OPS'] },
+  { name: 'Promotions', href: '/admin/promotions', icon: Tag, roles: ['ADMIN', 'OPS'] },
+  { name: 'Content', href: '/admin/content', icon: FileText, roles: ['ADMIN', 'OPS'] },
   { name: 'Banners', href: '/admin/banners', icon: Image, roles: ['ADMIN', 'OPS'] },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, roles: ['ADMIN', 'FINANCE'] },
   { name: 'Traffic Sources', href: '/admin/traffic-sources', icon: Globe, roles: ['ADMIN', 'FINANCE'] },
   { name: 'Device Analytics', href: '/admin/device-analytics', icon: Smartphone, roles: ['ADMIN', 'FINANCE'] },
   { name: 'Geographic', href: '/admin/geographic', icon: MapPin, roles: ['ADMIN', 'FINANCE'] },
   { name: 'ML & AI', href: '/admin/ml', icon: Brain, roles: ['ADMIN'] },
+  { name: 'Users & Roles', href: '/admin/users-roles', icon: Shield, roles: ['ADMIN'] },
+  { name: 'Webhooks', href: '/admin/webhooks', icon: Zap, roles: ['ADMIN'] },
+  { name: 'Feature Flags', href: '/admin/feature-flags', icon: Flag, roles: ['ADMIN'] },
   { name: 'Settings', href: '/admin/settings', icon: Settings, roles: ['ADMIN'] },
 ];
 

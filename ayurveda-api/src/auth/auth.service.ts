@@ -1,104 +1,55 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as speakeasy from 'speakeasy';
 import * as QRCode from 'qrcode';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { LoginDto, LoginResponseDto, UserInfoDto } from './dto/login.dto';
+import { JwtPayload } from './strategies/jwt.strategy';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private config: ConfigService,
+    private configService: ConfigService,
   ) {}
 
-  async register(dto: RegisterDto) {
-    const existingUser = await this.prisma.user.findFirst({
-      where: {
-        OR: [{ username: dto.username }, { email: dto.email }],
-      },
+  async validateUser(username: string, password: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      include: { user_roles: { include: { roles: true } } },
     });
 
-    if (existingUser) {
-      throw new ConflictException('Username or email already exists');
+    if (!user) {
+      return null;
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 12);
-
-    const user = await this.prisma.user.create({
-      data: {
-        username: dto.username,
-        email: dto.email,
-        password: hashedPassword,
-        full_name: dto.fullName,
-        phone_number: dto.phoneNumber,
-      },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        full_name: true,
-        created_at: true,
-      },
-    });
-
-    await this.createAuditLog(user.id, 'USER_REGISTERED', 'User', user.id);
-
-    return user;
-  }
-
-  async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { username: dto.username },
-      include: {
-        user_roles: {
-          include: {
-            roles: true,
-          },
-        },
-      },
-    });
-
-    if (!user || !user.enabled) {
-      throw new UnauthorizedException('Invalid credentials');
+    if (!user.enabled) {
+      throw new UnauthorizedException('Account is disabled');
     }
 
     if (user.account_locked) {
       throw new UnauthorizedException('Account is locked');
     }
 
-    const passwordValid = await bcrypt.compare(dto.password, user.password);
-    if (!passwordValid) {
-      await this.incrementFailedAttempts(user.id);
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (user.two_fa_enabled && dto.twoFaCode) {
-      const valid = speakeasy.totp.verify({
-        secret: user.two_fa_secret,
-        encoding: 'base32',
-        token: dto.twoFaCode,
+    if (!isPasswordValid) {
+      // Increment failed login attempts
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failed_login_attempts: (user.failed_login_attempts || 0) + 1,
+          account_locked:
+            (user.failed_login_attempts || 0) + 1 >= 5 ? true : false,
+        },
       });
-
-      if (!valid) {
-        throw new UnauthorizedException('Invalid 2FA code');
-      }
-    } else if (user.two_fa_enabled && !dto.twoFaCode) {
-      return {
-        requires2FA: true,
-        userId: user.id,
-      };
+      return null;
     }
 
+    // Reset failed login attempts on successful login
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
@@ -107,144 +58,115 @@ export class AuthService {
       },
     });
 
-    const tokens = await this.generateTokens(user);
+    const { password: _, ...result } = user;
+    return result;
+  }
 
-    await this.createAuditLog(user.id, 'USER_LOGIN', 'User', user.id);
+  async login(loginDto: LoginDto): Promise<LoginResponseDto> {
+    const user = await this.validateUser(loginDto.username, loginDto.password);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Check 2FA if enabled
+    if (user.two_fa_enabled) {
+      if (!loginDto.twoFaCode) {
+        throw new UnauthorizedException('2FA code required');
+      }
+
+      const isValid = speakeasy.totp.verify({
+        secret: user.two_fa_secret,
+        encoding: 'base32',
+        token: loginDto.twoFaCode,
+        window: 2,
+      });
+
+      if (!isValid) {
+        throw new UnauthorizedException('Invalid 2FA code');
+      }
+    }
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+      roles: user.user_roles.map((ur) => ur.roles.name),
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '15m',
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+    });
 
     return {
-      ...tokens,
+      accessToken,
+      refreshToken,
+      tokenType: 'Bearer',
+      expiresIn: 900, // 15 minutes
       user: {
-        id: user.id,
         username: user.username,
         email: user.email,
-        fullName: user.full_name,
-        roles: user.user_roles.map((ur) => ur.roles.name),
+        fullName: user.full_name || '',
+        roles: payload.roles,
+        twoFaEnabled: user.two_fa_enabled || false,
       },
     };
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken: string): Promise<LoginResponseDto> {
     try {
-      const payload = this.jwtService.verify(refreshToken, {
-        secret:
-          this.config.get('JWT_REFRESH_SECRET') ||
-          this.config.get('JWT_SECRET'),
-      });
+      const payload = this.jwtService.verify(refreshToken);
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
-        include: {
-          user_roles: {
-            include: {
-              roles: true,
-            },
-          },
-        },
+        include: { user_roles: { include: { roles: true } } },
       });
 
       if (!user || !user.enabled) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      return this.generateTokens(user);
+      const newPayload: JwtPayload = {
+        sub: user.id,
+        username: user.username,
+        email: user.email,
+        roles: user.user_roles.map((ur) => ur.roles.name),
+      };
+
+      const newAccessToken = this.jwtService.sign(newPayload, {
+        expiresIn: '15m',
+      });
+
+      const newRefreshToken = this.jwtService.sign(newPayload, {
+        expiresIn: '7d',
+      });
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        tokenType: 'Bearer',
+        expiresIn: 900,
+        user: {
+          username: user.username,
+          email: user.email,
+          fullName: user.full_name || '',
+          roles: newPayload.roles,
+          twoFaEnabled: user.two_fa_enabled || false,
+        },
+      };
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
 
-  async enableTwoFa(userId: string) {
+  async getCurrentUser(userId: string): Promise<UserInfoDto> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-    });
-
-    if (!user) {
-      throw new BadRequestException('User not found');
-    }
-
-    if (user.two_fa_enabled) {
-      throw new BadRequestException('2FA is already enabled');
-    }
-
-    const secret = speakeasy.generateSecret({
-      name: `Ayurveda E-Commerce (${user.username})`,
-      length: 32,
-    });
-
-    const qrCode = await QRCode.toDataURL(secret.otpauth_url);
-
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        two_fa_secret: secret.base32,
-      },
-    });
-
-    return {
-      secret: secret.base32,
-      qrCode,
-    };
-  }
-
-  async verifyTwoFa(userId: string, code: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user || !user.two_fa_secret) {
-      throw new BadRequestException('2FA not initialized');
-    }
-
-    const valid = speakeasy.totp.verify({
-      secret: user.two_fa_secret,
-      encoding: 'base32',
-      token: code,
-    });
-
-    if (!valid) {
-      throw new BadRequestException('Invalid 2FA code');
-    }
-
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        two_fa_enabled: true,
-      },
-    });
-
-    await this.createAuditLog(userId, '2FA_ENABLED', 'User', userId);
-
-    return { success: true };
-  }
-
-  async disableTwoFa(userId: string) {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        two_fa_enabled: false,
-        two_fa_secret: null,
-      },
-    });
-
-    await this.createAuditLog(userId, '2FA_DISABLED', 'User', userId);
-
-    return { success: true };
-  }
-
-  async logout(userId: string) {
-    await this.createAuditLog(userId, 'USER_LOGOUT', 'User', userId);
-    return { success: true };
-  }
-
-  async getCurrentUserProfile(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        user_roles: {
-          include: {
-            roles: true,
-          },
-        },
-      },
+      include: { user_roles: { include: { roles: true } } },
     });
 
     if (!user) {
@@ -252,78 +174,80 @@ export class AuthService {
     }
 
     return {
-      id: user.id,
       username: user.username,
       email: user.email,
-      fullName: user.full_name,
-      phoneNumber: user.phone_number,
-      twoFaEnabled: user.two_fa_enabled,
-      lastLoginAt: user.last_login_at,
-      createdAt: user.created_at,
+      fullName: user.full_name || '',
       roles: user.user_roles.map((ur) => ur.roles.name),
+      twoFaEnabled: user.two_fa_enabled || false,
     };
   }
 
-  private async generateTokens(user: any) {
-    const payload = {
-      sub: user.id,
-      username: user.username,
-      roles: user.user_roles.map((ur) => ur.roles.name),
-    };
-
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, {
-        expiresIn: '15m',
-        secret: this.config.get('JWT_SECRET'),
-      }),
-      this.jwtService.signAsync(payload, {
-        expiresIn: '7d',
-        secret:
-          this.config.get('JWT_REFRESH_SECRET') ||
-          this.config.get('JWT_SECRET'),
-      }),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-      expiresIn: 900,
-    };
-  }
-
-  private async incrementFailedAttempts(userId: string) {
+  async enable2FA(userId: string): Promise<{ qrCode: string; secret: string }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
 
-    if (!user) return;
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
 
-    const failedAttempts = (user.failed_login_attempts || 0) + 1;
-    const shouldLock = failedAttempts >= 5;
+    const secret = speakeasy.generateSecret({
+      name: `Ayurveda Shop (${user.email})`,
+      length: 32,
+    });
 
+    // Store the secret temporarily (not yet enabled)
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { two_fa_secret: secret.base32 },
+    });
+
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+
+    return {
+      qrCode: qrCodeUrl,
+      secret: secret.base32,
+    };
+  }
+
+  async verify2FA(userId: string, code: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.two_fa_secret) {
+      throw new UnauthorizedException('2FA not set up');
+    }
+
+    const isValid = speakeasy.totp.verify({
+      secret: user.two_fa_secret,
+      encoding: 'base32',
+      token: code,
+      window: 2,
+    });
+
+    if (isValid) {
+      // Enable 2FA
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { two_fa_enabled: true },
+      });
+    }
+
+    return isValid;
+  }
+
+  async disable2FA(userId: string): Promise<void> {
     await this.prisma.user.update({
       where: { id: userId },
       data: {
-        failed_login_attempts: failedAttempts,
-        account_locked: shouldLock,
+        two_fa_enabled: false,
+        two_fa_secret: null,
       },
     });
   }
 
-  private async createAuditLog(
-    userId: string,
-    action: string,
-    entityType: string,
-    entityId: string,
-  ) {
-    await this.prisma.auditEvent.create({
-      data: {
-        user_id: userId,
-        action,
-        entity_type: entityType,
-        entity_id: entityId,
-        created_at: new Date(),
-      },
-    });
+  async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 10);
   }
 }
