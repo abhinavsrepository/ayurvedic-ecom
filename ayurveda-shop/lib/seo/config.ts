@@ -137,7 +137,6 @@ export function generatePageMetadata({
   keywords = [],
   ogImage,
   noIndex = false,
-  type,
 }: {
   title: string;
   description: string;
@@ -145,7 +144,6 @@ export function generatePageMetadata({
   keywords?: string[];
   ogImage?: string;
   noIndex?: boolean;
-  type?: 'website' | 'article';
 }): Metadata {
   const url = `${SITE_CONFIG.url}${path}`;
   const image = ogImage || SITE_CONFIG.ogImage;
@@ -155,7 +153,6 @@ export function generatePageMetadata({
     description,
     keywords: [...SITE_CONFIG.keywords, ...keywords],
     openGraph: {
-      ...(type === 'product' ? { type: 'website' as any } : type === 'article' ? { type: 'article' } : {}),
       url,
       title,
       description,
