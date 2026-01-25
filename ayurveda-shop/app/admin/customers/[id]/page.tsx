@@ -140,8 +140,8 @@ export default function CustomerDetailPage() {
               <MapPin className="w-5 h-5 mr-2" />
               Saved Addresses
             </h2>
-            <div className="space-y-4">
-              {customer.addresses.map((address) => (
+          <div className="space-y-4">
+              {customer.addresses?.map((address) => (
                 <div key={address.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
                   <div className="flex items-start justify-between mb-2">
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
@@ -168,14 +168,14 @@ export default function CustomerDetailPage() {
           </div>
 
           {/* Tags */}
-          {customer.tags.length > 0 && (
+          {(customer.tags?.length ?? 0) > 0 && (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                 <Tag className="w-5 h-5 mr-2" />
                 Tags
               </h2>
               <div className="flex flex-wrap gap-2">
-                {customer.tags.map((tag, idx) => (
+                {customer.tags?.map((tag, idx) => (
                   <span
                     key={idx}
                     className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full"

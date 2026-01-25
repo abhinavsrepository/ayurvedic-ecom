@@ -7,7 +7,8 @@ import { getProductBySlug, getProducts } from '@/app/actions/products';
 import ProductDetailSkeleton from '@/components/products/ProductDetailSkeleton';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import ProductClient from './ProductClient';
-import Breadcrumbs, { type BreadcrumbItem } from '@/components/seo/Breadcrumbs';
+import Breadcrumbs from '@/components/seo/Breadcrumbs';
+import { type BreadcrumbItem } from '@/lib/seo/config';
 import StructuredData, { generateProductSchema, generateFAQSchema, MultipleStructuredData } from '@/components/seo/StructuredData';
 import { REVALIDATION_TIMES, SITE_CONFIG, getAbsoluteUrl } from '@/lib/seo/config';
 import {

@@ -85,7 +85,7 @@ export default function AdminRegisterPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await apiClient.post('/api/auth/register', {
+      const response = await apiClient.post<any>('/api/auth/register', {
         username: formData.username,
         email: formData.email,
         password: formData.password,

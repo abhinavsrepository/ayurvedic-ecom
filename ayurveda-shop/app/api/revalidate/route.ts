@@ -50,14 +50,14 @@ export async function POST(request: NextRequest) {
 
     // Revalidate single tag
     if (tag) {
-      revalidateTag(tag);
+      revalidateTag(tag, 'default');
       revalidated.push(`tag:${tag}`);
     }
 
     // Revalidate multiple tags
     if (tags && Array.isArray(tags)) {
       for (const t of tags) {
-        revalidateTag(t);
+        revalidateTag(t, 'default');
         revalidated.push(`tag:${t}`);
       }
     }

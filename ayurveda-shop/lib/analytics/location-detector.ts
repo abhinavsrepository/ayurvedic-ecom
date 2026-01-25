@@ -88,23 +88,25 @@ export class LocationDetector {
     // Start with IP-based location
     const ipLocation = await this.getLocationFromIP();
 
-    // If precise location is requested and permission is granted
-    if (requestPreciseLocation) {
-      const gpsLocation = await this.getPreciseLocation();
+      // If precise location is requested and permission is granted
+      if (requestPreciseLocation) {
+        const gpsLocation = await this.getPreciseLocation();
 
-      if (gpsLocation) {
-        return {
-          ...ipLocation,
-          latitude: gpsLocation.coords.latitude,
-          longitude: gpsLocation.coords.longitude,
-          accuracy: 'high',
-        };
+        if (gpsLocation) {
+          return {
+            ...ipLocation,
+            latitude: gpsLocation.coords.latitude,
+            longitude: gpsLocation.coords.longitude,
+            accuracy: 'high',
+            timezone: ipLocation.timezone ?? this.getTimezone(),
+          };
+        }
       }
-    }
 
-    return {
-      timezone: this.getTimezone(),
-      ...ipLocation,
-    };
+      return {
+        timezone: this.getTimezone(),
+        ...ipLocation,
+        accuracy: ipLocation.accuracy ?? 'low',
+      };
   }
 }

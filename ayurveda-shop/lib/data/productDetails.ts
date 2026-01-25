@@ -1,6 +1,6 @@
 import { Product } from "@/components/product/ProductCard";
 
-export interface ProductDetail extends Product {
+export interface ProductDetail extends Omit<Product, 'howToUse'> {
   images: string[];
   longDescription: string;
   ingredients: string[];

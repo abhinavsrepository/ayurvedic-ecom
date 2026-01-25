@@ -9,7 +9,7 @@ import { featuredProducts } from "./products";
 // Extend the existing products with dosha and benefits data
 export const allProducts: Product[] = featuredProducts.map(product => {
   // Add doshaType and benefits based on product category/type
-  let doshaType = "all";
+  let doshaType: "all" | "vata" | "pitta" | "kapha" = "all";
   let benefits: string[] = [];
 
   switch (product.id) {

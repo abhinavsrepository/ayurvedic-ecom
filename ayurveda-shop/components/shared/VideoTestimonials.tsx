@@ -144,16 +144,6 @@ export default function VideoTestimonials({
         </motion.p>
       </div>
 
-      {/* Hide scrollbar styles */}
-      <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </section>
   );
 }
@@ -251,7 +241,7 @@ function VideoCard({
 
           {/* Mute/Unmute Button */}
           <motion.button
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               toggleMute(video.id);
             }}

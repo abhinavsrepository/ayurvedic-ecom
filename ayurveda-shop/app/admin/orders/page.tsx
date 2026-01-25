@@ -14,7 +14,7 @@ interface Order {
   customerName: string;
   customerEmail: string;
   status: OrderStatus;
-  paymentStatus: 'pending' | 'paid' | 'failed';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   total: number;
   createdAt: string;
   items: any[];

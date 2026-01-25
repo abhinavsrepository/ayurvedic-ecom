@@ -27,7 +27,6 @@ import {
   Zap,
   Flag,
 } from 'lucide-react';
-import { getSocket } from '@/lib/socket';
 import { toast, Toaster } from 'sonner';
 import { AdminAuthProvider, useAdminAuth } from '@/contexts/AdminAuthContext';
 import ProtectedRoute from '@/components/admin/ProtectedRoute';
@@ -77,39 +76,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         document.documentElement.classList.add('dark');
       }
     }
-  }, []);
-
-  useEffect(() => {
-    // Setup real-time order notifications
-    const socket = getSocket();
-
-    socket.on('order:new', (order: any) => {
-      setNotifications(prev => prev + 1);
-      toast.success('New Order Received', {
-        description: `Order ${order.orderNumber} from ${order.customerName} - ₹${order.total.toLocaleString('en-IN')}`,
-        action: {
-          label: 'View',
-          onClick: () => window.location.href = `/admin/orders/${order.id}`,
-        },
-      });
-
-      // Play notification sound
-      if (typeof Audio !== 'undefined') {
-        const audio = new Audio('/notification.mp3');
-        audio.volume = 0.3;
-        audio.play().catch(() => {});
-      }
-    });
-
-    socket.on('alert:lowstock', (alert: any) => {
-      toast.warning('Low Stock Alert', {
-        description: `${alert.productName} is running low (${alert.currentStock} units left)`,
-      });
-    });
-
-    return () => {
-      socket.disconnect();
-    };
   }, []);
 
   const toggleDarkMode = () => {

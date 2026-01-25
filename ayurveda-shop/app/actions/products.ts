@@ -318,8 +318,8 @@ export async function createProduct(data: ProductCreateRequest): Promise<Product
   const product = ProductResponseSchema.parse(result);
 
   // Revalidate caches
-  revalidateTag('products');
-  revalidateTag('featured-products');
+  revalidateTag('products', 'default');
+  revalidateTag('featured-products', 'default');
 
   return product;
 }
@@ -347,9 +347,9 @@ export async function updateProduct(
   const product = ProductResponseSchema.parse(result);
 
   // Revalidate caches
-  revalidateTag('products');
-  revalidateTag(`product-${product.slug}`);
-  revalidateTag('featured-products');
+  revalidateTag('products', 'default');
+  revalidateTag(`product-${product.slug}`, 'default');
+  revalidateTag('featured-products', 'default');
 
   return product;
 }
@@ -370,6 +370,6 @@ export async function deleteProduct(productId: string): Promise<void> {
   }
 
   // Revalidate caches
-  revalidateTag('products');
-  revalidateTag('featured-products');
+  revalidateTag('products', 'default');
+  revalidateTag('featured-products', 'default');
 }

@@ -170,7 +170,7 @@ export default function ScratchCard() {
               initial={{ scale: 0.8, rotateY: -90 }}
               animate={{ scale: 1, rotateY: 0 }}
               exit={{ scale: 0.8, rotateY: 90 }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
               className="relative bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl"
             >
               {/* Close Button */}

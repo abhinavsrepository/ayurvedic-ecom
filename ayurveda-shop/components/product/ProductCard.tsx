@@ -30,9 +30,9 @@ export interface Product {
   metaTitle?: string;
   metaDescription?: string;
   keywords?: string[];
-  ingredients?: string[];
-  howToUse?: string;
-  warnings?: string;
+  ingredients?: string[] | string;
+  howToUse?: string[] | string;
+  warnings?: string[] | string;
   shelfLife?: string;
   madeIn?: string;
   certifications?: string[];
