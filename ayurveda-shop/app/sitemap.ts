@@ -55,56 +55,57 @@ const CATEGORIES = [
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_CONFIG.url;
-
+ 
   try {
-    // Fetch all active products from the API
+    // Fetch all active products from API
     const productsResponse = await getProducts({ page: 0, size: 1000, status: 'ACTIVE' });
-    const products = productsResponse.content;
-
+    const products = productsResponse.content || [];
+ 
     // Generate product URLs
-    const productUrls: MetadataRoute.Sitemap = products.map((product) => ({
+    const productUrls: MetadataRoute.Sitemap = products.map((product: any) =>({
       url: `${baseUrl}/product/${product.slug}`,
       lastModified: product.updatedAt ? new Date(product.updatedAt) : new Date(),
       changeFrequency: 'weekly',
       priority: product.isFeatured ? 0.8 : 0.6,
     }));
-
+ 
     // Generate category URLs
-    const categoryUrls: MetadataRoute.Sitemap = CATEGORIES.map((category) => ({
+    const categoryUrls: MetadataRoute.Sitemap = CATEGORIES.map((category) =>({
       url: `${baseUrl}/shop?category=${encodeURIComponent(category)}`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.7,
     }));
-
+ 
     // Generate static page URLs
-    const staticUrls: MetadataRoute.Sitemap = STATIC_PAGES.map((page) => ({
+    const staticUrls: MetadataRoute.Sitemap = STATIC_PAGES.map((page) =>({
       url: `${baseUrl}${page.url}`,
       lastModified: page.lastModified,
       changeFrequency: page.changeFrequency,
       priority: page.priority,
     }));
-
+ 
     // TODO: Add blog posts when blog API is available
     // const blogPosts = await getBlogPosts();
-    // const blogUrls = blogPosts.map(post => ({
+    // const blogUrls = blogPosts.map(post =>({
     //   url: `${baseUrl}/blog/${post.slug}`,
     //   lastModified: new Date(post.updatedAt),
     //   changeFrequency: 'weekly',
     //   priority: 0.7,
     // }));
-
+ 
     // Combine all URLs
     return [...staticUrls, ...categoryUrls, ...productUrls];
   } catch (error) {
     console.error('Error generating sitemap:', error);
-
+ 
     // Return at least static pages if product fetch fails
-    return STATIC_PAGES.map((page) => ({
+    return STATIC_PAGES.map((page) =>({
       url: `${baseUrl}${page.url}`,
       lastModified: page.lastModified,
       changeFrequency: page.changeFrequency,
       priority: page.priority,
     }));
   }
+}
 }
