@@ -6,9 +6,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
 
-// Providers
-import { AuthProvider, CartProvider, WishlistProvider } from './src/context';
-
 // Navigation
 import { AppNavigator } from './src/navigation/AppNavigator';
 
@@ -29,7 +26,8 @@ const queryClient = new QueryClient({
 SplashScreen.preventAutoHideAsync();
 
 /**
- * App Root Component with Providers
+ * App Root Component
+ * Now using Zustand stores only - no Context providers!
  */
 function AppContent() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -66,7 +64,10 @@ function AppContent() {
 
 /**
  * Main App Component
- * Sets up all providers and navigation
+ * Clean architecture with Zustand stores only
+ * ✅ Removed duplicate Context providers
+ * ✅ All state management via Zustand + MMKV
+ * ✅ Better performance, simpler code
  */
 export default function App() {
   return (

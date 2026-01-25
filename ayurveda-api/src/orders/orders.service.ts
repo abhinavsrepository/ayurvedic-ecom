@@ -433,7 +433,7 @@ export class OrdersService {
    * Invalidate order-related caches
    */
   private async invalidateOrderCaches(customerId?: string, orderId?: string) {
-    const promises = [];
+    const promises: Promise<void>[] = [];
 
     if (orderId) {
       promises.push(this.cacheService.del(CACHE_KEYS.ORDER_BY_ID(orderId)));

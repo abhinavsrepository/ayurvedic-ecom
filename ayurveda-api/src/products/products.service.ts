@@ -228,7 +228,7 @@ export class ProductsService {
    * Invalidate product-related caches
    */
   private async invalidateProductCaches(id?: string, slug?: string) {
-    const promises = [];
+    const promises: Promise<void>[] = [];
 
     if (id) {
       promises.push(this.cacheService.del(CACHE_KEYS.PRODUCT_BY_ID(id)));

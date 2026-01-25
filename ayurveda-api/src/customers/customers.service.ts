@@ -224,7 +224,7 @@ export class CustomersService {
    * Invalidate customer-related caches
    */
   private async invalidateCustomerCaches(id?: string) {
-    const promises = [];
+    const promises: Promise<void>[] = [];
 
     if (id) {
       promises.push(this.cacheService.del(CACHE_KEYS.CUSTOMER_BY_ID(id)));
