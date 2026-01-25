@@ -118,7 +118,7 @@ export const DEFAULT_METADATA: Metadata = {
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
     yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
-    bing: process.env.NEXT_PUBLIC_BING_VERIFICATION,
+    ...(process.env.NEXT_PUBLIC_BING_VERIFICATION ? { bing: process.env.NEXT_PUBLIC_BING_VERIFICATION } : {}),
   },
   alternates: {
     canonical: SITE_CONFIG.url,
