@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
  
   try {
     // Fetch all active products from API
-    const productsResponse = await getProducts({ page: 0, size: 1000, status: 'ACTIVE' });
+    const productsResponse = await getProducts({ page: 0, size: 100, status: 'ACTIVE' });
     const products = productsResponse.content || [];
  
     // Generate product URLs
@@ -93,14 +93,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     //   changeFrequency: 'weekly',
     //   priority: 0.7,
     // }));
- 
-    // Combine all URLs
-    return [...staticUrls, ...categoryUrls, ...productUrls];
+
+  // Combine all URLs
+  return [...staticUrls, ...categoryUrls, ...productUrls];
   } catch (error) {
     console.error('Error generating sitemap:', error);
- 
+
     // Return at least static pages if product fetch fails
-    return STATIC_PAGES.map((page) =>({
+    return STATIC_PAGES.map((page) => ({
       url: `${baseUrl}${page.url}`,
       lastModified: page.lastModified,
       changeFrequency: page.changeFrequency,
