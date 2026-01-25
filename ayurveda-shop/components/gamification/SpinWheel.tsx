@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Gift, Sparkles } from "lucide-react";
+import { useUI } from "@/contexts/UIContext";
 
 interface Prize {
   id: string;
@@ -22,7 +23,7 @@ const prizes: Prize[] = [
 ];
 
 export default function SpinWheel() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isSpinWheelOpen: isOpen, setIsSpinWheelOpen: setIsOpen } = useUI();
   const [isSpinning, setIsSpinning] = useState(false);
   const [hasSpun, setHasSpun] = useState(false);
   const [wonPrize, setWonPrize] = useState<Prize | null>(null);
@@ -130,54 +131,6 @@ export default function SpinWheel() {
 
   return (
     <>
-      {/* Floating Trigger Button */}
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsOpen(true)}
-            className={`fixed bottom-24 right-6 z-40 w-16 h-16 ${
-              hasSpun
-                ? "bg-gradient-to-br from-gray-400 to-gray-600"
-                : "bg-gradient-to-br from-accent to-yellow-600"
-            } text-white rounded-full shadow-2xl flex items-center justify-center hover:shadow-accent/50 transition-all`}
-            aria-label={hasSpun ? "View Your Prize" : "Spin to Win"}
-          >
-            <motion.div
-              animate={{
-                rotate: hasSpun ? 0 : [0, 360],
-              }}
-              transition={{
-                duration: 3,
-                repeat: hasSpun ? 0 : Infinity,
-                ease: "linear",
-              }}
-            >
-              <Gift className="w-7 h-7" />
-            </motion.div>
-
-            {/* Pulse indicator - only when not spun */}
-            {!hasSpun && (
-              <motion.div
-                className="absolute inset-0 bg-accent rounded-full"
-                animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.5, 0, 0.5],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                }}
-              />
-            )}
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       {/* Spin Wheel Modal */}
       <AnimatePresence>
         {isOpen && (
@@ -279,11 +232,9 @@ export default function SpinWheel() {
                         <div
                           className="absolute w-full h-full flex items-center justify-center"
                           style={{
-                            clipPath: `polygon(50% 50%, 50% 0%, ${
-                              50 + 50 * Math.sin((segmentAngle * Math.PI) / 180)
-                            }% ${
-                              50 - 50 * Math.cos((segmentAngle * Math.PI) / 180)
-                            }%)`,
+                            clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.sin((segmentAngle * Math.PI) / 180)
+                              }% ${50 - 50 * Math.cos((segmentAngle * Math.PI) / 180)
+                              }%)`,
                             backgroundColor: prize.color,
                           }}
                         >

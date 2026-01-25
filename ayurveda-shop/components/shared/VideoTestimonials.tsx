@@ -85,34 +85,36 @@ export default function VideoTestimonials({
         {/* Video Carousel */}
         <div className="relative">
           {/* Navigation Buttons */}
-          <div className="hidden md:block">
-            <motion.button
-              onClick={() => scroll("left")}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white shadow-xl rounded-full hover:bg-primary hover:text-white transition-colors -ml-6"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </motion.button>
+          {videos.length > 3 && (
+            <div className="hidden md:block">
+              <motion.button
+                onClick={() => scroll("left")}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white shadow-xl rounded-full hover:bg-primary hover:text-white transition-colors -ml-6"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </motion.button>
 
-            <motion.button
-              onClick={() => scroll("right")}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white shadow-xl rounded-full hover:bg-primary hover:text-white transition-colors -mr-6"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </motion.button>
-          </div>
+              <motion.button
+                onClick={() => scroll("right")}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 bg-white shadow-xl rounded-full hover:bg-primary hover:text-white transition-colors -mr-6"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </motion.button>
+            </div>
+          )}
 
           {/* Video Grid Container */}
           <div
             ref={scrollContainerRef}
             className={cn(
-              "flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 px-4 md:px-0",
-              videos.length <= 3 ? "md:justify-center" : ""
+              "flex gap-6 overflow-x-auto md:overflow-x-hidden scrollbar-hide snap-x snap-mandatory pb-4 px-4 md:px-0",
+              videos.length <= 3 ? "md:justify-center" : "md:justify-start"
             )}
             style={{
               scrollbarWidth: "none",
@@ -207,7 +209,7 @@ function VideoCard({
   return (
     <motion.div
       ref={ref}
-      className="flex-shrink-0 w-80 snap-start"
+      className="flex-shrink-0 w-[280px] sm:w-[320px] md:flex-1 md:max-w-[360px] snap-center md:snap-align-none"
       initial={{ opacity: 0, x: 50 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}

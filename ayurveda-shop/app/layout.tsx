@@ -7,6 +7,8 @@ import { Toaster } from "sonner";
 import QueryProvider from "@/lib/providers/QueryProvider";
 import { DEFAULT_METADATA, ORGANIZATION_SCHEMA, WEBSITE_SCHEMA, LOCAL_BUSINESS_SCHEMA } from "@/lib/seo/config";
 import StructuredData from "@/components/seo/StructuredData";
+import FloatingMenu from "@/components/shared/FloatingMenu";
+import { UIProvider } from "@/contexts/UIContext";
 
 // Modern sans-serif for body text - optimized with next/font
 const inter = Inter({
@@ -68,11 +70,14 @@ export default function RootLayout({
         </a>
 
         <QueryProvider>
-          <CartProvider>
-            <Toaster position="top-right" richColors />
-            {children}
-            <GamificationWrapper />
-          </CartProvider>
+          <UIProvider>
+            <CartProvider>
+              <Toaster position="top-right" richColors />
+              {children}
+              <GamificationWrapper />
+              <FloatingMenu />
+            </CartProvider>
+          </UIProvider>
         </QueryProvider>
       </body>
     </html>

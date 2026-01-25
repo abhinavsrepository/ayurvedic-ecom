@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles } from "lucide-react";
+import { X, Sparkles, Users, Gift, Share2 } from "lucide-react";
+import { useUI } from "@/contexts/UIContext";
 
 interface Reward {
   type: "discount" | "freebie" | "points";
@@ -20,7 +21,7 @@ const rewards: Reward[] = [
 ];
 
 export default function ScratchCard() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isScratchCardOpen: isOpen, setIsScratchCardOpen: setIsOpen } = useUI();
   const [isScratching, setIsScratching] = useState(false);
   const [scratchPercentage, setScratchPercentage] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
@@ -155,34 +156,6 @@ export default function ScratchCard() {
 
   return (
     <>
-      {/* Floating Trigger Button */}
-      <AnimatePresence>
-        {!isOpen && !hasScratched && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsOpen(true)}
-            className="fixed bottom-44 right-6 z-40 w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:shadow-yellow-500/50 transition-all"
-            aria-label="Scratch Card"
-          >
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-              }}
-            >
-              <Sparkles className="w-7 h-7" />
-            </motion.div>
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       {/* Scratch Card Modal */}
       <AnimatePresence>
         {isOpen && (

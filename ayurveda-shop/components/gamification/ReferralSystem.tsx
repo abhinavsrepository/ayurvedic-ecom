@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Users, Copy, Gift, Share2, Facebook, Twitter, Mail, CheckCircle2 } from "lucide-react";
+import { useUI } from "@/contexts/UIContext";
 
 interface ReferralStats {
   code: string;
@@ -12,7 +13,7 @@ interface ReferralStats {
 }
 
 export default function ReferralSystem() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isReferralOpen: isOpen, setIsReferralOpen: setIsOpen } = useUI();
   const [referralCode, setReferralCode] = useState("");
   const [stats, setStats] = useState<ReferralStats>({
     code: "",
@@ -75,28 +76,6 @@ export default function ReferralSystem() {
 
   return (
     <>
-      {/* Floating Trigger Button */}
-      <motion.button
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-64 right-6 z-40 w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:shadow-green-500/50 transition-all"
-        aria-label="Referral Program"
-      >
-        <Users className="w-7 h-7" />
-        {stats.referrals > 0 && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold"
-          >
-            {stats.referrals}
-          </motion.div>
-        )}
-      </motion.button>
-
       {/* Referral Modal */}
       <AnimatePresence>
         {isOpen && (

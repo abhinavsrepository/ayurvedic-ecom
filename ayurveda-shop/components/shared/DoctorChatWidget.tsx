@@ -12,6 +12,7 @@ import {
   Minimize2,
   RotateCcw,
 } from "lucide-react";
+import { useUI } from "@/contexts/UIContext";
 
 interface Message {
   id: string;
@@ -33,7 +34,7 @@ const quickActions: QuickAction[] = [
 ];
 
 export default function DoctorChatWidget() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isDoctorChatOpen: isOpen, setIsDoctorChatOpen: setIsOpen } = useUI();
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -184,47 +185,6 @@ export default function DoctorChatWidget() {
 
   return (
     <>
-      {/* Floating Chat Button */}
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-gradient-to-br from-primary to-primary-dark text-white rounded-full shadow-2xl flex items-center justify-center hover:shadow-primary/50 transition-all"
-            aria-label="Open Doctor Chat"
-          >
-            <motion.div
-              animate={{
-                rotate: [0, 10, -10, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatDelay: 3,
-              }}
-            >
-              <Stethoscope className="w-7 h-7" />
-            </motion.div>
-
-            {/* Notification Dot */}
-            <motion.div
-              className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full border-2 border-white"
-              animate={{
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-              }}
-            />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
@@ -318,24 +278,21 @@ export default function DoctorChatWidget() {
                       key={message.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`flex ${
-                        message.role === "user" ? "justify-end" : "justify-start"
-                      }`}
+                      className={`flex ${message.role === "user" ? "justify-end" : "justify-start"
+                        }`}
                     >
                       <div
-                        className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-                          message.role === "user"
+                        className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${message.role === "user"
                             ? "bg-primary text-white rounded-br-sm"
                             : "bg-white text-foreground rounded-bl-sm shadow-sm border border-primary/10"
-                        }`}
+                          }`}
                       >
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">
                           {message.content}
                         </p>
                         <p
-                          className={`text-xs mt-1 ${
-                            message.role === "user" ? "text-white/70" : "text-text-secondary"
-                          }`}
+                          className={`text-xs mt-1 ${message.role === "user" ? "text-white/70" : "text-text-secondary"
+                            }`}
                         >
                           {message.timestamp.toLocaleTimeString([], {
                             hour: "2-digit",
