@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Play, Volume2, VolumeX } from "lucide-react";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/motion-variants";
 import { useInView } from "react-intersection-observer";
+import { cn } from "@/lib/utils";
 
 interface VideoTestimonial {
   id: string;
@@ -109,7 +110,10 @@ export default function VideoTestimonials({
           {/* Video Grid Container */}
           <div
             ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4"
+            className={cn(
+              "flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 px-4 md:px-0",
+              videos.length <= 3 ? "md:justify-center" : ""
+            )}
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -165,6 +169,7 @@ function VideoCard({
   toggleMute: (id: string) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [ref, inView] = useInView({
     threshold: 0.5,
     triggerOnce: false,
@@ -174,14 +179,30 @@ function VideoCard({
   useEffect(() => {
     if (videoRef.current) {
       if (inView) {
-        videoRef.current.play().catch(() => {
-          // Auto-play might be blocked, user needs to interact
-        });
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlaying(true))
+            .catch(() => setIsPlaying(false));
+        }
       } else {
         videoRef.current.pause();
+        setIsPlaying(false);
       }
     }
   }, [inView]);
+
+  const handleTogglePlay = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setIsPlaying(true);
+      } else {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    }
+  };
 
   return (
     <motion.div
@@ -194,23 +215,45 @@ function VideoCard({
     >
       <div className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow">
         {/* Video Container */}
-        <div className="relative aspect-[9/16] bg-gradient-to-br from-primary-light/20 to-accent/20 overflow-hidden">
+        <div
+          className="relative aspect-[9/16] bg-black overflow-hidden cursor-pointer"
+          onClick={handleTogglePlay}
+        >
           {/* Auto-playing Video */}
           <video
             ref={videoRef}
             src={video.videoUrl}
             poster={video.thumbnail}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain bg-black"
             loop
             muted={mutedVideos.has(video.id)}
             playsInline
             controls={false}
           />
 
+          {/* Play Overlay (appears when paused) */}
+          <AnimatePresence>
+            {!isPlaying && (
+              <motion.div
+                className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px] z-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <div className="p-5 bg-white/20 backdrop-blur-md rounded-full border border-white/30">
+                  <Play className="w-10 h-10 text-white fill-current" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Mute/Unmute Button */}
           <motion.button
-            onClick={() => toggleMute(video.id)}
-            className="absolute top-4 right-4 p-3 bg-black/60 backdrop-blur-sm rounded-full text-white hover:bg-black/80 transition-colors z-10"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleMute(video.id);
+            }}
+            className="absolute top-4 right-4 p-3 bg-black/60 backdrop-blur-sm rounded-full text-white hover:bg-black/80 transition-colors z-20"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             aria-label={mutedVideos.has(video.id) ? "Unmute" : "Mute"}
@@ -223,7 +266,7 @@ function VideoCard({
           </motion.button>
 
           {/* Caption Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 z-10">
             <p className="text-white font-semibold text-lg mb-2">
               {video.caption}
             </p>
@@ -242,11 +285,10 @@ function VideoCard({
                 {[...Array(5)].map((_, i) => (
                   <svg
                     key={i}
-                    className={`w-5 h-5 ${
-                      i < video.rating
-                        ? "text-accent fill-current"
-                        : "text-gray-300"
-                    }`}
+                    className={`w-5 h-5 ${i < video.rating
+                      ? "text-accent fill-current"
+                      : "text-gray-300"
+                      }`}
                     viewBox="0 0 20 20"
                   >
                     <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />

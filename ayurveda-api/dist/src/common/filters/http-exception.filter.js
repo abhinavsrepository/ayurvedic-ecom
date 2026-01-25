@@ -5,9 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var AllExceptionsFilter_1, HttpExceptionFilter_1;
+var AllExceptionsFilter_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HttpExceptionFilter = exports.AllExceptionsFilter = void 0;
+exports.AllExceptionsFilter = void 0;
 const common_1 = require("@nestjs/common");
 let AllExceptionsFilter = AllExceptionsFilter_1 = class AllExceptionsFilter {
     logger = new common_1.Logger(AllExceptionsFilter_1.name);
@@ -57,29 +57,4 @@ exports.AllExceptionsFilter = AllExceptionsFilter;
 exports.AllExceptionsFilter = AllExceptionsFilter = AllExceptionsFilter_1 = __decorate([
     (0, common_1.Catch)()
 ], AllExceptionsFilter);
-let HttpExceptionFilter = HttpExceptionFilter_1 = class HttpExceptionFilter {
-    logger = new common_1.Logger(HttpExceptionFilter_1.name);
-    catch(exception, host) {
-        const ctx = host.switchToHttp();
-        const response = ctx.getResponse();
-        const request = ctx.getRequest();
-        const status = exception.getStatus();
-        const exceptionResponse = exception.getResponse();
-        const errorResponse = {
-            statusCode: status,
-            timestamp: new Date().toISOString(),
-            path: request.url,
-            method: request.method,
-            message: typeof exceptionResponse === 'object'
-                ? exceptionResponse.message
-                : exceptionResponse,
-        };
-        this.logger.error(`HTTP ${status} Error: ${JSON.stringify(errorResponse)}`, exception.stack);
-        response.status(status).json(errorResponse);
-    }
-};
-exports.HttpExceptionFilter = HttpExceptionFilter;
-exports.HttpExceptionFilter = HttpExceptionFilter = HttpExceptionFilter_1 = __decorate([
-    (0, common_1.Catch)(common_1.HttpException)
-], HttpExceptionFilter);
 //# sourceMappingURL=http-exception.filter.js.map

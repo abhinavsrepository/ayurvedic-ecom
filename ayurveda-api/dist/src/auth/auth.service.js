@@ -59,35 +59,6 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
         this.configService = configService;
     }
-    async register(dto) {
-        const existingUser = await this.prisma.user.findFirst({
-            where: {
-                OR: [{ username: dto.username }, { email: dto.email }],
-            },
-        });
-        if (existingUser) {
-            throw new common_1.ConflictException('Username or email already exists');
-        }
-        const hashedPassword = await this.hashPassword(dto.password);
-        const user = await this.prisma.user.create({
-            data: {
-                username: dto.username,
-                email: dto.email,
-                password: hashedPassword,
-                full_name: dto.fullName,
-                phone_number: dto.phoneNumber,
-            },
-            select: {
-                id: true,
-                username: true,
-                email: true,
-                full_name: true,
-                created_at: true,
-            },
-        });
-        await this.createAuditLog(user.id, 'USER_REGISTERED', 'User', user.id);
-        return user;
-    }
     async validateUser(username, password) {
         const user = await this.prisma.user.findUnique({
             where: { username },
@@ -142,7 +113,6 @@ let AuthService = class AuthService {
                 throw new common_1.UnauthorizedException('Invalid 2FA code');
             }
         }
-        await this.createAuditLog(user.id, 'USER_LOGIN', 'User', user.id);
         const payload = {
             sub: user.id,
             username: user.username,
@@ -209,15 +179,28 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Invalid refresh token');
         }
     }
+    async getCurrentUser(userId) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            include: { user_roles: { include: { roles: true } } },
+        });
+        if (!user) {
+            throw new common_1.UnauthorizedException('User not found');
+        }
+        return {
+            username: user.username,
+            email: user.email,
+            fullName: user.full_name || '',
+            roles: user.user_roles.map((ur) => ur.roles.name),
+            twoFaEnabled: user.two_fa_enabled || false,
+        };
+    }
     async enable2FA(userId) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
         });
         if (!user) {
             throw new common_1.UnauthorizedException('User not found');
-        }
-        if (user.two_fa_enabled) {
-            throw new common_1.BadRequestException('2FA is already enabled');
         }
         const secret = speakeasy.generateSecret({
             name: `Ayurveda Shop (${user.email})`,
@@ -251,7 +234,6 @@ let AuthService = class AuthService {
                 where: { id: userId },
                 data: { two_fa_enabled: true },
             });
-            await this.createAuditLog(userId, '2FA_ENABLED', 'User', userId);
         }
         return isValid;
     }
@@ -263,43 +245,6 @@ let AuthService = class AuthService {
                 two_fa_secret: null,
             },
         });
-        await this.createAuditLog(userId, '2FA_DISABLED', 'User', userId);
-    }
-    async logout(userId) {
-        await this.createAuditLog(userId, 'USER_LOGOUT', 'User', userId);
-        return { success: true };
-    }
-    async getCurrentUser(userId) {
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            include: { user_roles: { include: { roles: true } } },
-        });
-        if (!user) {
-            throw new common_1.UnauthorizedException('User not found');
-        }
-        return {
-            username: user.username,
-            email: user.email,
-            fullName: user.full_name || '',
-            roles: user.user_roles.map((ur) => ur.roles.name),
-            twoFaEnabled: user.two_fa_enabled || false,
-        };
-    }
-    async createAuditLog(userId, action, entityType, entityId) {
-        try {
-            await this.prisma.auditEvent.create({
-                data: {
-                    user_id: userId,
-                    action,
-                    entity_type: entityType,
-                    entity_id: entityId,
-                    created_at: new Date(),
-                },
-            });
-        }
-        catch (e) {
-            console.error('Failed to create audit log', e);
-        }
     }
     async hashPassword(password) {
         return bcrypt.hash(password, 10);

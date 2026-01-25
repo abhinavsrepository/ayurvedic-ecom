@@ -40,7 +40,7 @@ let ProductsService = ProductsService_1 = class ProductsService {
                 price: createProductDto.price,
                 compare_at_price: createProductDto.compareAtPrice,
                 cost_price: createProductDto.costPerItem,
-                status: createProductDto.status || 'DRAFT',
+                status: createProductDto.status?.toUpperCase() || 'DRAFT',
                 category: createProductDto.category,
                 subcategory: createProductDto.subcategory,
                 brand: createProductDto.brand,
@@ -55,13 +55,20 @@ let ProductsService = ProductsService_1 = class ProductsService {
                 seo_title: createProductDto.seoTitle,
                 seo_description: createProductDto.seoDescription,
                 seo_keywords: createProductDto.seoKeywords?.join(','),
-                product_images: createProductDto.images ? {
-                    create: createProductDto.images.map(img => ({
+                product_images: {
+                    create: createProductDto.images?.map((img, index) => ({
                         url: img.url,
                         alt_text: img.altText,
-                        image_order: img.order || 0,
-                    }))
-                } : undefined,
+                        image_order: img.order || index,
+                        is_primary: index === 0,
+                    })),
+                },
+                stock: {
+                    create: {
+                        sku: createProductDto.sku,
+                        quantity: createProductDto.stockQuantity,
+                    },
+                },
             },
         });
         await this.invalidateProductCaches();
@@ -71,12 +78,13 @@ let ProductsService = ProductsService_1 = class ProductsService {
     async findAll(query) {
         const cacheKey = cache_constants_1.CACHE_KEYS.PRODUCTS_LIST(query.page || 0, query.size || 20, JSON.stringify(query));
         return this.cacheService.wrap(cacheKey, async () => {
-            const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = query;
-            const where = { deleted_at: null };
+            const { page = 0, size = 20, sortBy = 'createdAt', sortOrder = 'desc', ...filters } = query;
+            const where = {};
             if (filters.query) {
                 where.OR = [
                     { name: { contains: filters.query, mode: 'insensitive' } },
                     { description: { contains: filters.query, mode: 'insensitive' } },
+                    { tags: { has: filters.query } },
                 ];
             }
             if (filters.category) {
@@ -89,7 +97,10 @@ let ProductsService = ProductsService_1 = class ProductsService {
                 where.status = filters.status;
             }
             if (filters.isFeatured !== undefined) {
-                where.is_featured = filters.isFeatured;
+                where.isFeatured = filters.isFeatured;
+            }
+            if (filters.inStock) {
+                where.stockQuantity = { gt: 0 };
             }
             if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
                 where.price = {};
@@ -100,24 +111,12 @@ let ProductsService = ProductsService_1 = class ProductsService {
                     where.price.lte = filters.maxPrice;
                 }
             }
-            let mappedSortBy = sortBy;
-            if (sortBy === 'createdAt')
-                mappedSortBy = 'created_at';
-            if (sortBy === 'price')
-                mappedSortBy = 'price';
-            if (sortBy === 'name')
-                mappedSortBy = 'name';
             const [products, total] = await Promise.all([
                 this.prisma.product.findMany({
                     where,
                     skip: page * size,
                     take: size,
-                    orderBy: { [mappedSortBy]: sortOrder },
-                    include: {
-                        product_images: {
-                            orderBy: { image_order: 'asc' }
-                        }
-                    }
+                    orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
                 }),
                 this.prisma.product.count({ where }),
             ]);
@@ -135,13 +134,8 @@ let ProductsService = ProductsService_1 = class ProductsService {
         return this.cacheService.wrap(cacheKey, async () => {
             const product = await this.prisma.product.findUnique({
                 where: { id },
-                include: {
-                    product_images: {
-                        orderBy: { image_order: 'asc' }
-                    }
-                }
             });
-            if (!product || product.deleted_at) {
+            if (!product) {
                 throw new common_1.NotFoundException(`Product with ID '${id}' not found`);
             }
             return product;
@@ -152,13 +146,8 @@ let ProductsService = ProductsService_1 = class ProductsService {
         return this.cacheService.wrap(cacheKey, async () => {
             const product = await this.prisma.product.findUnique({
                 where: { slug },
-                include: {
-                    product_images: {
-                        orderBy: { image_order: 'asc' }
-                    }
-                }
             });
-            if (!product || product.deleted_at) {
+            if (!product) {
                 throw new common_1.NotFoundException(`Product with slug '${slug}' not found`);
             }
             return product;
@@ -177,64 +166,32 @@ let ProductsService = ProductsService_1 = class ProductsService {
                 throw new common_1.ConflictException(`Product with slug '${updateProductDto.slug}' already exists`);
             }
         }
-        const data = {};
-        if (updateProductDto.name)
-            data.name = updateProductDto.name;
-        if (updateProductDto.slug)
-            data.slug = updateProductDto.slug;
-        if (updateProductDto.description)
-            data.description = updateProductDto.description;
-        if (updateProductDto.shortDescription)
-            data.short_description = updateProductDto.shortDescription;
-        if (updateProductDto.price)
-            data.price = updateProductDto.price;
-        if (updateProductDto.compareAtPrice)
-            data.compare_at_price = updateProductDto.compareAtPrice;
-        if (updateProductDto.costPerItem)
-            data.cost_price = updateProductDto.costPerItem;
-        if (updateProductDto.status)
-            data.status = updateProductDto.status;
-        if (updateProductDto.category)
-            data.category = updateProductDto.category;
-        if (updateProductDto.subcategory)
-            data.subcategory = updateProductDto.subcategory;
-        if (updateProductDto.brand)
-            data.brand = updateProductDto.brand;
-        if (updateProductDto.weightGrams)
-            data.weight_grams = updateProductDto.weightGrams;
-        if (updateProductDto.isFeatured !== undefined)
-            data.is_featured = updateProductDto.isFeatured;
-        if (updateProductDto.ingredients)
-            data.ingredients = updateProductDto.ingredients;
-        if (updateProductDto.benefits)
-            data.benefits = updateProductDto.benefits;
-        if (updateProductDto.doshaVata !== undefined)
-            data.dosha_vata = updateProductDto.doshaVata;
-        if (updateProductDto.doshaPitta !== undefined)
-            data.dosha_pitta = updateProductDto.doshaPitta;
-        if (updateProductDto.doshaKapha !== undefined)
-            data.dosha_kapha = updateProductDto.doshaKapha;
-        if (updateProductDto.usageInstructions)
-            data.usage_instructions = updateProductDto.usageInstructions;
-        if (updateProductDto.seoTitle)
-            data.seo_title = updateProductDto.seoTitle;
-        if (updateProductDto.seoDescription)
-            data.seo_description = updateProductDto.seoDescription;
-        if (updateProductDto.seoKeywords)
-            data.seo_keywords = updateProductDto.seoKeywords.join(',');
-        if (updateProductDto.images) {
-            data.product_images = {
-                deleteMany: {},
-                create: updateProductDto.images.map(img => ({
-                    url: img.url,
-                    alt_text: img.altText,
-                    image_order: img.order || 0,
-                }))
-            };
-        }
         const product = await this.prisma.product.update({
             where: { id },
-            data,
+            data: {
+                name: updateProductDto.name,
+                slug: updateProductDto.slug,
+                description: updateProductDto.description,
+                short_description: updateProductDto.shortDescription,
+                price: updateProductDto.price,
+                compare_at_price: updateProductDto.compareAtPrice,
+                cost_price: updateProductDto.costPerItem,
+                status: updateProductDto.status?.toUpperCase(),
+                category: updateProductDto.category,
+                subcategory: updateProductDto.subcategory,
+                brand: updateProductDto.brand,
+                weight_grams: updateProductDto.weightGrams,
+                is_featured: updateProductDto.isFeatured,
+                ingredients: updateProductDto.ingredients,
+                benefits: updateProductDto.benefits,
+                dosha_vata: updateProductDto.doshaVata,
+                dosha_pitta: updateProductDto.doshaPitta,
+                dosha_kapha: updateProductDto.doshaKapha,
+                usage_instructions: updateProductDto.usageInstructions,
+                seo_title: updateProductDto.seoTitle,
+                seo_description: updateProductDto.seoDescription,
+                seo_keywords: updateProductDto.seoKeywords?.join(','),
+            },
         });
         await this.invalidateProductCaches(id, product.slug);
         this.logger.log(`Product updated: ${product.id} - ${product.name}`);

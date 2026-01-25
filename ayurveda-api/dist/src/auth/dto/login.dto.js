@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VerifyTwoFaDto = exports.RefreshTokenDto = exports.LoginResponseDto = exports.UserInfoDto = exports.LoginDto = void 0;
+exports.VerifyTwoFaDto = exports.RefreshTokenDto = exports.UserInfoDto = exports.LoginResponseDto = exports.LoginDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class LoginDto {
@@ -35,37 +35,8 @@ __decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: '123456' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Length)(6, 6),
     __metadata("design:type", String)
 ], LoginDto.prototype, "twoFaCode", void 0);
-class UserInfoDto {
-    username;
-    email;
-    fullName;
-    roles;
-    twoFaEnabled;
-}
-exports.UserInfoDto = UserInfoDto;
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    __metadata("design:type", String)
-], UserInfoDto.prototype, "username", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    __metadata("design:type", String)
-], UserInfoDto.prototype, "email", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    __metadata("design:type", String)
-], UserInfoDto.prototype, "fullName", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ type: [String] }),
-    __metadata("design:type", Array)
-], UserInfoDto.prototype, "roles", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    __metadata("design:type", Boolean)
-], UserInfoDto.prototype, "twoFaEnabled", void 0);
 class LoginResponseDto {
     accessToken;
     refreshToken;
@@ -94,6 +65,34 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", UserInfoDto)
 ], LoginResponseDto.prototype, "user", void 0);
+class UserInfoDto {
+    username;
+    email;
+    fullName;
+    roles;
+    twoFaEnabled;
+}
+exports.UserInfoDto = UserInfoDto;
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], UserInfoDto.prototype, "username", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], UserInfoDto.prototype, "email", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], UserInfoDto.prototype, "fullName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [String] }),
+    __metadata("design:type", Array)
+], UserInfoDto.prototype, "roles", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", Boolean)
+], UserInfoDto.prototype, "twoFaEnabled", void 0);
 class RefreshTokenDto {
     refreshToken;
 }

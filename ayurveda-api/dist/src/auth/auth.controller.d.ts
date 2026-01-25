@@ -1,26 +1,19 @@
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { LoginDto, LoginResponseDto, VerifyTwoFaDto } from './dto/login.dto';
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
-    register(dto: RegisterDto): Promise<{
-        id: string;
-        created_at: Date;
-        username: string;
-        email: string;
-        full_name: string | null;
-    }>;
-    login(dto: LoginDto): Promise<import("./dto/login.dto").LoginResponseDto>;
-    refreshToken(refreshToken: string): Promise<import("./dto/login.dto").LoginResponseDto>;
-    logout(userId: string): Promise<{
-        success: boolean;
-    }>;
+    login(loginDto: LoginDto): Promise<LoginResponseDto>;
+    refreshToken(refreshToken: string): Promise<LoginResponseDto>;
     getCurrentUser(userId: string): Promise<import("./dto/login.dto").UserInfoDto>;
-    enableTwoFa(userId: string): Promise<{
+    enable2FA(userId: string): Promise<{
         qrCode: string;
         secret: string;
     }>;
-    verifyTwoFa(userId: string, code: string): Promise<boolean>;
-    disableTwoFa(userId: string): Promise<void>;
+    verify2FA(userId: string, verifyDto: VerifyTwoFaDto): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    disable2FA(userId: string): Promise<void>;
+    logout(): Promise<void>;
 }

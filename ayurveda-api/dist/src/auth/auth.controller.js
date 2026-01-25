@@ -17,122 +17,124 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const auth_service_1 = require("./auth.service");
 const login_dto_1 = require("./dto/login.dto");
-const register_dto_1 = require("./dto/register.dto");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
-const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 const public_decorator_1 = require("../common/decorators/public.decorator");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
         this.authService = authService;
     }
-    register(dto) {
-        return this.authService.register(dto);
+    async login(loginDto) {
+        return this.authService.login(loginDto);
     }
-    login(dto) {
-        return this.authService.login(dto);
-    }
-    refreshToken(refreshToken) {
+    async refreshToken(refreshToken) {
         return this.authService.refreshToken(refreshToken);
     }
-    logout(userId) {
-        return this.authService.logout(userId);
-    }
-    getCurrentUser(userId) {
+    async getCurrentUser(userId) {
         return this.authService.getCurrentUser(userId);
     }
-    enableTwoFa(userId) {
+    async enable2FA(userId) {
         return this.authService.enable2FA(userId);
     }
-    verifyTwoFa(userId, code) {
-        return this.authService.verify2FA(userId, code);
+    async verify2FA(userId, verifyDto) {
+        const isValid = await this.authService.verify2FA(userId, verifyDto.code);
+        return { success: isValid, message: isValid ? '2FA enabled' : 'Invalid code' };
     }
-    disableTwoFa(userId) {
-        return this.authService.disable2FA(userId);
+    async disable2FA(userId) {
+        await this.authService.disable2FA(userId);
+    }
+    async logout() {
+        return;
     }
 };
 exports.AuthController = AuthController;
 __decorate([
     (0, public_decorator_1.Public)(),
-    (0, common_1.Post)('register'),
-    (0, swagger_1.ApiOperation)({ summary: 'Register new user' }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "register", null);
-__decorate([
-    (0, public_decorator_1.Public)(),
     (0, common_1.Post)('login'),
-    (0, swagger_1.ApiOperation)({ summary: 'Login user' }),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'User login with optional 2FA' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Login successful', type: login_dto_1.LoginResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid credentials' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('refresh'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Refresh access token' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Token refreshed', type: login_dto_1.LoginResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid refresh token' }),
     __param(0, (0, common_1.Headers)('x-refresh-token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refreshToken", null);
-__decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Post)('logout'),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Logout user' }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "logout", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('me'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get current user profile' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User profile retrieved' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getCurrentUser", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('2fa/enable'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Enable 2FA' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Enable 2FA and get QR code' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: '2FA setup initiated' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "enableTwoFa", null);
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "enable2FA", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('2fa/verify'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Verify 2FA code' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Verify 2FA code to complete setup' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: '2FA enabled successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid 2FA code' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
-    __param(1, (0, common_1.Body)('code')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "verifyTwoFa", null);
+    __metadata("design:paramtypes", [String, login_dto_1.VerifyTwoFaDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "verify2FA", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Delete)('2fa/disable'),
     (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     (0, swagger_1.ApiOperation)({ summary: 'Disable 2FA' }),
+    (0, swagger_1.ApiResponse)({ status: 204, description: '2FA disabled successfully' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "disableTwoFa", null);
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "disable2FA", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('logout'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Logout (client-side token removal)' }),
+    (0, swagger_1.ApiResponse)({ status: 204, description: 'Logged out successfully' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "logout", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
-    (0, common_1.Controller)('auth'),
+    (0, common_1.Controller)('api/auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

@@ -33,7 +33,7 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transformOptions: { enableImplicitConversion: true },
     }));
-    app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter(), new prisma_exception_filter_1.PrismaExceptionFilter());
+    app.useGlobalFilters(new http_exception_filter_1.AllExceptionsFilter(), new prisma_exception_filter_1.PrismaExceptionFilter());
     app.useGlobalInterceptors(new logging_interceptor_1.LoggingInterceptor());
     const prismaService = app.get(prisma_service_1.PrismaService);
     await prismaService.enableShutdownHooks(app);

@@ -15,9 +15,9 @@ const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
 var ProductStatus;
 (function (ProductStatus) {
-    ProductStatus["DRAFT"] = "DRAFT";
-    ProductStatus["ACTIVE"] = "ACTIVE";
-    ProductStatus["ARCHIVED"] = "ARCHIVED";
+    ProductStatus["DRAFT"] = "draft";
+    ProductStatus["ACTIVE"] = "active";
+    ProductStatus["ARCHIVED"] = "archived";
 })(ProductStatus || (exports.ProductStatus = ProductStatus = {}));
 class ProductImageDto {
     url;

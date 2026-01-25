@@ -11,36 +11,32 @@ export declare class OrdersService {
     createOrder(userId: string, createOrderDto: CreateOrderDto): Promise<{
         order_items: {
             id: string;
-            sku: string;
-            product_id: string;
-            quantity: number;
             discount_amount: Decimal | null;
+            product_id: string;
+            sku: string;
             product_name: string;
+            quantity: number;
             unit_price: Decimal;
             line_total: Decimal;
         }[];
         customers: {
             id: string;
             email: string;
-            phone_number: string | null;
             first_name: string;
             last_name: string;
+            phone_number: string | null;
         };
     } & {
         id: string;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
-        status: string;
-        total: Decimal;
-        notes: string | null;
         order_number: string;
+        status: string;
         payment_status: string;
         fulfillment_status: string | null;
         subtotal: Decimal;
         tax_amount: Decimal | null;
         shipping_amount: Decimal | null;
         discount_amount: Decimal | null;
+        total: Decimal;
         coupon_code: string | null;
         shipping_address_line1: string | null;
         shipping_address_line2: string | null;
@@ -53,36 +49,36 @@ export declare class OrdersService {
         utm_source: string | null;
         utm_medium: string | null;
         utm_campaign: string | null;
+        notes: string | null;
         cancelled_at: Date | null;
         cancelled_reason: string | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
         customer_id: string;
     }>;
     findUserOrders(userId: string, query: QueryOrderDto): Promise<{
         content: ({
             order_items: {
                 id: string;
-                sku: string;
                 product_id: string;
-                quantity: number;
+                sku: string;
                 product_name: string;
+                quantity: number;
                 unit_price: Decimal;
                 line_total: Decimal;
             }[];
         } & {
             id: string;
-            created_at: Date;
-            updated_at: Date;
-            version: bigint | null;
-            status: string;
-            total: Decimal;
-            notes: string | null;
             order_number: string;
+            status: string;
             payment_status: string;
             fulfillment_status: string | null;
             subtotal: Decimal;
             tax_amount: Decimal | null;
             shipping_amount: Decimal | null;
             discount_amount: Decimal | null;
+            total: Decimal;
             coupon_code: string | null;
             shipping_address_line1: string | null;
             shipping_address_line2: string | null;
@@ -95,8 +91,12 @@ export declare class OrdersService {
             utm_source: string | null;
             utm_medium: string | null;
             utm_campaign: string | null;
+            notes: string | null;
             cancelled_at: Date | null;
             cancelled_reason: string | null;
+            created_at: Date;
+            updated_at: Date;
+            version: bigint | null;
             customer_id: string;
         })[];
         total: number;
@@ -113,36 +113,32 @@ export declare class OrdersService {
     findOne(id: string, userId: string): Promise<{
         order_items: {
             id: string;
-            sku: string;
-            product_id: string;
-            quantity: number;
             discount_amount: Decimal | null;
+            product_id: string;
+            sku: string;
             product_name: string;
+            quantity: number;
             unit_price: Decimal;
             line_total: Decimal;
         }[];
         customers: {
             id: string;
             email: string;
-            phone_number: string | null;
             first_name: string;
             last_name: string;
+            phone_number: string | null;
         };
     } & {
         id: string;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
-        status: string;
-        total: Decimal;
-        notes: string | null;
         order_number: string;
+        status: string;
         payment_status: string;
         fulfillment_status: string | null;
         subtotal: Decimal;
         tax_amount: Decimal | null;
         shipping_amount: Decimal | null;
         discount_amount: Decimal | null;
+        total: Decimal;
         coupon_code: string | null;
         shipping_address_line1: string | null;
         shipping_address_line2: string | null;
@@ -155,39 +151,39 @@ export declare class OrdersService {
         utm_source: string | null;
         utm_medium: string | null;
         utm_campaign: string | null;
+        notes: string | null;
         cancelled_at: Date | null;
         cancelled_reason: string | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
         customer_id: string;
     }>;
     cancelOrder(id: string, userId: string, reason?: string): Promise<{
         order_items: {
             id: string;
+            discount_amount: Decimal | null;
             created_at: Date;
             version: bigint | null;
-            sku: string;
-            product_id: string;
-            quantity: number;
-            discount_amount: Decimal | null;
             order_id: string;
+            product_id: string;
+            sku: string;
             product_name: string;
+            quantity: number;
             unit_price: Decimal;
             line_total: Decimal;
         }[];
     } & {
         id: string;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
-        status: string;
-        total: Decimal;
-        notes: string | null;
         order_number: string;
+        status: string;
         payment_status: string;
         fulfillment_status: string | null;
         subtotal: Decimal;
         tax_amount: Decimal | null;
         shipping_amount: Decimal | null;
         discount_amount: Decimal | null;
+        total: Decimal;
         coupon_code: string | null;
         shipping_address_line1: string | null;
         shipping_address_line2: string | null;
@@ -200,8 +196,12 @@ export declare class OrdersService {
         utm_source: string | null;
         utm_medium: string | null;
         utm_campaign: string | null;
+        notes: string | null;
         cancelled_at: Date | null;
         cancelled_reason: string | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
         customer_id: string;
     }>;
     trackOrder(id: string, userId?: string): Promise<{

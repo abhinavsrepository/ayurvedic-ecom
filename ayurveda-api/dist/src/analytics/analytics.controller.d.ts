@@ -24,7 +24,6 @@ export declare class AnalyticsController {
         id: string;
         created_at: Date;
         user_id: string | null;
-        user_agent: string | null;
         os: string | null;
         browser: string | null;
         session_id: string | null;
@@ -38,6 +37,7 @@ export declare class AnalyticsController {
         screen_height: number | null;
         color_scheme: string | null;
         has_touch: boolean | null;
+        user_agent: string | null;
     }>;
     logEvent(createEventDto: CreateEventDto, request: Request): Promise<{
         event: {

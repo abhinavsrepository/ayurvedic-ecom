@@ -75,10 +75,14 @@ export default function Footer() {
           {/* Brand Section */}
           <motion.div className="lg:col-span-2" variants={staggerItem}>
             <Link href="/" className="flex items-center gap-2 mb-6">
-              <div className="bg-white/10 p-2 rounded-full">
-                <Leaf className="w-7 h-7 text-accent" />
+              <div className="relative w-12 h-12 overflow-hidden rounded-full border-2 border-white/20">
+                <img
+                  src="/logo.jpg"
+                  alt="Kosmico Wellness Logo"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <span className="text-2xl font-serif font-bold">Ayurveda Haven</span>
+              <span className="text-2xl font-serif font-bold">Kosmico Wellness</span>
             </Link>
 
             <p className="text-white/80 mb-6 leading-relaxed">

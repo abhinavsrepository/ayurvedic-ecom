@@ -1,7 +1,7 @@
 export declare enum ProductStatus {
-    DRAFT = "DRAFT",
-    ACTIVE = "ACTIVE",
-    ARCHIVED = "ARCHIVED"
+    DRAFT = "draft",
+    ACTIVE = "active",
+    ARCHIVED = "archived"
 }
 export declare class ProductImageDto {
     url: string;

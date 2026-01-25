@@ -50,11 +50,15 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
               <motion.div
-                className="bg-primary/10 p-2 rounded-full"
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
+                className="relative w-12 h-12 overflow-hidden rounded-full border-2 border-primary/20"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
               >
-                <Leaf className="w-6 h-6 text-primary" />
+                <img
+                  src="/logo.jpg"
+                  alt="Kosmico Wellness Logo"
+                  className="w-full h-full object-cover"
+                />
               </motion.div>
               <span className="text-2xl font-serif font-bold text-primary">
                 Kosmico Wellness
@@ -119,12 +123,12 @@ export default function Navbar() {
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       key={cartCount}
-                    transition={{ type: "spring", stiffness: 500 }}
-                  >
-                    {cartCount}
-                  </motion.span>
-                )}
-              </motion.button>
+                      transition={{ type: "spring", stiffness: 500 }}
+                    >
+                      {cartCount}
+                    </motion.span>
+                  )}
+                </motion.button>
               </Link>
 
               {/* Mobile Menu Toggle */}

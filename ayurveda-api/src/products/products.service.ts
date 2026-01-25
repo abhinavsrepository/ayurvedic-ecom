@@ -19,7 +19,7 @@ export class ProductsService {
   constructor(
     private prisma: PrismaService,
     private cacheService: CacheService,
-  ) {}
+  ) { }
 
   /**
    * Create a new product
@@ -36,10 +36,43 @@ export class ProductsService {
 
     const product = await this.prisma.product.create({
       data: {
-        ...createProductDto,
-        images: createProductDto.images || [],
-        tags: createProductDto.tags || [],
-        seoKeywords: createProductDto.seoKeywords || [],
+        sku: createProductDto.sku,
+        name: createProductDto.name,
+        slug: createProductDto.slug,
+        description: createProductDto.description,
+        short_description: createProductDto.shortDescription,
+        price: createProductDto.price,
+        compare_at_price: createProductDto.compareAtPrice,
+        cost_price: createProductDto.costPerItem,
+        status: createProductDto.status?.toUpperCase() || 'DRAFT',
+        category: createProductDto.category,
+        subcategory: createProductDto.subcategory,
+        brand: createProductDto.brand,
+        weight_grams: createProductDto.weightGrams,
+        is_featured: createProductDto.isFeatured || false,
+        ingredients: createProductDto.ingredients,
+        benefits: createProductDto.benefits,
+        dosha_vata: createProductDto.doshaVata,
+        dosha_pitta: createProductDto.doshaPitta,
+        dosha_kapha: createProductDto.doshaKapha,
+        usage_instructions: createProductDto.usageInstructions,
+        seo_title: createProductDto.seoTitle,
+        seo_description: createProductDto.seoDescription,
+        seo_keywords: createProductDto.seoKeywords?.join(','),
+        product_images: {
+          create: createProductDto.images?.map((img, index) => ({
+            url: img.url,
+            alt_text: img.altText,
+            image_order: img.order || index,
+            is_primary: index === 0,
+          })),
+        },
+        stock: {
+          create: {
+            sku: createProductDto.sku,
+            quantity: createProductDto.stockQuantity,
+          },
+        },
       },
     });
 
@@ -110,7 +143,7 @@ export class ProductsService {
             where,
             skip: page * size,
             take: size,
-            orderBy: { [sortBy]: sortOrder },
+            orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
           }),
           this.prisma.product.count({ where }),
         ]);
@@ -196,7 +229,30 @@ export class ProductsService {
 
     const product = await this.prisma.product.update({
       where: { id },
-      data: updateProductDto,
+      data: {
+        name: updateProductDto.name,
+        slug: updateProductDto.slug,
+        description: updateProductDto.description,
+        short_description: updateProductDto.shortDescription,
+        price: updateProductDto.price,
+        compare_at_price: updateProductDto.compareAtPrice,
+        cost_price: updateProductDto.costPerItem,
+        status: updateProductDto.status?.toUpperCase(),
+        category: updateProductDto.category,
+        subcategory: updateProductDto.subcategory,
+        brand: updateProductDto.brand,
+        weight_grams: updateProductDto.weightGrams,
+        is_featured: updateProductDto.isFeatured,
+        ingredients: updateProductDto.ingredients,
+        benefits: updateProductDto.benefits,
+        dosha_vata: updateProductDto.doshaVata,
+        dosha_pitta: updateProductDto.doshaPitta,
+        dosha_kapha: updateProductDto.doshaKapha,
+        usage_instructions: updateProductDto.usageInstructions,
+        seo_title: updateProductDto.seoTitle,
+        seo_description: updateProductDto.seoDescription,
+        seo_keywords: updateProductDto.seoKeywords?.join(','),
+      },
     });
 
     // Invalidate caches
@@ -214,7 +270,7 @@ export class ProductsService {
 
     await this.prisma.product.update({
       where: { id },
-      data: { deletedAt: new Date() },
+      data: { deleted_at: new Date() },
     });
 
     // Invalidate caches

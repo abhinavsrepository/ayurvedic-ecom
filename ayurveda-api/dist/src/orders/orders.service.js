@@ -52,10 +52,7 @@ let OrdersService = OrdersService_1 = class OrdersService {
         let subtotal = new library_1.Decimal(0);
         const orderItems = createOrderDto.items.map((item) => {
             const product = products.find((p) => p.id === item.productId);
-            if (!product) {
-                throw new common_1.BadRequestException(`Product ${item.productId} not found`);
-            }
-            const lineTotal = new library_1.Decimal(product.price).mul(item.quantity);
+            const lineTotal = new library_1.Decimal(product.price.toString()).mul(item.quantity);
             subtotal = subtotal.add(lineTotal);
             return {
                 product_id: product.id,
@@ -121,9 +118,6 @@ let OrdersService = OrdersService_1 = class OrdersService {
             });
             for (const item of createOrderDto.items) {
                 const product = products.find((p) => p.id === item.productId);
-                if (!product) {
-                    throw new common_1.BadRequestException(`Product ${item.productId} not found`);
-                }
                 await tx.stock.updateMany({
                     where: { product_id: product.id },
                     data: {
@@ -176,7 +170,7 @@ let OrdersService = OrdersService_1 = class OrdersService {
                     where,
                     skip: page * size,
                     take: size,
-                    orderBy: { [sortBy]: sortOrder },
+                    orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
                     include: {
                         order_items: {
                             select: {

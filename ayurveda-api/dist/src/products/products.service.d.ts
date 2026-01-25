@@ -10,13 +10,10 @@ export declare class ProductsService {
     constructor(prisma: PrismaService, cacheService: CacheService);
     create(createProductDto: CreateProductDto): Promise<{
         id: string;
-        name: string;
-        description: string | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
         sku: string;
+        name: string;
         slug: string;
+        description: string | null;
         short_description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -37,28 +34,17 @@ export declare class ProductsService {
         seo_description: string | null;
         seo_keywords: string | null;
         deleted_at: Date | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
     }>;
     findAll(query: QueryProductDto): Promise<{
-        content: ({
-            product_images: {
-                id: string;
-                created_at: Date;
-                updated_at: Date;
-                url: string;
-                alt_text: string | null;
-                is_primary: boolean;
-                image_order: number;
-                product_id: string;
-            }[];
-        } & {
+        content: {
             id: string;
-            name: string;
-            description: string | null;
-            created_at: Date;
-            updated_at: Date;
-            version: bigint | null;
             sku: string;
+            name: string;
             slug: string;
+            description: string | null;
             short_description: string | null;
             price: import("@prisma/client/runtime/library").Decimal;
             compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -79,32 +65,21 @@ export declare class ProductsService {
             seo_description: string | null;
             seo_keywords: string | null;
             deleted_at: Date | null;
-        })[];
+            created_at: Date;
+            updated_at: Date;
+            version: bigint | null;
+        }[];
         total: number;
         page: number;
         size: number;
         totalPages: number;
     }>;
     findOne(id: string): Promise<{
-        product_images: {
-            id: string;
-            created_at: Date;
-            updated_at: Date;
-            url: string;
-            alt_text: string | null;
-            is_primary: boolean;
-            image_order: number;
-            product_id: string;
-        }[];
-    } & {
         id: string;
-        name: string;
-        description: string | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
         sku: string;
+        name: string;
         slug: string;
+        description: string | null;
         short_description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -125,27 +100,16 @@ export declare class ProductsService {
         seo_description: string | null;
         seo_keywords: string | null;
         deleted_at: Date | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
     }>;
     findBySlug(slug: string): Promise<{
-        product_images: {
-            id: string;
-            created_at: Date;
-            updated_at: Date;
-            url: string;
-            alt_text: string | null;
-            is_primary: boolean;
-            image_order: number;
-            product_id: string;
-        }[];
-    } & {
         id: string;
-        name: string;
-        description: string | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
         sku: string;
+        name: string;
         slug: string;
+        description: string | null;
         short_description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -166,16 +130,16 @@ export declare class ProductsService {
         seo_description: string | null;
         seo_keywords: string | null;
         deleted_at: Date | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
     }>;
     update(id: string, updateProductDto: UpdateProductDto): Promise<{
         id: string;
-        name: string;
-        description: string | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
         sku: string;
+        name: string;
         slug: string;
+        description: string | null;
         short_description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -196,6 +160,9 @@ export declare class ProductsService {
         seo_description: string | null;
         seo_keywords: string | null;
         deleted_at: Date | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
     }>;
     remove(id: string): Promise<{
         message: string;

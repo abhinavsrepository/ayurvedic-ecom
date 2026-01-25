@@ -25,7 +25,7 @@ export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private cacheService: CacheService,
-  ) {}
+  ) { }
 
   /**
    * Create a new order
@@ -68,8 +68,8 @@ export class OrdersService {
     // Calculate order totals
     let subtotal = new Decimal(0);
     const orderItems = createOrderDto.items.map((item) => {
-      const product = products.find((p) => p.id === item.productId);
-      const lineTotal = new Decimal(product.price).mul(item.quantity);
+      const product = products.find((p) => p.id === item.productId)!;
+      const lineTotal = new Decimal(product.price.toString()).mul(item.quantity);
       subtotal = subtotal.add(lineTotal);
 
       return {
@@ -150,7 +150,7 @@ export class OrdersService {
 
       // Update stock quantities
       for (const item of createOrderDto.items) {
-        const product = products.find((p) => p.id === item.productId);
+        const product = products.find((p) => p.id === item.productId)!;
         await tx.stock.updateMany({
           where: { product_id: product.id },
           data: {
@@ -232,7 +232,7 @@ export class OrdersService {
             where,
             skip: page * size,
             take: size,
-            orderBy: { [sortBy]: sortOrder },
+            orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
             include: {
               order_items: {
                 select: {
