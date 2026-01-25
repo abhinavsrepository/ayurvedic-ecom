@@ -155,7 +155,7 @@ export function generatePageMetadata({
     description,
     keywords: [...SITE_CONFIG.keywords, ...keywords],
     openGraph: {
-      type,
+      ...(type === 'product' ? { type: 'website' as any } : type === 'article' ? { type: 'article' } : {}),
       url,
       title,
       description,
