@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch all active products from the API
-    const productsResponse = await getProducts({ page: 0, size: 1000, status: 'active' });
+    const productsResponse = await getProducts({ page: 0, size: 1000, status: 'ACTIVE' });
     const products = productsResponse.content;
 
     // Generate product URLs

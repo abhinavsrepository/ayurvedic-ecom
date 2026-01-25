@@ -6,14 +6,15 @@ import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductCard, { Product } from "@/components/product/ProductCard";
-import { categories, doshaTypes, benefits, priceRanges } from "@/lib/data/allProducts";
+import { allProducts, categories, doshaTypes, benefits, priceRanges } from "@/lib/data/allProducts";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/motion-variants";
 
 type SortOption = "featured" | "price-low" | "price-high" | "rating" | "newest";
 
 export default function ShopPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Initialize with local data immediately for instant loading
+  const [products, setProducts] = useState<Product[]>(allProducts);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [selectedDosha, setSelectedDosha] = useState<string>("all");
@@ -24,18 +25,19 @@ export default function ShopPage() {
   const [showInStockOnly, setShowInStockOnly] = useState(false);
 
   useEffect(() => {
+    // Try to fetch from API, but we already have local data as fallback
     const fetchProducts = async () => {
       try {
         const response = await fetch('/api/products');
         const data = await response.json();
 
-        if (data.success) {
+        if (data.success && data.products && data.products.length > 0) {
           setProducts(data.products);
         }
+        // If API returns empty or fails, we keep using allProducts (already set)
       } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching products, using local data:', error);
+        // Keep using allProducts which is already set
       }
     };
 

@@ -8,7 +8,7 @@ import { DeviceDetector, DeviceInfo } from './device-detector';
 import { LocationDetector, LocationInfo } from './location-detector';
 import { SessionTracker } from './session-tracker';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 const BATCH_SIZE = 10;
 const BATCH_INTERVAL = 30000; // 30 seconds
 const STORAGE_KEY = 'ayurveda_analytics_queue';

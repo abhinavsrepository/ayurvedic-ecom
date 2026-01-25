@@ -14,45 +14,26 @@ const common_1 = require("@nestjs/common");
 const passport_1 = require("@nestjs/passport");
 const passport_jwt_1 = require("passport-jwt");
 const config_1 = require("@nestjs/config");
-const prisma_service_1 = require("../../prisma/prisma.service");
-let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy, 'jwt') {
-    config;
-    prisma;
-    constructor(config, prisma) {
-        const jwtSecret = config.get('JWT_SECRET') || 'default-secret-key';
+let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
+    constructor(config) {
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: jwtSecret,
+            ignoreExpiration: false,
+            secretOrKey: config.get('JWT_SECRET') || 'secret',
         });
-        this.config = config;
-        this.prisma = prisma;
     }
     async validate(payload) {
-        const user = await this.prisma.user.findUnique({
-            where: { id: payload.sub },
-            include: {
-                user_roles: {
-                    include: {
-                        roles: true,
-                    },
-                },
-            },
-        });
-        if (!user || !user.enabled) {
-            throw new common_1.UnauthorizedException();
-        }
         return {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            roles: user.user_roles.map((ur) => ur.roles.name),
+            userId: payload.sub,
+            username: payload.username,
+            email: payload.email,
+            roles: payload.roles
         };
     }
 };
 exports.JwtStrategy = JwtStrategy;
 exports.JwtStrategy = JwtStrategy = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [config_1.ConfigService,
-        prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [config_1.ConfigService])
 ], JwtStrategy);
 //# sourceMappingURL=jwt.strategy.js.map

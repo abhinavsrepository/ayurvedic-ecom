@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
 interface RouteParams {
   params: Promise<{
@@ -16,7 +16,7 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    const response = await fetch(`${BACKEND_URL}/api/products/${slug}`, {
+    const response = await fetch(`${BACKEND_URL}/api/products/slug/${slug}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -53,11 +53,18 @@ export async function PUT(
     const { slug } = await params;
     const body = await request.json();
 
-    const response = await fetch(`${BACKEND_URL}/api/products/${slug}`, {
+    // Get authorization header from request
+    const authHeader = request.headers.get('authorization');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+
+    const response = await fetch(`${BACKEND_URL}/api/products/slug/${slug}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
     });
 
@@ -85,17 +92,24 @@ export async function PUT(
 
 // DELETE product - Proxy to backend
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: RouteParams
 ) {
   try {
     const { slug } = await params;
 
-    const response = await fetch(`${BACKEND_URL}/api/products/${slug}`, {
+    // Get authorization header from request
+    const authHeader = request.headers.get('authorization');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+
+    const response = await fetch(`${BACKEND_URL}/api/products/slug/${slug}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     });
 
     if (!response.ok) {

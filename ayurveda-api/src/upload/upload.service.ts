@@ -81,16 +81,16 @@ export class UploadService {
       const upload = await this.prisma.imageUpload.create({
         data: {
           filename: uploadResult.key,
-          originalName: file.originalname,
-          mimeType: 'image/webp',
-          sizeBytes: optimized.metadata.size,
-          s3Key: uploadResult.key,
-          s3Bucket: uploadResult.bucket,
+          original_name: file.originalname,
+          mime_type: 'image/webp',
+          size_bytes: optimized.metadata.size,
+          s3_key: uploadResult.key,
+          s3_bucket: uploadResult.bucket,
           url: uploadResult.url,
-          thumbnailUrl: thumbnailResult.url,
+          thumbnail_url: thumbnailResult.url,
           width: optimized.metadata.width,
           height: optimized.metadata.height,
-          uploadedBy: uploadedBy || null,
+          uploaded_by: uploadedBy || null,
         },
       });
 
@@ -99,11 +99,11 @@ export class UploadService {
       return {
         id: upload.id,
         url: upload.url,
-        thumbnailUrl: upload.thumbnailUrl || undefined,
-        s3Key: upload.s3Key,
-        originalName: upload.originalName,
-        sizeBytes: upload.sizeBytes,
-        mimeType: upload.mimeType,
+        thumbnailUrl: upload.thumbnail_url || undefined,
+        s3Key: upload.s3_key,
+        originalName: upload.original_name,
+        sizeBytes: upload.size_bytes,
+        mimeType: upload.mime_type,
         width: upload.width || undefined,
         height: upload.height || undefined,
       };
@@ -147,11 +147,11 @@ export class UploadService {
       }
 
       // Delete from S3
-      await this.s3Service.delete(upload.s3Key);
+      await this.s3Service.delete(upload.s3_key);
 
       // Delete thumbnail if exists
-      if (upload.thumbnailUrl) {
-        const thumbKey = upload.thumbnailUrl.split('/').pop();
+      if (upload.thumbnail_url) {
+        const thumbKey = upload.thumbnail_url.split('/').pop();
         if (thumbKey) {
           await this.s3Service.delete(`products/thumbnails/${thumbKey}`);
         }

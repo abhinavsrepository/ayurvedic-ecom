@@ -3,7 +3,8 @@ Ayurveda ML Service V2 - Production Ready
 Complete implementation with real ML models
 """
 
-from flask import Flask, request, jsonify
+from typing import Optional, Any, Dict, List
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
@@ -39,12 +40,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Global ML instances
-embedding_service = None
-recommender = None
-search_engine = None
-forecaster = None
-anomaly_detector = None
+# Global ML instances with type hints
+embedding_service: Optional[Any] = None
+recommender: Optional[ProductRecommender] = None
+search_engine: Optional[SemanticSearchEngine] = None
+forecaster: Optional[DemandForecaster] = None
+anomaly_detector: Optional[AnomalyDetector] = None
 
 # Mock product catalog (in production, load from database)
 MOCK_PRODUCTS = [
@@ -113,7 +114,7 @@ def initialize_ml_services():
         embedding_service = get_embedding_service(settings.EMBEDDING_MODEL)
 
         # Initialize recommender
-        logger.info("Initializing recommender...")
+        logger.info("Initializing recommender model...")
         recommender = ProductRecommender(embedding_service)
         recommender.load_products(MOCK_PRODUCTS)
 
@@ -161,9 +162,12 @@ def health_check():
 
 
 @app.route('/api/ml/recommend/user/<user_id>', methods=['POST'])
-def recommend_for_user(user_id):
+def recommend_for_user(user_id: str):
     """Get personalized recommendations for a user"""
     try:
+        if recommender is None:
+            return jsonify({"success": False, "error": "ML services not initialized"}), 503
+
         data = request.json or {}
         user_history = data.get('user_history', [])
         dosha_type = data.get('dosha_type')
@@ -191,9 +195,12 @@ def recommend_for_user(user_id):
 
 
 @app.route('/api/ml/recommend/product/<product_id>', methods=['POST'])
-def recommend_similar_products(product_id):
+def recommend_similar_products(product_id: str):
     """Get similar product recommendations"""
     try:
+        if recommender is None:
+            return jsonify({"success": False, "error": "ML services not initialized"}), 503
+
         data = request.json or {}
         num_recommendations = data.get('num_recommendations', 10)
 
@@ -218,10 +225,13 @@ def recommend_similar_products(product_id):
 def semantic_search():
     """Semantic search for products"""
     try:
+        if search_engine is None:
+            return jsonify({"success": False, "error": "ML services not initialized"}), 503
+
         data = request.json
-        query = data.get('query', '')
-        filters = data.get('filters', {})
-        k = data.get('k', 10)
+        query = data.get('query', '') if data else ''
+        filters = data.get('filters', {}) if data else {}
+        k = data.get('k', 10) if data else 10
 
         if not query:
             return jsonify({"success": False, "error": "Query is required"}), 400
@@ -244,11 +254,14 @@ def semantic_search():
 def advanced_semantic_search():
     """Advanced semantic search with Ayurveda context"""
     try:
+        if search_engine is None:
+            return jsonify({"success": False, "error": "ML services not initialized"}), 503
+
         data = request.json
-        query = data.get('query', '')
-        health_goal = data.get('health_goal')
-        dosha_type = data.get('dosha_type')
-        k = data.get('k', 10)
+        query = data.get('query', '') if data else ''
+        health_goal = data.get('health_goal') if data else None
+        dosha_type = data.get('dosha_type') if data else None
+        k = data.get('k', 10) if data else 10
 
         if health_goal:
             # Use Ayurveda-specific search
@@ -277,9 +290,12 @@ def advanced_semantic_search():
 def demand_forecast():
     """Forecast product demand"""
     try:
+        if forecaster is None:
+            return jsonify({"success": False, "error": "ML services not initialized"}), 503
+
         data = request.json
-        product_id = data.get('productId')
-        days = data.get('days', 30)
+        product_id = str(data.get('productId', '')) if data else ''
+        days = int(data.get('days', 30)) if data else 30
 
         # In production, load historical data from database
         # For now, generate mock data
@@ -303,14 +319,18 @@ def demand_forecast():
 
 
 @app.route('/api/ml/anomaly', methods=['GET'])
-def detect_anomalies():
+def detect_anomalies_endpoint():
     """Detect anomalies in business metrics"""
     try:
+        if anomaly_detector is None:
+            return jsonify({"success": False, "error": "ML services not initialized"}), 503
+
         metric_type = request.args.get('metric', 'revenue')
 
         # In production, load real metrics from database
         metrics_data = generate_mock_metrics_data(days=90)
 
+        anomalies: List[Dict[str, Any]] = []
         if metric_type == 'revenue':
             results = anomaly_detector.detect_revenue_anomalies(metrics_data)
             anomalies = results['revenue_anomalies']
@@ -422,9 +442,12 @@ def models_info():
 @app.route('/api/ml/recommendations', methods=['POST'])
 def legacy_recommendations():
     """Legacy recommendations endpoint"""
+    if recommender is None:
+        return jsonify({"success": False, "error": "ML services not initialized"}), 503
+
     data = request.json
-    customer_id = data.get('customerId')
-    num_recs = data.get('numRecommendations', 5)
+    customer_id = data.get('customerId') if data else None
+    num_recs = data.get('numRecommendations', 5) if data else 5
 
     # Use new hybrid recommender
     recommendations = recommender.hybrid_recommendations(
@@ -443,7 +466,7 @@ def legacy_recommendations():
 @app.route('/api/ml/anomalies', methods=['GET'])
 def legacy_anomalies():
     """Legacy anomalies endpoint"""
-    return detect_anomalies()
+    return detect_anomalies_endpoint()
 
 
 @app.route('/api/ml/predict/churn', methods=['POST'])
@@ -525,15 +548,53 @@ def playground():
     try:
         input_data = request.json
 
-        churn = predict_churn().get_json()
-        clv = predict_clv().get_json()
+        # Get churn prediction data
+        customer_data = input_data or {}
+        days_since_last = customer_data.get('daysSinceLastOrder', 30)
+        order_history = customer_data.get('orderHistory', 5)
+        total_spent = customer_data.get('totalSpent', 10000)
+
+        # Churn prediction logic
+        if days_since_last > 90:
+            churn_prob = 0.85
+            risk = "high"
+        elif days_since_last > 60:
+            churn_prob = 0.65
+            risk = "medium"
+        elif order_history < 3:
+            churn_prob = 0.45
+            risk = "medium"
+        else:
+            churn_prob = 0.15
+            risk = "low"
+
+        churn_prediction = {
+            "churn_probability": churn_prob,
+            "risk_level": risk,
+            "factors": [
+                f"Days since last order: {days_since_last}",
+                f"Order history: {order_history} orders",
+            ],
+        }
+
+        # CLV prediction logic
+        avg_order = total_spent / max(order_history, 1)
+        retention_factor = max(0.1, 1 - (days_since_last / 365))
+        clv = avg_order * order_history * retention_factor * 3
+
+        clv_prediction = {
+            "predicted_clv": round(clv, 2),
+            "confidence": 0.78,
+            "tier": "gold" if clv > 50000 else "silver" if clv > 25000 else "bronze",
+            "expected_orders_next_year": round(order_history * retention_factor),
+        }
 
         return jsonify({
             "success": True,
             "input": input_data,
             "predictions": {
-                "churn": churn.get('prediction'),
-                "lifetime_value": clv.get('prediction'),
+                "churn": churn_prediction,
+                "lifetime_value": clv_prediction,
             },
             "timestamp": datetime.now().isoformat(),
         })

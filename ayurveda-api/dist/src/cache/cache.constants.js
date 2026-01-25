@@ -1,0 +1,58 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CACHE_PATTERNS = exports.CACHE_KEYS = exports.CACHE_TTL = void 0;
+exports.CACHE_TTL = {
+    SHORT: 300,
+    MEDIUM: 1800,
+    LONG: 3600,
+    EXTRA_LONG: 21600,
+    DAILY: 86400,
+};
+exports.CACHE_KEYS = {
+    PRODUCT_BY_ID: (id) => `product:id:${id}`,
+    PRODUCT_BY_SLUG: (slug) => `product:slug:${slug}`,
+    PRODUCTS_LIST: (page, size, filter = '') => `products:list:${page}:${size}:${filter}`,
+    PRODUCTS_FEATURED: 'products:featured',
+    PRODUCTS_BESTSELLERS: 'products:bestsellers',
+    PRODUCTS_NEW: 'products:new',
+    PRODUCTS_BY_CATEGORY: (category, page, size) => `products:category:${category}:${page}:${size}`,
+    CATEGORY_BY_ID: (id) => `category:id:${id}`,
+    CATEGORY_BY_SLUG: (slug) => `category:slug:${slug}`,
+    CATEGORIES_LIST: 'categories:list',
+    CATEGORIES_TREE: 'categories:tree',
+    BLOG_POST_BY_ID: (id) => `blog:id:${id}`,
+    BLOG_POST_BY_SLUG: (slug) => `blog:slug:${slug}`,
+    BLOG_POSTS_LIST: (page, size) => `blog:list:${page}:${size}`,
+    BLOG_POSTS_FEATURED: 'blog:featured',
+    SEARCH_QUERY: (query, page, size) => `search:${query}:${page}:${size}`,
+    SEARCH_SUGGESTIONS: (query) => `search:suggestions:${query}`,
+    ML_RECOMMENDATIONS_USER: (userId) => `ml:recommendations:user:${userId}`,
+    ML_RECOMMENDATIONS_PRODUCT: (productId) => `ml:recommendations:product:${productId}`,
+    ML_SIMILAR_PRODUCTS: (productId) => `ml:similar:${productId}`,
+    STATS_POPULAR_PRODUCTS: 'stats:popular:products',
+    STATS_TOP_CATEGORIES: 'stats:top:categories',
+    STATS_TRENDING: 'stats:trending',
+    SEO_SITEMAP: 'seo:sitemap',
+    SEO_ROBOTS: 'seo:robots',
+    USER_CART: (userId) => `user:cart:${userId}`,
+    USER_WISHLIST: (userId) => `user:wishlist:${userId}`,
+    USER_PROFILE: (userId) => `user:profile:${userId}`,
+    ORDER_BY_ID: (id) => `order:id:${id}`,
+    ORDER_BY_NUMBER: (orderNumber) => `order:number:${orderNumber}`,
+    ORDER_LIST: (customerId, page, size, filter = '') => `orders:customer:${customerId}:${page}:${size}:${filter}`,
+    CUSTOMER_BY_ID: (id) => `customer:id:${id}`,
+    CUSTOMER_BY_EMAIL: (email) => `customer:email:${email}`,
+    CUSTOMER_LIST: (page, size, filter = '') => `customers:list:${page}:${size}:${filter}`,
+};
+exports.CACHE_PATTERNS = {
+    ALL_PRODUCTS: 'products:*',
+    ALL_CATEGORIES: 'categories:*',
+    ALL_BLOG: 'blog:*',
+    ALL_SEARCH: 'search:*',
+    ALL_ML: 'ml:*',
+    ALL_STATS: 'stats:*',
+    ALL_ORDERS: 'orders:*',
+    ALL_CUSTOMERS: 'customers:*',
+    USER_DATA: (userId) => `user:*:${userId}`,
+};
+//# sourceMappingURL=cache.constants.js.map

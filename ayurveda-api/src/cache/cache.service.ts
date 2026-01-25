@@ -6,7 +6,7 @@
 
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class CacheService {
@@ -75,8 +75,9 @@ export class CacheService {
    */
   async reset(): Promise<void> {
     try {
-      await this.cacheManager.reset();
-      this.logger.warn('Cache RESET: All keys cleared');
+      // Cache manager doesn't have a built-in reset method
+      // You would need to track keys or use Redis FLUSHDB directly
+      this.logger.warn('Cache RESET: Not implemented - would need Redis client access');
     } catch (error) {
       this.logger.error('Cache RESET error:', error);
     }

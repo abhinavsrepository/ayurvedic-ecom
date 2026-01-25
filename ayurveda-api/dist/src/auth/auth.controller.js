@@ -39,16 +39,16 @@ let AuthController = class AuthController {
         return this.authService.logout(userId);
     }
     getCurrentUser(userId) {
-        return this.authService.getCurrentUserProfile(userId);
+        return this.authService.getCurrentUser(userId);
     }
     enableTwoFa(userId) {
-        return this.authService.enableTwoFa(userId);
+        return this.authService.enable2FA(userId);
     }
     verifyTwoFa(userId, code) {
-        return this.authService.verifyTwoFa(userId, code);
+        return this.authService.verify2FA(userId, code);
     }
     disableTwoFa(userId) {
-        return this.authService.disableTwoFa(userId);
+        return this.authService.disable2FA(userId);
     }
 };
 exports.AuthController = AuthController;
@@ -132,7 +132,7 @@ __decorate([
 ], AuthController.prototype, "disableTwoFa", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
-    (0, common_1.Controller)('api/auth'),
+    (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

@@ -8,31 +8,64 @@ export const ProductImageSchema = z.object({
 
 export type ProductImage = z.infer<typeof ProductImageSchema>;
 
-// Product Response Schema
+// Product Response Schema - matches backend snake_case format
 export const ProductResponseSchema = z.object({
   id: z.string().uuid(),
   sku: z.string(),
   name: z.string(),
   slug: z.string(),
   description: z.string().optional(),
-  shortDescription: z.string().optional(),
-  price: z.number(),
-  compareAtPrice: z.number().optional(),
-  costPrice: z.number().optional(),
-  status: z.enum(['active', 'inactive', 'draft']),
+  short_description: z.string().optional(),
+  price: z.coerce.number(), // Backend may return as string, coerce to number
+  compare_at_price: z.coerce.number().optional(),
+  cost_price: z.coerce.number().optional(),
+  status: z.enum(['ACTIVE', 'DRAFT', 'ARCHIVED']), // Backend uses uppercase
   category: z.string().optional(),
   brand: z.string().optional(),
-  tags: z.array(z.string()).default([]),
-  images: z.array(ProductImageSchema).default([]),
-  weightGrams: z.number().int().optional(),
-  isFeatured: z.boolean().default(false),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional(),
-  stockQuantity: z.number().int().default(0),
-  lowStock: z.boolean().default(false),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-});
+  tags: z.array(z.string()).optional().default([]),
+  ingredients: z.array(z.string()).optional().default([]),
+  benefits: z.array(z.string()).optional().default([]),
+  usage: z.string().optional(),
+  images: z.array(z.string()).optional().default([]), // Backend returns array of URLs
+  weight_grams: z.number().int().optional(),
+  is_featured: z.boolean().default(false),
+  seo_title: z.string().optional(),
+  seo_description: z.string().optional(),
+  stock: z.object({
+    quantity: z.number().int(),
+    reserved_quantity: z.number().int(),
+    available: z.number().int(),
+  }).optional(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+}).transform((data) => ({
+  // Transform to camelCase for frontend use
+  id: data.id,
+  sku: data.sku,
+  name: data.name,
+  slug: data.slug,
+  description: data.description,
+  shortDescription: data.short_description,
+  price: data.price,
+  compareAtPrice: data.compare_at_price,
+  costPrice: data.cost_price,
+  status: data.status.toLowerCase() as 'active' | 'draft' | 'archived',
+  category: data.category,
+  brand: data.brand,
+  tags: data.tags || [],
+  ingredients: data.ingredients || [],
+  benefits: data.benefits || [],
+  usage: data.usage,
+  images: (data.images || []).map(url => ({ url, altText: data.name })),
+  weightGrams: data.weight_grams,
+  isFeatured: data.is_featured,
+  seoTitle: data.seo_title,
+  seoDescription: data.seo_description,
+  stockQuantity: data.stock?.quantity || 0,
+  lowStock: (data.stock?.available || 0) < 10,
+  createdAt: data.created_at.toISOString(),
+  updatedAt: data.updated_at.toISOString(),
+}));
 
 export type ProductResponse = z.infer<typeof ProductResponseSchema>;
 
@@ -62,56 +95,63 @@ export const PageProductResponseSchema = z.object({
 
 export type PageProductResponse = z.infer<typeof PageProductResponseSchema>;
 
-// Product Create Request Schema
+// Product Create Request Schema - uses snake_case for backend
 export const ProductCreateRequestSchema = z.object({
   sku: z.string().max(100),
   name: z.string().max(500),
   slug: z.string().max(200).regex(/^[a-z0-9-]+$/),
   description: z.string().optional(),
-  shortDescription: z.string().max(1000).optional(),
+  short_description: z.string().max(1000).optional(),
   price: z.number().positive(),
-  compareAtPrice: z.number().nonnegative().optional(),
-  costPrice: z.number().nonnegative().optional(),
-  status: z.enum(['active', 'inactive', 'draft']),
+  compare_at_price: z.number().nonnegative().optional(),
+  cost_price: z.number().nonnegative().optional(),
+  status: z.enum(['ACTIVE', 'DRAFT', 'ARCHIVED']),
   category: z.string().optional(),
   brand: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  images: z.array(ProductImageSchema).optional(),
-  weightGrams: z.number().int().optional(),
-  isFeatured: z.boolean().optional(),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional(),
+  ingredients: z.array(z.string()).optional(),
+  benefits: z.array(z.string()).optional(),
+  usage: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  weight_grams: z.number().int().optional(),
+  is_featured: z.boolean().optional(),
+  seo_title: z.string().optional(),
+  seo_description: z.string().optional(),
 });
 
 export type ProductCreateRequest = z.infer<typeof ProductCreateRequestSchema>;
 
-// Product Update Request Schema
+// Product Update Request Schema - uses snake_case for backend
 export const ProductUpdateRequestSchema = z.object({
   name: z.string().max(500).optional(),
+  slug: z.string().max(200).regex(/^[a-z0-9-]+$/).optional(),
   description: z.string().optional(),
-  shortDescription: z.string().max(1000).optional(),
+  short_description: z.string().max(1000).optional(),
   price: z.number().positive().optional(),
-  compareAtPrice: z.number().nonnegative().optional(),
-  costPrice: z.number().nonnegative().optional(),
-  status: z.enum(['active', 'inactive', 'draft']).optional(),
+  compare_at_price: z.number().nonnegative().optional(),
+  cost_price: z.number().nonnegative().optional(),
+  status: z.enum(['ACTIVE', 'DRAFT', 'ARCHIVED']).optional(),
   category: z.string().optional(),
   brand: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  images: z.array(ProductImageSchema).optional(),
-  weightGrams: z.number().int().optional(),
-  isFeatured: z.boolean().optional(),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional(),
+  ingredients: z.array(z.string()).optional(),
+  benefits: z.array(z.string()).optional(),
+  usage: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  weight_grams: z.number().int().optional(),
+  is_featured: z.boolean().optional(),
+  seo_title: z.string().optional(),
+  seo_description: z.string().optional(),
 });
 
 export type ProductUpdateRequest = z.infer<typeof ProductUpdateRequestSchema>;
 
-// Query Parameters
+// Query Parameters - uses backend's uppercase status values
 export const ProductListParamsSchema = z.object({
   page: z.number().int().min(0).default(0),
   size: z.number().int().min(1).max(100).default(20),
   search: z.string().optional(),
-  status: z.enum(['active', 'inactive', 'draft']).optional(),
+  status: z.enum(['ACTIVE', 'DRAFT', 'ARCHIVED']).optional(),
   category: z.string().optional(),
   sort: z.array(z.string()).optional(),
 });

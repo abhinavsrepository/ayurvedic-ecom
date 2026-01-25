@@ -8,18 +8,32 @@ import {
 import { Prisma } from '@prisma/client';
 import { Response } from 'express';
 
-@Catch(Prisma.PrismaClientKnownRequestError)
+// Type for Prisma known request errors
+type PrismaClientKnownRequestError = {
+  code: string;
+  message: string;
+  meta?: Record<string, any>;
+};
+
+@Catch()
 export class PrismaExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(PrismaExceptionFilter.name);
 
-  catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
+    // Check if it's a Prisma error
+    if (!exception?.code || typeof exception.code !== 'string' || !exception.code.startsWith('P')) {
+      // Not a Prisma error, pass it through
+      throw exception;
+    }
+
+    const prismaException = exception as PrismaClientKnownRequestError;
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
 
-    switch (exception.code) {
+    switch (prismaException.code) {
       case 'P2002':
         status = HttpStatus.CONFLICT;
         message = 'Unique constraint violation';
@@ -33,16 +47,16 @@ export class PrismaExceptionFilter implements ExceptionFilter {
         message = 'Foreign key constraint failed';
         break;
       default:
-        message = exception.message;
+        message = prismaException.message;
     }
 
-    this.logger.error(`Prisma Error: ${exception.code} - ${message}`);
+    this.logger.error(`Prisma Error: ${prismaException.code} - ${message}`);
 
     response.status(status).json({
       statusCode: status,
       message,
       error: 'Database Error',
-      code: exception.code,
+      code: prismaException.code,
     });
   }
 }

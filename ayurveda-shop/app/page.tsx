@@ -13,7 +13,7 @@ import { generatePageMetadata, REVALIDATION_TIMES } from '@/lib/seo/config';
 import StructuredData, { generateArticleSchema } from '@/components/seo/StructuredData';
 
 // Enable ISR - revalidate homepage every 30 minutes
-export const revalidate = REVALIDATION_TIMES.homepage;
+export const revalidate = 1800; // 30 minutes
 
 // Enhanced homepage metadata
 export const metadata: Metadata = generatePageMetadata({

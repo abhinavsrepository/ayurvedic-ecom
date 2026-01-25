@@ -11,50 +11,16 @@ export declare class AuthController {
         email: string;
         full_name: string | null;
     }>;
-    login(dto: LoginDto): Promise<{
-        requires2FA: boolean;
-        userId: string;
-    } | {
-        user: {
-            id: string;
-            username: string;
-            email: string;
-            fullName: string | null;
-            roles: string[];
-        };
-        accessToken: string;
-        refreshToken: string;
-        expiresIn: number;
-        requires2FA?: undefined;
-        userId?: undefined;
-    }>;
-    refreshToken(refreshToken: string): Promise<{
-        accessToken: string;
-        refreshToken: string;
-        expiresIn: number;
-    }>;
+    login(dto: LoginDto): Promise<import("./dto/login.dto").LoginResponseDto>;
+    refreshToken(refreshToken: string): Promise<import("./dto/login.dto").LoginResponseDto>;
     logout(userId: string): Promise<{
         success: boolean;
     }>;
-    getCurrentUser(userId: string): Promise<{
-        id: string;
-        username: string;
-        email: string;
-        fullName: string | null;
-        phoneNumber: string | null;
-        twoFaEnabled: boolean | null;
-        lastLoginAt: Date | null;
-        createdAt: Date;
-        roles: string[];
-    }>;
+    getCurrentUser(userId: string): Promise<import("./dto/login.dto").UserInfoDto>;
     enableTwoFa(userId: string): Promise<{
-        secret: any;
-        qrCode: any;
+        qrCode: string;
+        secret: string;
     }>;
-    verifyTwoFa(userId: string, code: string): Promise<{
-        success: boolean;
-    }>;
-    disableTwoFa(userId: string): Promise<{
-        success: boolean;
-    }>;
+    verifyTwoFa(userId: string, code: string): Promise<boolean>;
+    disableTwoFa(userId: string): Promise<void>;
 }

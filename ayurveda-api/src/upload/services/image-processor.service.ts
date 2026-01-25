@@ -5,7 +5,7 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 
 export interface ImageMetadata {
   width: number;

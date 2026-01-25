@@ -13,8 +13,50 @@ import {
   type ProductUpdateRequest,
 } from '@/lib/api/schemas';
 import { revalidateTag, unstable_cache } from 'next/cache';
+import { featuredProducts as mockProducts } from '@/lib/data/products';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+
+const USE_MOCK_DATA = false;
+
+// Mock data transformation
+function transformMockProduct(mock: any): ProductResponse {
+  return {
+    id: mock.id,
+    sku: `SKU-${mock.id}`,
+    name: mock.name,
+    slug: mock.slug,
+    description: mock.longDescription || mock.description,
+    shortDescription: mock.shortDescription || mock.description.substring(0, 100) + '...',
+    price: mock.price,
+    compareAtPrice: mock.originalPrice,
+    costPrice: undefined,
+    status: 'active',
+    category: mock.category,
+    brand: 'Ayurveda Haven',
+    tags: mock.keywords || [],
+    ingredients: mock.ingredients || [],
+    benefits: mock.benefits || [],
+    usage: mock.howToUse,
+    images: [{ url: mock.image, altText: mock.name }],
+    weightGrams: undefined,
+    isFeatured: mock.isBestseller || false,
+    seoTitle: mock.metaTitle,
+    seoDescription: mock.metaDescription,
+    stockQuantity: mock.inStock ? 100 : 0,
+    lowStock: false,
+    rating: mock.rating,
+    reviewCount: mock.reviewCount,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    // Additional SEO fields stored as custom properties
+    warnings: mock.warnings,
+    shelfLife: mock.shelfLife,
+    madeIn: mock.madeIn,
+    certifications: mock.certifications,
+    doshaType: mock.doshaType,
+  };
+}
 
 // Cached product list with 60s revalidation
 export const getProducts = unstable_cache(
@@ -31,37 +73,68 @@ export const getProducts = unstable_cache(
       validatedParams.sort.forEach(s => searchParams.append('sort', s));
     }
 
-    const url = `${BACKEND_URL}/api/products?${searchParams.toString()}`;
+    const url = `${BACKEND_URL}/products?${searchParams.toString()}`;
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      next: {
-        revalidate: 60, // Cache for 60 seconds
-        tags: ['products'],
-      },
-    });
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        next: {
+          revalidate: 60,
+          tags: ['products'],
+        },
+      });
 
-    if (!response.ok) {
-      console.warn(`Backend returned ${response.status} for products endpoint`);
+      if (!response.ok) {
+        console.warn(`Backend returned ${response.status} for products endpoint, using mock data`);
+        throw new Error('Backend not available');
+      }
+
+      const data = await response.json();
+      return PageProductResponseSchema.parse(data);
+    } catch (error) {
+      console.warn('Backend not available, using mock data:', error);
+
+      let filteredProducts = mockProducts.map(transformMockProduct);
+
+      if (validatedParams.status) {
+        const statusLower = validatedParams.status.toLowerCase();
+        filteredProducts = filteredProducts.filter(p => p.status === statusLower);
+      }
+
+      if (validatedParams.category) {
+        filteredProducts = filteredProducts.filter(p => p.category === validatedParams.category);
+      }
+
+      if (validatedParams.search) {
+        const searchLower = validatedParams.search.toLowerCase();
+        filteredProducts = filteredProducts.filter(p =>
+          p.name.toLowerCase().includes(searchLower) ||
+          p.description?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      const size = validatedParams.size || 20;
+      const page = validatedParams.page || 0;
+      const startIndex = page * size;
+      const endIndex = startIndex + size;
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
       return {
-        totalPages: 0,
-        totalElements: 0,
-        last: true,
-        first: true,
-        numberOfElements: 0,
-        size: validatedParams.size || 20,
-        content: [],
-        number: validatedParams.page || 0,
+        totalPages: Math.ceil(filteredProducts.length / size),
+        totalElements: filteredProducts.length,
+        last: endIndex >= filteredProducts.length,
+        first: page === 0,
+        numberOfElements: paginatedProducts.length,
+        size,
+        content: paginatedProducts,
+        number: page,
         sort: [],
-        empty: true,
+        empty: paginatedProducts.length === 0,
       };
     }
-
-    const data = await response.json();
-    return PageProductResponseSchema.parse(data);
   },
   ['products-list'],
   {
@@ -74,7 +147,7 @@ export const getProducts = unstable_cache(
 export const getProductBySlug = unstable_cache(
   async (slug: string): Promise<ProductResponse | null> => {
     try {
-      const url = `${BACKEND_URL}/api/products/${slug}`;
+      const url = `${BACKEND_URL}/products/slug/${slug}`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -97,7 +170,11 @@ export const getProductBySlug = unstable_cache(
       const data = await response.json();
       return ProductResponseSchema.parse(data);
     } catch (error) {
-      console.error('Error fetching product:', error);
+      console.warn('Backend not available, using mock data for slug:', slug);
+      const mockProduct = mockProducts.find(p => p.slug === slug);
+      if (mockProduct) {
+        return transformMockProduct(mockProduct);
+      }
       return null;
     }
   },
@@ -114,11 +191,24 @@ export const searchProducts = unstable_cache(
       page: 0,
       size: limit,
       search: query,
-      status: 'active',
+      status: 'ACTIVE',
     };
 
-    const result = await getProducts(params);
-    return result.content;
+    try {
+      const result = await getProducts(params);
+      return result.content;
+    } catch (error) {
+      console.warn('Backend not available, using mock data for search:', query);
+      const searchLower = query.toLowerCase();
+      const searchResults = mockProducts
+        .filter(p =>
+          p.name.toLowerCase().includes(searchLower) ||
+          p.description.toLowerCase().includes(searchLower)
+        )
+        .slice(0, limit)
+        .map(transformMockProduct);
+      return searchResults;
+    }
   },
   ['product-search'],
   {
@@ -130,7 +220,7 @@ export const searchProducts = unstable_cache(
 export const getFeaturedProducts = unstable_cache(
   async (limit: number = 8): Promise<ProductResponse[]> => {
     try {
-      const url = `${BACKEND_URL}/api/products?size=${limit}&sort=isFeatured,desc&status=active`;
+      const url = `${BACKEND_URL}/products?size=${limit}&sort=is_featured,desc&status=ACTIVE`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -138,21 +228,24 @@ export const getFeaturedProducts = unstable_cache(
           'Content-Type': 'application/json',
         },
         next: {
-          revalidate: 300, // Cache for 5 minutes
+          revalidate: 300,
           tags: ['featured-products'],
         },
       });
 
       if (!response.ok) {
-        return [];
+        throw new Error('Backend not available');
       }
 
       const data = await response.json();
       const parsed = PageProductResponseSchema.parse(data);
       return parsed.content;
     } catch (error) {
-      console.error('Error fetching featured products:', error);
-      return [];
+      console.warn('Backend not available, using mock data for featured products:', error);
+      return mockProducts
+        .filter(p => p.isBestseller)
+        .slice(0, limit)
+        .map(transformMockProduct);
     }
   },
   ['featured-products'],
@@ -169,10 +262,33 @@ export const getProductsByCategory = unstable_cache(
       page,
       size,
       category,
-      status: 'active',
+      status: 'ACTIVE',
     };
 
-    return getProducts(params);
+    try {
+      return await getProducts(params);
+    } catch (error) {
+      console.warn('Backend not available, using mock data for category:', category);
+      const categoryProducts = mockProducts
+        .filter(p => p.category === category)
+        .map(transformMockProduct);
+
+      const startIndex = page * size;
+      const paginatedProducts = categoryProducts.slice(startIndex, startIndex + size);
+
+      return {
+        totalPages: Math.ceil(categoryProducts.length / size),
+        totalElements: categoryProducts.length,
+        last: startIndex + size >= categoryProducts.length,
+        first: page === 0,
+        numberOfElements: paginatedProducts.length,
+        size,
+        content: paginatedProducts,
+        number: page,
+        sort: [],
+        empty: paginatedProducts.length === 0,
+      };
+    }
   },
   ['products-by-category'],
   {

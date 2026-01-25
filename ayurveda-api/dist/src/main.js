@@ -17,6 +17,7 @@ async function bootstrap() {
         logger: ['error', 'warn', 'log', 'debug'],
     });
     const configService = app.get(config_1.ConfigService);
+    app.setGlobalPrefix('api');
     app.enableCors({
         origin: configService.get('CORS_ORIGINS')?.split(',') || [
             'http://localhost:3000',

@@ -5,26 +5,34 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var LoggingInterceptor_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoggingInterceptor = void 0;
 const common_1 = require("@nestjs/common");
 const operators_1 = require("rxjs/operators");
-let LoggingInterceptor = class LoggingInterceptor {
-    logger = new common_1.Logger('HTTP');
+let LoggingInterceptor = LoggingInterceptor_1 = class LoggingInterceptor {
+    logger = new common_1.Logger(LoggingInterceptor_1.name);
     intercept(context, next) {
         const request = context.switchToHttp().getRequest();
-        const method = request.method;
-        const url = request.url;
+        const { method, url, body, query } = request;
+        const userAgent = request.get('user-agent') || '';
+        const ip = request.ip;
         const now = Date.now();
-        return next.handle().pipe((0, operators_1.tap)(() => {
-            const response = context.switchToHttp().getResponse();
-            const delay = Date.now() - now;
-            this.logger.log(`${method} ${url} ${response.statusCode} - ${delay}ms`);
+        this.logger.log(`Incoming Request: ${method} ${url} - ${userAgent} ${ip}`);
+        return next.handle().pipe((0, operators_1.tap)({
+            next: () => {
+                const responseTime = Date.now() - now;
+                this.logger.log(`Outgoing Response: ${method} ${url} - ${responseTime}ms`);
+            },
+            error: (error) => {
+                const responseTime = Date.now() - now;
+                this.logger.error(`Request Failed: ${method} ${url} - ${responseTime}ms`, error.message);
+            },
         }));
     }
 };
 exports.LoggingInterceptor = LoggingInterceptor;
-exports.LoggingInterceptor = LoggingInterceptor = __decorate([
+exports.LoggingInterceptor = LoggingInterceptor = LoggingInterceptor_1 = __decorate([
     (0, common_1.Injectable)()
 ], LoggingInterceptor);
 //# sourceMappingURL=logging.interceptor.js.map

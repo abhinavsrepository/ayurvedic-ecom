@@ -8,109 +8,264 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var ProductsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-let ProductsService = class ProductsService {
+const cache_service_1 = require("../cache/cache.service");
+const cache_constants_1 = require("../cache/cache.constants");
+let ProductsService = ProductsService_1 = class ProductsService {
     prisma;
-    constructor(prisma) {
+    cacheService;
+    logger = new common_1.Logger(ProductsService_1.name);
+    constructor(prisma, cacheService) {
         this.prisma = prisma;
+        this.cacheService = cacheService;
     }
-    async create(dto) {
-        return await this.prisma.product.create({
+    async create(createProductDto) {
+        const existing = await this.prisma.product.findUnique({
+            where: { slug: createProductDto.slug },
+        });
+        if (existing) {
+            throw new common_1.ConflictException(`Product with slug '${createProductDto.slug}' already exists`);
+        }
+        const product = await this.prisma.product.create({
             data: {
-                sku: dto.sku,
-                name: dto.name,
-                slug: dto.slug,
-                description: dto.description,
-                short_description: dto.short_description,
-                price: dto.price,
-                compare_at_price: dto.compare_at_price,
-                cost_price: dto.cost_price,
-                status: dto.status || 'DRAFT',
-                category: dto.category,
-                brand: dto.brand,
-                weight_grams: dto.weight_grams,
-                is_featured: dto.is_featured || false,
-                seo_title: dto.seo_title,
-                seo_description: dto.seo_description,
+                sku: createProductDto.sku,
+                name: createProductDto.name,
+                slug: createProductDto.slug,
+                description: createProductDto.description,
+                short_description: createProductDto.shortDescription,
+                price: createProductDto.price,
+                compare_at_price: createProductDto.compareAtPrice,
+                cost_price: createProductDto.costPerItem,
+                status: createProductDto.status || 'DRAFT',
+                category: createProductDto.category,
+                subcategory: createProductDto.subcategory,
+                brand: createProductDto.brand,
+                weight_grams: createProductDto.weightGrams,
+                is_featured: createProductDto.isFeatured || false,
+                ingredients: createProductDto.ingredients,
+                benefits: createProductDto.benefits,
+                dosha_vata: createProductDto.doshaVata,
+                dosha_pitta: createProductDto.doshaPitta,
+                dosha_kapha: createProductDto.doshaKapha,
+                usage_instructions: createProductDto.usageInstructions,
+                seo_title: createProductDto.seoTitle,
+                seo_description: createProductDto.seoDescription,
+                seo_keywords: createProductDto.seoKeywords?.join(','),
+                product_images: createProductDto.images ? {
+                    create: createProductDto.images.map(img => ({
+                        url: img.url,
+                        alt_text: img.altText,
+                        image_order: img.order || 0,
+                    }))
+                } : undefined,
             },
         });
-    }
-    async findAll(query) {
-        const { page = 1, limit = 20, search, status, category, brand } = query;
-        const skip = (page - 1) * limit;
-        const where = { deleted_at: null };
-        if (search) {
-            where.OR = [
-                { name: { contains: search, mode: 'insensitive' } },
-                { sku: { contains: search, mode: 'insensitive' } },
-                { description: { contains: search, mode: 'insensitive' } },
-            ];
-        }
-        if (status)
-            where.status = status;
-        if (category)
-            where.category = category;
-        if (brand)
-            where.brand = brand;
-        const [products, total] = await Promise.all([
-            this.prisma.product.findMany({
-                where,
-                skip,
-                take: limit,
-                orderBy: { created_at: 'desc' },
-            }),
-            this.prisma.product.count({ where }),
-        ]);
-        return {
-            data: products,
-            meta: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit),
-            },
-        };
-    }
-    async findOne(id) {
-        const product = await this.prisma.product.findUnique({
-            where: { id },
-        });
-        if (!product || product.deleted_at) {
-            throw new common_1.NotFoundException(`Product with ID ${id} not found`);
-        }
+        await this.invalidateProductCaches();
+        this.logger.log(`Product created: ${product.id} - ${product.name}`);
         return product;
     }
-    async update(id, dto) {
+    async findAll(query) {
+        const cacheKey = cache_constants_1.CACHE_KEYS.PRODUCTS_LIST(query.page || 0, query.size || 20, JSON.stringify(query));
+        return this.cacheService.wrap(cacheKey, async () => {
+            const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = query;
+            const where = { deleted_at: null };
+            if (filters.query) {
+                where.OR = [
+                    { name: { contains: filters.query, mode: 'insensitive' } },
+                    { description: { contains: filters.query, mode: 'insensitive' } },
+                ];
+            }
+            if (filters.category) {
+                where.category = filters.category;
+            }
+            if (filters.brand) {
+                where.brand = filters.brand;
+            }
+            if (filters.status) {
+                where.status = filters.status;
+            }
+            if (filters.isFeatured !== undefined) {
+                where.is_featured = filters.isFeatured;
+            }
+            if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+                where.price = {};
+                if (filters.minPrice !== undefined) {
+                    where.price.gte = filters.minPrice;
+                }
+                if (filters.maxPrice !== undefined) {
+                    where.price.lte = filters.maxPrice;
+                }
+            }
+            let mappedSortBy = sortBy;
+            if (sortBy === 'createdAt')
+                mappedSortBy = 'created_at';
+            if (sortBy === 'price')
+                mappedSortBy = 'price';
+            if (sortBy === 'name')
+                mappedSortBy = 'name';
+            const [products, total] = await Promise.all([
+                this.prisma.product.findMany({
+                    where,
+                    skip: page * size,
+                    take: size,
+                    orderBy: { [mappedSortBy]: sortOrder },
+                    include: {
+                        product_images: {
+                            orderBy: { image_order: 'asc' }
+                        }
+                    }
+                }),
+                this.prisma.product.count({ where }),
+            ]);
+            return {
+                content: products,
+                total,
+                page,
+                size,
+                totalPages: Math.ceil(total / size),
+            };
+        }, cache_constants_1.CACHE_TTL.MEDIUM);
+    }
+    async findOne(id) {
+        const cacheKey = cache_constants_1.CACHE_KEYS.PRODUCT_BY_ID(id);
+        return this.cacheService.wrap(cacheKey, async () => {
+            const product = await this.prisma.product.findUnique({
+                where: { id },
+                include: {
+                    product_images: {
+                        orderBy: { image_order: 'asc' }
+                    }
+                }
+            });
+            if (!product || product.deleted_at) {
+                throw new common_1.NotFoundException(`Product with ID '${id}' not found`);
+            }
+            return product;
+        }, cache_constants_1.CACHE_TTL.LONG);
+    }
+    async findBySlug(slug) {
+        const cacheKey = cache_constants_1.CACHE_KEYS.PRODUCT_BY_SLUG(slug);
+        return this.cacheService.wrap(cacheKey, async () => {
+            const product = await this.prisma.product.findUnique({
+                where: { slug },
+                include: {
+                    product_images: {
+                        orderBy: { image_order: 'asc' }
+                    }
+                }
+            });
+            if (!product || product.deleted_at) {
+                throw new common_1.NotFoundException(`Product with slug '${slug}' not found`);
+            }
+            return product;
+        }, cache_constants_1.CACHE_TTL.LONG);
+    }
+    async update(id, updateProductDto) {
         await this.findOne(id);
-        return await this.prisma.product.update({
+        if (updateProductDto.slug) {
+            const existing = await this.prisma.product.findFirst({
+                where: {
+                    slug: updateProductDto.slug,
+                    NOT: { id },
+                },
+            });
+            if (existing) {
+                throw new common_1.ConflictException(`Product with slug '${updateProductDto.slug}' already exists`);
+            }
+        }
+        const data = {};
+        if (updateProductDto.name)
+            data.name = updateProductDto.name;
+        if (updateProductDto.slug)
+            data.slug = updateProductDto.slug;
+        if (updateProductDto.description)
+            data.description = updateProductDto.description;
+        if (updateProductDto.shortDescription)
+            data.short_description = updateProductDto.shortDescription;
+        if (updateProductDto.price)
+            data.price = updateProductDto.price;
+        if (updateProductDto.compareAtPrice)
+            data.compare_at_price = updateProductDto.compareAtPrice;
+        if (updateProductDto.costPerItem)
+            data.cost_price = updateProductDto.costPerItem;
+        if (updateProductDto.status)
+            data.status = updateProductDto.status;
+        if (updateProductDto.category)
+            data.category = updateProductDto.category;
+        if (updateProductDto.subcategory)
+            data.subcategory = updateProductDto.subcategory;
+        if (updateProductDto.brand)
+            data.brand = updateProductDto.brand;
+        if (updateProductDto.weightGrams)
+            data.weight_grams = updateProductDto.weightGrams;
+        if (updateProductDto.isFeatured !== undefined)
+            data.is_featured = updateProductDto.isFeatured;
+        if (updateProductDto.ingredients)
+            data.ingredients = updateProductDto.ingredients;
+        if (updateProductDto.benefits)
+            data.benefits = updateProductDto.benefits;
+        if (updateProductDto.doshaVata !== undefined)
+            data.dosha_vata = updateProductDto.doshaVata;
+        if (updateProductDto.doshaPitta !== undefined)
+            data.dosha_pitta = updateProductDto.doshaPitta;
+        if (updateProductDto.doshaKapha !== undefined)
+            data.dosha_kapha = updateProductDto.doshaKapha;
+        if (updateProductDto.usageInstructions)
+            data.usage_instructions = updateProductDto.usageInstructions;
+        if (updateProductDto.seoTitle)
+            data.seo_title = updateProductDto.seoTitle;
+        if (updateProductDto.seoDescription)
+            data.seo_description = updateProductDto.seoDescription;
+        if (updateProductDto.seoKeywords)
+            data.seo_keywords = updateProductDto.seoKeywords.join(',');
+        if (updateProductDto.images) {
+            data.product_images = {
+                deleteMany: {},
+                create: updateProductDto.images.map(img => ({
+                    url: img.url,
+                    alt_text: img.altText,
+                    image_order: img.order || 0,
+                }))
+            };
+        }
+        const product = await this.prisma.product.update({
             where: { id },
-            data: dto,
+            data,
         });
+        await this.invalidateProductCaches(id, product.slug);
+        this.logger.log(`Product updated: ${product.id} - ${product.name}`);
+        return product;
     }
     async remove(id) {
-        await this.findOne(id);
+        const product = await this.findOne(id);
         await this.prisma.product.update({
             where: { id },
             data: { deleted_at: new Date() },
         });
-        return { success: true, message: 'Product deleted successfully' };
+        await this.invalidateProductCaches(id, product.slug);
+        this.logger.log(`Product deleted: ${id}`);
+        return { message: 'Product deleted successfully' };
     }
-    async getBySlug(slug) {
-        const product = await this.prisma.product.findUnique({
-            where: { slug },
-        });
-        if (!product || product.deleted_at) {
-            throw new common_1.NotFoundException(`Product with slug ${slug} not found`);
+    async invalidateProductCaches(id, slug) {
+        const promises = [];
+        if (id) {
+            promises.push(this.cacheService.del(cache_constants_1.CACHE_KEYS.PRODUCT_BY_ID(id)));
         }
-        return product;
+        if (slug) {
+            promises.push(this.cacheService.del(cache_constants_1.CACHE_KEYS.PRODUCT_BY_SLUG(slug)));
+        }
+        promises.push(this.cacheService.del(cache_constants_1.CACHE_KEYS.PRODUCTS_FEATURED), this.cacheService.del(cache_constants_1.CACHE_KEYS.PRODUCTS_BESTSELLERS), this.cacheService.del(cache_constants_1.CACHE_KEYS.PRODUCTS_NEW));
+        await Promise.all(promises);
     }
 };
 exports.ProductsService = ProductsService;
-exports.ProductsService = ProductsService = __decorate([
+exports.ProductsService = ProductsService = ProductsService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        cache_service_1.CacheService])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

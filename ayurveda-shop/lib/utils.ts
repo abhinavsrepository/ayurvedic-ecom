@@ -72,3 +72,13 @@ export function debounce<T extends (...args: any[]) => any>(
     timeout = setTimeout(later, wait)
   }
 }
+
+export function formatPrice(price: number): string {
+  return formatCurrency(price);
+}
+
+export function calculateDiscount(originalPrice: number, currentPrice: number): number {
+  if (originalPrice <= currentPrice) return 0;
+  return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+}
+

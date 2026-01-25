@@ -34,9 +34,9 @@ export class AnalyticsService {
 
       const location = await this.prisma.userLocationLog.create({
         data: {
-          userId: createLocationDto.userId || null,
-          sessionId: createLocationDto.sessionId || null,
-          ipHash,
+          user_id: createLocationDto.userId || null,
+          session_id: createLocationDto.sessionId || null,
+          ip_hash: ipHash,
           country: createLocationDto.country || null,
           region: createLocationDto.region || null,
           city: createLocationDto.city || null,
@@ -62,21 +62,21 @@ export class AnalyticsService {
     try {
       const device = await this.prisma.userDeviceLog.create({
         data: {
-          userId: createDeviceDto.userId || null,
-          sessionId: createDeviceDto.sessionId || null,
-          deviceType: createDeviceDto.deviceType || null,
+          user_id: createDeviceDto.userId || null,
+          session_id: createDeviceDto.sessionId || null,
+          device_type: createDeviceDto.deviceType || null,
           os: createDeviceDto.os || null,
           browser: createDeviceDto.browser || null,
-          browserVersion: createDeviceDto.browserVersion || null,
-          deviceRam: createDeviceDto.deviceRam || null,
-          cpuCores: createDeviceDto.cpuCores || null,
-          networkType: createDeviceDto.networkType || null,
-          isOnline: createDeviceDto.isOnline ?? true,
-          screenWidth: createDeviceDto.screenWidth || null,
-          screenHeight: createDeviceDto.screenHeight || null,
-          colorScheme: createDeviceDto.colorScheme || null,
-          hasTouch: createDeviceDto.hasTouch ?? false,
-          userAgent: createDeviceDto.userAgent || null,
+          browser_version: createDeviceDto.browserVersion || null,
+          device_ram: createDeviceDto.deviceRam || null,
+          cpu_cores: createDeviceDto.cpuCores || null,
+          network_type: createDeviceDto.networkType || null,
+          is_online: createDeviceDto.isOnline ?? true,
+          screen_width: createDeviceDto.screenWidth || null,
+          screen_height: createDeviceDto.screenHeight || null,
+          color_scheme: createDeviceDto.colorScheme || null,
+          has_touch: createDeviceDto.hasTouch ?? false,
+          user_agent: createDeviceDto.userAgent || null,
         },
       });
 
@@ -111,18 +111,18 @@ export class AnalyticsService {
       // Log the event
       const event = await this.prisma.analyticsEvent.create({
         data: {
-          userId: createEventDto.userId || null,
-          sessionId: createEventDto.sessionId || null,
-          eventType: createEventDto.eventType,
-          eventData: createEventDto.eventData ? JSON.stringify(createEventDto.eventData) : null,
-          locationId,
-          deviceId,
-          pageUrl: createEventDto.pageUrl || null,
+          user_id: createEventDto.userId || null,
+          session_id: createEventDto.sessionId || null,
+          event_type: createEventDto.eventType,
+          event_data: createEventDto.eventData ? JSON.stringify(createEventDto.eventData) : null,
+          location_id: locationId,
+          device_id: deviceId,
+          page_url: createEventDto.pageUrl || null,
           referrer: createEventDto.referrer || null,
         },
       });
 
-      this.logger.log(`Event logged: ${event.eventType} - ${event.id}`);
+      this.logger.log(`Event logged: ${event.event_type} - ${event.id}`);
       return {
         event,
         locationId,
@@ -148,7 +148,7 @@ export class AnalyticsService {
       }
 
       const summary = await this.prisma.analyticsEvent.groupBy({
-        by: ['eventType'],
+        by: ['event_type'],
         _count: {
           id: true,
         },
@@ -161,7 +161,7 @@ export class AnalyticsService {
       });
 
       return summary.map((item) => ({
-        eventType: item.eventType,
+        eventType: item.event_type,
         count: item._count.id,
       }));
     } catch (error) {
@@ -184,7 +184,7 @@ export class AnalyticsService {
       }
 
       const deviceTypes = await this.prisma.userDeviceLog.groupBy({
-        by: ['deviceType'],
+        by: ['device_type'],
         _count: {
           id: true,
         },
@@ -209,7 +209,7 @@ export class AnalyticsService {
 
       return {
         deviceTypes: deviceTypes.map((item) => ({
-          type: item.deviceType,
+          type: item.device_type,
           count: item._count.id,
         })),
         browsers: browsers.map((item) => ({

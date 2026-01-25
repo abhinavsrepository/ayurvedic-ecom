@@ -13,6 +13,8 @@ export interface Product {
   name: string;
   slug: string;
   description: string;
+  shortDescription?: string;
+  longDescription?: string;
   price: number;
   originalPrice?: number;
   image: string;
@@ -24,6 +26,16 @@ export interface Product {
   reviewCount?: number;
   doshaType?: "vata" | "pitta" | "kapha" | "all";
   benefits?: string[];
+  // SEO fields
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  ingredients?: string[];
+  howToUse?: string;
+  warnings?: string;
+  shelfLife?: string;
+  madeIn?: string;
+  certifications?: string[];
 }
 
 interface ProductCardProps {

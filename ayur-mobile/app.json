@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#22c55e"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ayurveda.haven",
@@ -24,10 +22,7 @@
         "NSLocationWhenInUseUsageDescription": "We need location access to show nearby Ayurveda stores",
         "NSFaceIDUsageDescription": "We use Face ID to secure your account and enable quick login"
       },
-      "associatedDomains": [
-        "applinks:ayurvedahaven.com",
-        "applinks:www.ayurvedahaven.com"
-      ],
+      "associatedDomains": ["applinks:ayurvedahaven.com", "applinks:www.ayurvedahaven.com"],
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -65,10 +60,7 @@
               "pathPrefix": "/"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
@@ -84,9 +76,7 @@
         {
           "icon": "./assets/notification-icon.png",
           "color": "#22c55e",
-          "sounds": [
-            "./assets/sounds/notification.wav"
-          ]
+          "sounds": ["./assets/sounds/notification.wav"]
         }
       ],
       [
@@ -100,7 +90,7 @@
             "enableShrinkResourcesInReleaseBuilds": true
           },
           "ios": {
-            "deploymentTarget": "14.0"
+            "deploymentTarget": "15.1"
           }
         }
       ],

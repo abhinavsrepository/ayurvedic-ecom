@@ -109,22 +109,59 @@ export default function NewProductPage() {
     setLoading(true);
 
     try {
-      // Clean up empty strings from arrays
-      const cleanedData = {
-        ...formData,
-        ingredients: formData.ingredients.filter((i) => i.trim()),
-        benefits: formData.benefits.filter((b) => b.trim()),
-        howToUse: formData.howToUse.filter((h) => h.trim()),
-        warnings: formData.warnings.filter((w) => w.trim()),
-        images: formData.images.filter((img) => img.trim()),
+      // Transform frontend data to match backend DTO
+      const ingredients = formData.ingredients.filter((i) => i.trim()).join(', ');
+      const benefits = formData.benefits.filter((b) => b.trim()).join(', ');
+      const usage = formData.howToUse.filter((h) => h.trim()).join('\n');
+      const imageUrls = formData.images.filter((img) => img.trim());
+
+      const backendData: any = {
+        name: formData.name,
+        slug: formData.slug,
+        description: formData.longDescription || formData.description,
+        shortDescription: formData.description,
+        price: formData.price.toString(),
+        category: formData.category,
+        stockQuantity: 100, // Default stock quantity
+        sku: formData.slug.toUpperCase().replace(/-/g, '_'), // Generate SKU from slug
+        status: formData.inStock ? 'ACTIVE' : 'DRAFT',
+        isFeatured: false,
       };
+
+      // Only add optional fields if they have values
+      if (formData.originalPrice) {
+        backendData.compareAtPrice = formData.originalPrice.toString();
+      }
+      if (ingredients) {
+        backendData.ingredients = ingredients;
+      }
+      if (benefits) {
+        backendData.benefits = benefits;
+      }
+      if (usage) {
+        backendData.usageInstructions = usage;
+      }
+      if (imageUrls.length > 0) {
+        backendData.images = imageUrls.map((url, idx) => ({
+          url,
+          altText: formData.name,
+          order: idx,
+        }));
+      }
+
+      // Get auth token from localStorage
+      const token = localStorage.getItem('admin_access_token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
 
       const response = await fetch('/api/products', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(cleanedData),
+        headers,
+        body: JSON.stringify(backendData),
       });
 
       const data = await response.json();

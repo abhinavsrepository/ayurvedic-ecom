@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ayurveda-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ayurveda-network
+
   # PostgreSQL Database
   postgres:
     image: postgres:14-alpine
@@ -10,7 +27,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -21,36 +38,30 @@ services:
     networks:
       - ayurveda-network
 
-  # Spring Boot Backend
+  # NestJS Backend
   backend:
     build:
-      context: ./backend
+      context: ../ayurveda-api
       dockerfile: Dockerfile
     container_name: ayurveda-backend
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ayurveda_admin
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ayurveda_admin
       ML_SERVICE_URL: http://ml-service:5000
+      PORT: 3000
     ports:
-      - "8080:8080"
+      - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
       ml-service:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
     networks:
       - ayurveda-network
 
   # Python ML Service
   ml-service:
     build:
-      context: ./ml-service
+      context: ../ml-service
       dockerfile: Dockerfile
     container_name: ayurveda-ml
     ports:
@@ -69,14 +80,14 @@ services:
   # Next.js Frontend
   frontend:
     build:
-      context: ./ayurveda-shop
+      context: ../ayurveda-shop
       dockerfile: Dockerfile
     container_name: ayurveda-frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8080
+      NEXT_PUBLIC_API_URL: http://localhost:3000
       NEXT_PUBLIC_ML_URL: http://localhost:5000
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       - backend
       - ml-service
@@ -84,6 +95,8 @@ services:
       - ayurveda-network
 
 volumes:
+  redis_data:
+    driver: local
   postgres_data:
     driver: local
 

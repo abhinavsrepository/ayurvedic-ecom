@@ -9,15 +9,18 @@ var PrismaExceptionFilter_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrismaExceptionFilter = void 0;
 const common_1 = require("@nestjs/common");
-const client_1 = require("@prisma/client");
 let PrismaExceptionFilter = PrismaExceptionFilter_1 = class PrismaExceptionFilter {
     logger = new common_1.Logger(PrismaExceptionFilter_1.name);
     catch(exception, host) {
+        if (!exception?.code || typeof exception.code !== 'string' || !exception.code.startsWith('P')) {
+            throw exception;
+        }
+        const prismaException = exception;
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         let status = common_1.HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Internal server error';
-        switch (exception.code) {
+        switch (prismaException.code) {
             case 'P2002':
                 status = common_1.HttpStatus.CONFLICT;
                 message = 'Unique constraint violation';
@@ -31,19 +34,19 @@ let PrismaExceptionFilter = PrismaExceptionFilter_1 = class PrismaExceptionFilte
                 message = 'Foreign key constraint failed';
                 break;
             default:
-                message = exception.message;
+                message = prismaException.message;
         }
-        this.logger.error(`Prisma Error: ${exception.code} - ${message}`);
+        this.logger.error(`Prisma Error: ${prismaException.code} - ${message}`);
         response.status(status).json({
             statusCode: status,
             message,
             error: 'Database Error',
-            code: exception.code,
+            code: prismaException.code,
         });
     }
 };
 exports.PrismaExceptionFilter = PrismaExceptionFilter;
 exports.PrismaExceptionFilter = PrismaExceptionFilter = PrismaExceptionFilter_1 = __decorate([
-    (0, common_1.Catch)(client_1.Prisma.PrismaClientKnownRequestError)
+    (0, common_1.Catch)()
 ], PrismaExceptionFilter);
 //# sourceMappingURL=prisma-exception.filter.js.map

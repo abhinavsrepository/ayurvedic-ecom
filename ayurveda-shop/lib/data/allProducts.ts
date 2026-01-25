@@ -1,109 +1,53 @@
 import { Product } from "@/components/product/ProductCard";
+import { featuredProducts } from "./products";
 
 /**
  * Complete Product Catalog for Shop Page
- * Includes all products with dosha types and benefits
+ * Uses the existing featuredProducts and adds dosha types and benefits
  */
 
-export const allProducts: Product[] = [
-  // HERO PRODUCT - Hair Oil
-  {
-    id: "1",
-    name: "Ayurvedic Hair Oil",
-    slug: "ayurvedic-hair-oil",
-    description: "Premium Ayurvedic hair oil with bhringraj, amla, and hibiscus for thick, lustrous hair growth. Traditional formula for healthy scalp and strong roots.",
-    price: 649,
-    originalPrice: 799,
-    image: "/images/hair oil.png",
-    category: "Hair Care",
-    inStock: true,
-    isBestseller: true,
-    isNew: true,
-    rating: 4.9,
-    reviewCount: 345,
-    doshaType: "all",
-    benefits: ["Hair Growth", "Prevents Graying", "Hair Strength", "Scalp Health"],
-  },
-  // Other Available Products
-  {
-    id: "2",
-    name: "Ayurvedic Cough Syrup",
-    slug: "ayurvedic-cough-syrup",
-    description: "Natural herbal cough syrup with tulsi, ginger, and honey for respiratory relief and throat soothing.",
-    price: 299,
-    originalPrice: 399,
-    image: "/images/coughsyrup.jpeg",
-    category: "Supplements",
-    inStock: true,
-    isBestseller: true,
-    rating: 4.8,
-    reviewCount: 234,
-    doshaType: "kapha",
-    benefits: ["Respiratory Health", "Throat Relief", "Immunity"],
-  },
-  {
-    id: "3",
-    name: "Diabetes Care Supplement",
-    slug: "diabetes-care-supplement",
-    description: "Ayurvedic herbal formula with karela, jamun, and gudmar to support healthy blood sugar levels naturally.",
-    price: 599,
-    originalPrice: 749,
-    image: "/images/diabetes care.jpeg",
-    category: "Supplements",
-    inStock: true,
-    rating: 4.7,
-    reviewCount: 198,
-    doshaType: "kapha",
-    benefits: ["Blood Sugar Support", "Metabolism", "Energy"],
-  },
-  {
-    id: "4",
-    name: "Active Protein Powder",
-    slug: "active-protein-powder",
-    description: "Herbal protein blend with ashwagandha, shatavari, and moringa for muscle strength and vitality.",
-    price: 899,
-    originalPrice: 1099,
-    image: "/images/active protein.jpeg",
-    category: "Supplements",
-    inStock: true,
-    isNew: true,
-    isBestseller: true,
-    rating: 4.9,
-    reviewCount: 312,
-    doshaType: "all",
-    benefits: ["Muscle Building", "Energy Boost", "Strength"],
-  },
-  {
-    id: "5",
-    name: "Liver Care Capsules",
-    slug: "liver-care-capsules",
-    description: "Protective liver support with kutki, punarnava, and bhumi amla for detoxification and liver health.",
-    price: 549,
-    originalPrice: 699,
-    image: "/images/live care.jpeg",
-    category: "Supplements",
-    inStock: true,
-    rating: 4.6,
-    reviewCount: 156,
-    doshaType: "pitta",
-    benefits: ["Liver Health", "Detoxification", "Digestion"],
-  },
-  {
-    id: "6",
-    name: "Liver Oil Extract",
-    slug: "liver-oil-extract",
-    description: "Concentrated liver oil with omega fatty acids and Ayurvedic herbs for liver regeneration.",
-    price: 749,
-    originalPrice: 899,
-    image: "/images/liver oil.jpeg",
-    category: "Essential Oils",
-    inStock: true,
-    rating: 4.5,
-    reviewCount: 89,
-    doshaType: "pitta",
-    benefits: ["Liver Support", "Detox", "Cell Regeneration"],
-  },
-];
+// Extend the existing products with dosha and benefits data
+export const allProducts: Product[] = featuredProducts.map(product => {
+  // Add doshaType and benefits based on product category/type
+  let doshaType = "all";
+  let benefits: string[] = [];
+
+  switch (product.id) {
+    case "1": // Ayurvedic Hair Oil
+      doshaType = "all";
+      benefits = ["Hair Growth", "Scalp Health", "Hair Strength", "Anti-aging"];
+      break;
+    case "2": // Ayurvedic Cough Syrup
+      doshaType = "kapha";
+      benefits = ["Respiratory Health", "Immunity", "Throat Relief"];
+      break;
+    case "3": // Diabetes Care Supplement
+      doshaType = "kapha";
+      benefits = ["Blood Sugar Support", "Metabolism", "Energy Boost"];
+      break;
+    case "4": // Active Protein Powder
+      doshaType = "all";
+      benefits = ["Energy Boost", "Muscle Building", "Strength"];
+      break;
+    case "5": // Liver Care Capsules
+      doshaType = "pitta";
+      benefits = ["Liver Health", "Detoxification", "Digestion"];
+      break;
+    case "6": // Liver Oil Extract
+      doshaType = "pitta";
+      benefits = ["Liver Health", "Detoxification", "Cell Regeneration"];
+      break;
+    default:
+      doshaType = "all";
+      benefits = ["Immunity", "Energy Boost"];
+  }
+
+  return {
+    ...product,
+    doshaType,
+    benefits,
+  };
+});
 
 export const categories = [
   "All Products",
@@ -122,16 +66,22 @@ export const doshaTypes = [
 ];
 
 export const benefits = [
-  "Stress Relief",
   "Immunity",
+  "Energy Boost",
   "Digestion",
   "Hair Growth",
-  "Clear Skin",
-  "Energy Boost",
+  "Hair Strength",
+  "Scalp Health",
   "Anti-aging",
-  "Sleep Support",
   "Detoxification",
-  "Mental Clarity",
+  "Respiratory Health",
+  "Throat Relief",
+  "Metabolism",
+  "Blood Sugar Support",
+  "Muscle Building",
+  "Liver Health",
+  "Strength",
+  "Cell Regeneration",
 ];
 
 export const priceRanges = [

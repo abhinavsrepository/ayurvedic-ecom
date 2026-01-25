@@ -1,6 +1,6 @@
 import type { Banner } from '@/types/banner';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
 export const bannersApi = {
   // Get active banners by position

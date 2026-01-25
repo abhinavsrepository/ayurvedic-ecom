@@ -26,7 +26,7 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -38,7 +38,7 @@ import { UploadResponseDto } from './dto/upload-response.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class UploadController {
-  constructor(private readonly uploadService: UploadService) {}
+  constructor(private readonly uploadService: UploadService) { }
 
   @Post('image')
   @Roles('admin', 'manager')

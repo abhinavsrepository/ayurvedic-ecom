@@ -22,7 +22,7 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { AnalyticsService } from './analytics.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { CreateDeviceDto } from './dto/create-device.dto';
@@ -36,7 +36,7 @@ import { IpHasher } from './utils/ip-hasher.util';
 @ApiTags('Analytics')
 @Controller('analytics')
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(private readonly analyticsService: AnalyticsService) { }
 
   @Public()
   @Post('location')

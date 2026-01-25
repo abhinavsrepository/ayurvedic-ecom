@@ -12,6 +12,16 @@ export const featuredProducts: Product[] = [
     name: "Ayurvedic Hair Oil",
     slug: "ayurvedic-hair-oil",
     description: "Premium Ayurvedic hair oil with bhringraj, amla, and hibiscus for thick, lustrous hair growth. Traditional formula for healthy scalp and strong roots.",
+    shortDescription: "Ancient Ayurvedic formula for stronger, thicker hair with natural herbs.",
+    longDescription: `Experience the transformative power of traditional Ayurvedic hair care with our premium Ayurvedic Hair Oil. This carefully crafted blend combines the wisdom of 5,000-year-old Ayurvedic traditions with modern quality standards to deliver exceptional results for all hair types.
+
+Our signature formula features Bhringraj (Eclipta Alba), known as the "King of Herbs" for hair, which has been used for centuries in India to promote hair growth and prevent premature graying. Combined with nutrient-rich Amla (Indian Gooseberry), one of the highest natural sources of Vitamin C, this oil strengthens hair follicles from root to tip.
+
+The addition of Hibiscus flowers provides natural conditioning properties that add shine and softness, while Brahmi nourishes the scalp and reduces stress-related hair fall. Coconut oil serves as the perfect carrier, ensuring deep penetration and long-lasting moisture.
+
+Regular use of this Ayurvedic hair oil helps reduce hair fall by up to 50%, promotes new hair growth, prevents dandruff and scalp infections, adds natural shine and bounce, and strengthens hair from roots to tips. The lightweight, non-greasy formula absorbs quickly without leaving residue.
+
+Ideal for those experiencing hair thinning, premature graying, dry scalp, or simply anyone seeking healthier, more vibrant hair. This oil is suitable for all hair types including color-treated hair. Made in India with 100% natural ingredients, no parabens, sulfates, or artificial fragrances.`,
     price: 649,
     originalPrice: 799,
     image: "/images/hair oil.png",
@@ -21,12 +31,68 @@ export const featuredProducts: Product[] = [
     isNew: true,
     rating: 4.9,
     reviewCount: 345,
+    doshaType: "all",
+    benefits: [
+      "Reduces hair fall by up to 50%",
+      "Promotes new hair growth",
+      "Prevents premature graying",
+      "Nourishes dry scalp",
+      "Adds natural shine and bounce",
+      "Strengthens hair from roots to tips",
+    ],
+    metaTitle: "Ayurvedic Hair Oil | Natural Bhringraj & Amla Hair Growth Oil",
+    metaDescription: "Buy premium Ayurvedic hair oil with Bhringraj, Amla & Hibiscus. Reduces hair fall, promotes growth & adds shine. 100% natural, paraben-free. Free shipping!",
+    keywords: [
+      "ayurvedic hair oil",
+      "bhringraj oil",
+      "amla hair oil",
+      "natural hair growth oil",
+      "herbal hair oil",
+      "hair fall control",
+      "Indian hair oil",
+      "organic hair oil",
+      "hibiscus hair oil",
+      "scalp nourishment",
+    ],
+    ingredients: [
+      "Bhringraj (Eclipta Alba) Extract",
+      "Amla (Indian Gooseberry) Extract",
+      "Hibiscus Flower Extract",
+      "Brahmi (Bacopa Monnieri) Extract",
+      "Virgin Coconut Oil",
+      "Sesame Oil",
+      "Neem Oil",
+      "Fenugreek Seed Extract",
+      "Curry Leaf Extract",
+      "Vitamin E",
+    ],
+    howToUse: "Warm a small amount of oil and massage gently into scalp using circular motions. Leave for at least 30 minutes or overnight for best results. Wash with a mild shampoo. Use 2-3 times per week for optimal results. Can also be used as a pre-shampoo treatment or leave-in conditioner for dry ends.",
+    warnings: "For external use only. Avoid contact with eyes. If irritation occurs, discontinue use. Perform a patch test before first use. Keep away from children. Store in a cool, dry place away from direct sunlight.",
+    shelfLife: "24 months from date of manufacture",
+    madeIn: "India",
+    certifications: [
+      "GMP Certified",
+      "ISO 9001:2015",
+      "AYUSH Approved",
+      "Cruelty-Free",
+      "100% Vegan",
+    ],
   },
   {
     id: "4",
     name: "Active Protein Powder",
     slug: "active-protein-powder",
     description: "Herbal protein blend with ashwagandha, shatavari, and moringa for muscle strength and vitality.",
+    shortDescription: "Plant-based Ayurvedic protein for muscle strength and natural energy.",
+    longDescription: `Unlock your full potential with our Active Protein Powder - a revolutionary plant-based protein supplement that combines ancient Ayurvedic wisdom with modern nutritional science. Unlike conventional protein powders loaded with artificial ingredients, our formula harnesses the power of time-tested herbs to support muscle growth, enhance stamina, and promote overall vitality.
+
+At the heart of this formula is Ashwagandha (Withania Somnifera), the legendary adaptogenic herb known for centuries in Ayurveda as a natural strength enhancer. Clinical studies show Ashwagandha can increase muscle mass, reduce body fat, and improve exercise performance by up to 15%. Combined with Shatavari, which supports hormonal balance and tissue regeneration, this creates a powerful foundation for physical development.
+
+Moringa, often called the "Miracle Tree," provides a complete amino acid profile along with iron, calcium, and antioxidants. We've added organic pea protein and brown rice protein for a complete, easily digestible protein source that delivers 25g of protein per serving without bloating or digestive discomfort.
+
+This Ayurvedic protein powder is perfect for fitness enthusiasts, athletes, busy professionals, or anyone looking to increase their daily protein intake naturally. The adaptogenic herbs help reduce exercise-induced stress, improve recovery time, and support sustained energy throughout the day.
+
+Free from whey, soy, gluten, and artificial sweeteners. Naturally flavored with vanilla and cardamom for a delicious taste that blends smoothly with water, milk, or your favorite smoothie.`,
     price: 899,
     originalPrice: 1099,
     image: "/images/active protein.jpeg",
@@ -36,12 +102,68 @@ export const featuredProducts: Product[] = [
     isBestseller: true,
     rating: 4.9,
     reviewCount: 312,
+    doshaType: "all",
+    benefits: [
+      "25g plant-based protein per serving",
+      "Supports muscle growth and recovery",
+      "Enhances stamina and endurance",
+      "Reduces exercise-induced stress",
+      "Promotes natural energy without crash",
+      "Easy to digest, no bloating",
+    ],
+    metaTitle: "Ayurvedic Protein Powder | Plant-Based with Ashwagandha & Moringa",
+    metaDescription: "Premium Ayurvedic protein powder with Ashwagandha, Shatavari & Moringa. 25g plant protein, builds muscle naturally. Vegan, gluten-free. Shop now!",
+    keywords: [
+      "ayurvedic protein powder",
+      "plant-based protein",
+      "ashwagandha protein",
+      "herbal protein supplement",
+      "vegan protein India",
+      "moringa protein",
+      "natural muscle builder",
+      "organic protein powder",
+      "adaptogenic protein",
+      "shatavari supplement",
+    ],
+    ingredients: [
+      "Organic Pea Protein Isolate",
+      "Brown Rice Protein",
+      "Ashwagandha Root Extract (KSM-66)",
+      "Shatavari Root Extract",
+      "Moringa Leaf Powder",
+      "Spirulina",
+      "Natural Vanilla Flavor",
+      "Cardamom Extract",
+      "Digestive Enzyme Blend",
+      "Stevia Leaf Extract",
+    ],
+    howToUse: "Mix 1 scoop (30g) with 250ml water, milk, or plant-based milk. Shake or blend until smooth. Consume within 30 minutes post-workout for best results, or use as a meal replacement. Can be added to smoothies, oatmeal, or baked goods. Do not exceed 2 servings per day.",
+    warnings: "Consult a healthcare professional before use if pregnant, nursing, or taking medications. Not intended for children under 18. May contain traces of nuts. Do not use as a sole source of nutrition. Keep out of reach of children.",
+    shelfLife: "18 months from date of manufacture",
+    madeIn: "India",
+    certifications: [
+      "FSSAI Approved",
+      "GMP Certified",
+      "100% Vegan",
+      "Gluten-Free Certified",
+      "Non-GMO Project Verified",
+    ],
   },
   {
     id: "3",
     name: "Diabetes Care Supplement",
     slug: "diabetes-care-supplement",
     description: "Ayurvedic herbal formula with karela, jamun, and gudmar to support healthy blood sugar levels naturally.",
+    shortDescription: "Natural blood sugar support with traditional Ayurvedic herbs.",
+    longDescription: `Take control of your metabolic health naturally with our Diabetes Care Supplement, a comprehensive Ayurvedic formula designed to support healthy blood sugar levels and improve overall metabolic function. This potent blend combines the most effective blood sugar-regulating herbs from traditional Indian medicine, backed by modern scientific research.
+
+Karela (Bitter Melon) is the star ingredient, containing plant insulin (polypeptide-p) that works similarly to human insulin. Studies show Karela can reduce fasting blood glucose levels by up to 25%. Jamun (Indian Blackberry) seeds contain jamboline, which helps control the conversion of starch into sugar, making it invaluable for glycemic control.
+
+Gudmar (Gymnema Sylvestre), whose Sanskrit name means "sugar destroyer," has been used for over 2,000 years in Ayurveda. This remarkable herb temporarily blocks sugar receptors on taste buds and in the intestines, reducing sugar cravings and glucose absorption. Combined with Vijaysar (Indian Kino), which releases pterostilbene to help manage blood sugar, this formula provides comprehensive support.
+
+Our supplement also includes Methi (Fenugreek) seeds rich in soluble fiber that slows carbohydrate digestion and sugar absorption, plus antioxidant-rich Amla to protect against diabetic complications. Neem and Turmeric provide anti-inflammatory benefits that support pancreatic health.
+
+This natural approach to blood sugar management works best when combined with a balanced diet, regular exercise, and proper medical care. Our supplement is designed to complement, not replace, prescribed medications.`,
     price: 599,
     originalPrice: 749,
     image: "/images/diabetes care.jpeg",
@@ -49,12 +171,68 @@ export const featuredProducts: Product[] = [
     inStock: true,
     rating: 4.7,
     reviewCount: 198,
+    doshaType: "kapha",
+    benefits: [
+      "Supports healthy blood sugar levels",
+      "Reduces sugar cravings naturally",
+      "Improves insulin sensitivity",
+      "Supports pancreatic health",
+      "Provides antioxidant protection",
+      "Aids healthy metabolism",
+    ],
+    metaTitle: "Diabetes Care Supplement | Ayurvedic Blood Sugar Support Formula",
+    metaDescription: "Natural Ayurvedic diabetes care supplement with Karela, Jamun & Gudmar. Supports healthy blood sugar levels. Clinically studied herbs. Order now!",
+    keywords: [
+      "diabetes care supplement",
+      "blood sugar control",
+      "karela capsules",
+      "jamun supplement",
+      "gudmar extract",
+      "ayurvedic diabetes medicine",
+      "natural blood sugar support",
+      "herbal diabetes remedy",
+      "sugar control supplement",
+      "glycemic support",
+    ],
+    ingredients: [
+      "Karela (Bitter Melon) Extract",
+      "Jamun (Indian Blackberry) Seed Extract",
+      "Gudmar (Gymnema Sylvestre) Leaf Extract",
+      "Vijaysar (Indian Kino) Bark Extract",
+      "Methi (Fenugreek) Seed Extract",
+      "Amla (Indian Gooseberry) Extract",
+      "Neem Leaf Extract",
+      "Turmeric Root Extract (95% Curcuminoids)",
+      "Dalchini (Cinnamon) Bark Extract",
+      "Giloy (Tinospora Cordifolia) Extract",
+    ],
+    howToUse: "Take 2 capsules twice daily, 30 minutes before meals with warm water. For best results, maintain a balanced diet low in refined sugars and exercise regularly. Continue for at least 3 months for optimal benefits. Monitor blood sugar levels regularly.",
+    warnings: "Not a substitute for prescribed diabetes medication. Consult your doctor before use, especially if on diabetes medication, as dosage adjustment may be needed. Monitor blood sugar regularly. Not recommended during pregnancy or breastfeeding. May cause hypoglycemia if combined with diabetes drugs.",
+    shelfLife: "24 months from date of manufacture",
+    madeIn: "India",
+    certifications: [
+      "FSSAI Approved",
+      "AYUSH Certified",
+      "GMP Certified",
+      "ISO 22000:2018",
+      "Clinically Studied Ingredients",
+    ],
   },
   {
     id: "2",
     name: "Ayurvedic Cough Syrup",
     slug: "ayurvedic-cough-syrup",
     description: "Natural herbal cough syrup with tulsi, ginger, and honey for respiratory relief and throat soothing.",
+    shortDescription: "Gentle, effective relief for cough and cold with pure Ayurvedic herbs.",
+    longDescription: `Breathe easier and soothe your throat naturally with our Ayurvedic Cough Syrup, a time-tested herbal remedy that provides fast, effective relief from cough, cold, and respiratory discomfort. This gentle yet powerful formula is crafted using traditional Ayurvedic principles and the finest natural ingredients, making it suitable for the whole family.
+
+Tulsi (Holy Basil), revered as the "Queen of Herbs" in Ayurveda, forms the foundation of this syrup. Rich in eugenol, camphene, and cineole, Tulsi has powerful antibacterial, antiviral, and anti-inflammatory properties that help fight respiratory infections at their source. Combined with Adulsa (Malabar Nut), a renowned expectorant that has been used for centuries to relieve bronchial congestion, this formula effectively loosens and expels mucus.
+
+Fresh ginger extract provides warming relief that soothes irritated throats and reduces inflammation, while pure wild honey coats the throat, suppresses cough reflexes, and offers natural antimicrobial benefits. Mulethi (Licorice) root adds demulcent properties that protect and heal the respiratory tract lining.
+
+Unlike conventional cough syrups that merely suppress symptoms, our Ayurvedic formula addresses the root cause of respiratory issues while supporting your body's natural healing processes. The addition of Pippali (Long Pepper) enhances bioavailability of all ingredients and provides gentle warming action to clear congestion.
+
+This non-drowsy formula contains no artificial colors, flavors, or alcohol, making it safe for children over 3 years and adults alike. The natural honey base provides a pleasant taste that even children will accept.`,
     price: 299,
     originalPrice: 399,
     image: "/images/coughsyrup.jpeg",
@@ -63,12 +241,68 @@ export const featuredProducts: Product[] = [
     isBestseller: true,
     rating: 4.8,
     reviewCount: 234,
+    doshaType: "kapha",
+    benefits: [
+      "Provides fast relief from cough",
+      "Soothes sore and irritated throat",
+      "Loosens and expels mucus",
+      "Supports respiratory health",
+      "Boosts natural immunity",
+      "Non-drowsy formula",
+    ],
+    metaTitle: "Ayurvedic Cough Syrup | Natural Herbal Relief with Tulsi & Honey",
+    metaDescription: "Buy Ayurvedic cough syrup with Tulsi, Ginger & Honey. Fast relief from cough, cold & sore throat. Safe for family. No drowsiness. Order online!",
+    keywords: [
+      "ayurvedic cough syrup",
+      "herbal cough medicine",
+      "tulsi cough syrup",
+      "natural cough remedy",
+      "honey ginger cough syrup",
+      "throat soothing syrup",
+      "organic cough medicine",
+      "kids cough syrup natural",
+      "bronchial congestion relief",
+      "respiratory health supplement",
+    ],
+    ingredients: [
+      "Tulsi (Holy Basil) Extract",
+      "Adulsa (Malabar Nut) Extract",
+      "Fresh Ginger Extract",
+      "Pure Wild Honey",
+      "Mulethi (Licorice) Root Extract",
+      "Pippali (Long Pepper) Extract",
+      "Kantakari (Yellow Berried Nightshade)",
+      "Banafsha (Viola Odorata) Extract",
+      "Somlata Extract",
+      "Pudina (Mint) Extract",
+    ],
+    howToUse: "Adults: Take 2 teaspoons (10ml) three times daily after meals. Children (3-12 years): Take 1 teaspoon (5ml) three times daily after meals. For acute symptoms, can be taken every 4 hours. Shake well before use. Can be taken directly or mixed with warm water.",
+    warnings: "Not recommended for children under 3 years. Diabetics should consult a doctor due to honey content. If symptoms persist for more than 7 days, consult a healthcare professional. Not recommended during pregnancy without medical advice. Keep refrigerated after opening.",
+    shelfLife: "24 months from date of manufacture (use within 3 months after opening)",
+    madeIn: "India",
+    certifications: [
+      "FSSAI Approved",
+      "AYUSH Certified",
+      "GMP Certified",
+      "Alcohol-Free",
+      "No Artificial Colors",
+    ],
   },
   {
     id: "5",
     name: "Liver Care Capsules",
     slug: "liver-care-capsules",
     description: "Protective liver support with kutki, punarnava, and bhumi amla for detoxification and liver health.",
+    shortDescription: "Complete liver protection and detoxification with powerful Ayurvedic herbs.",
+    longDescription: `Give your liver the care it deserves with our Liver Care Capsules, a comprehensive Ayurvedic formula designed to protect, cleanse, and rejuvenate your liver naturally. In today's world of processed foods, environmental toxins, and stressful lifestyles, liver health has never been more important. This potent herbal blend supports your body's primary detoxification organ using time-tested Ayurvedic ingredients.
+
+Kutki (Picrorhiza Kurroa) is the cornerstone of this formulation, recognized in Ayurveda as the most powerful liver-protective herb. Modern research confirms its hepatoprotective properties, showing it can help regenerate liver cells and protect against damage from toxins, alcohol, and medications. Our formula uses standardized extract with 4% kutkoside for consistent potency.
+
+Bhumi Amla (Phyllanthus Niruri), also known as "Stone Breaker," has been used traditionally for liver and gallbladder support. It helps optimize bile production and flow while providing powerful antioxidant protection. Punarnava (Boerhavia Diffusa), meaning "one that renews," supports the liver's natural regeneration processes and helps reduce fluid retention.
+
+We've enhanced this formula with Kalmegh (Andrographis Paniculata), often called "King of Bitters," which supports immune function and protects liver cells from oxidative stress. Bhuiamla and Giloy round out the blend, providing comprehensive support for liver enzyme levels and overall hepatic function.
+
+This supplement is ideal for those looking to support liver health after illness, those who consume alcohol occasionally, individuals taking long-term medications, or anyone seeking a natural liver detox. The gentle yet effective formula is suitable for daily use as part of a healthy lifestyle.`,
     price: 549,
     originalPrice: 699,
     image: "/images/live care.jpeg",
@@ -76,12 +310,70 @@ export const featuredProducts: Product[] = [
     inStock: true,
     rating: 4.6,
     reviewCount: 78,
+    doshaType: "pitta",
+    benefits: [
+      "Protects liver cells from damage",
+      "Supports natural detoxification",
+      "Promotes liver cell regeneration",
+      "Maintains healthy liver enzyme levels",
+      "Optimizes bile production",
+      "Provides antioxidant protection",
+    ],
+    metaTitle: "Liver Care Capsules | Ayurvedic Liver Detox with Kutki & Bhumi Amla",
+    metaDescription: "Natural Ayurvedic liver care capsules with Kutki, Punarnava & Bhumi Amla. Protects, detoxifies & rejuvenates liver. GMP certified. Buy online!",
+    keywords: [
+      "liver care capsules",
+      "ayurvedic liver support",
+      "kutki supplement",
+      "liver detox capsules",
+      "bhumi amla tablets",
+      "natural liver cleanse",
+      "hepatoprotective herbs",
+      "liver health supplement",
+      "punarnava capsules",
+      "fatty liver ayurvedic medicine",
+    ],
+    ingredients: [
+      "Kutki (Picrorhiza Kurroa) Root Extract (4% Kutkoside)",
+      "Bhumi Amla (Phyllanthus Niruri) Extract",
+      "Punarnava (Boerhavia Diffusa) Root Extract",
+      "Kalmegh (Andrographis Paniculata) Extract",
+      "Kasni (Chicory) Seed Extract",
+      "Makoy (Solanum Nigrum) Extract",
+      "Giloy (Tinospora Cordifolia) Extract",
+      "Haritaki (Terminalia Chebula) Extract",
+      "Triphala Extract",
+      "Black Pepper Extract (for bioavailability)",
+    ],
+    howToUse: "Take 1-2 capsules twice daily with warm water after meals. For intensive liver support, take 2 capsules twice daily. Continue for at least 2-3 months for optimal results. Best results when combined with a balanced diet, adequate hydration, and limited alcohol consumption.",
+    warnings: "Consult a healthcare professional before use if you have existing liver conditions, are pregnant or nursing, or taking prescription medications. Not intended for children. May interact with certain medications. Discontinue use if any adverse reactions occur.",
+    shelfLife: "36 months from date of manufacture",
+    madeIn: "India",
+    certifications: [
+      "FSSAI Approved",
+      "GMP Certified",
+      "ISO 9001:2015",
+      "AYUSH Approved",
+      "Heavy Metal Tested",
+    ],
   },
   {
     id: "6",
     name: "Liver Oil Extract",
     slug: "liver-oil-extract",
     description: "Concentrated liver oil with omega fatty acids and Ayurvedic herbs for liver regeneration.",
+    shortDescription: "Premium liver-supporting oil with essential fatty acids and healing herbs.",
+    longDescription: `Discover the healing power of our Liver Oil Extract, a unique Ayurvedic formulation that combines the benefits of essential fatty acids with potent liver-supporting herbs. This innovative supplement bridges traditional Ayurvedic wisdom with modern nutritional science to provide comprehensive liver support in an easily absorbable liquid form.
+
+Unlike capsules that may take time to break down, our liquid extract ensures rapid absorption and bioavailability. The oil base consists of cold-pressed organic sesame oil, traditionally used in Ayurveda for its ability to penetrate deep into tissues and carry medicinal compounds to where they're needed most.
+
+This formula features a specialized blend of omega-3 and omega-6 fatty acids from flaxseed oil, which research shows can help reduce liver inflammation and support healthy liver fat metabolism. The addition of milk thistle oil, standardized to 80% silymarin, provides powerful antioxidant protection and supports liver cell membrane integrity.
+
+Infused with Bhringraj, known in Ayurveda as a liver rejuvenator, and Kalmegh for its bitter principles that stimulate liver function, this oil provides comprehensive hepatoprotective support. Turmeric CO2 extract adds anti-inflammatory benefits while black pepper extract ensures maximum absorption of all active compounds.
+
+The unique sublingual delivery option allows for faster absorption by bypassing the digestive system, making this ideal for those with compromised digestion or those seeking quick results. Can also be added to food or taken straight.
+
+Perfect for those seeking a convenient, effective way to support liver health as part of their daily wellness routine.`,
     price: 749,
     originalPrice: 899,
     image: "/images/liver oil.jpeg",
@@ -89,6 +381,52 @@ export const featuredProducts: Product[] = [
     inStock: true,
     rating: 4.5,
     reviewCount: 89,
+    doshaType: "pitta",
+    benefits: [
+      "Rapid absorption liquid formula",
+      "Supports healthy liver function",
+      "Provides essential fatty acids",
+      "Anti-inflammatory properties",
+      "Promotes liver cell regeneration",
+      "Convenient sublingual option",
+    ],
+    metaTitle: "Liver Oil Extract | Ayurvedic Omega-Rich Liver Support Supplement",
+    metaDescription: "Premium liver oil extract with Omega fatty acids, Milk Thistle & Ayurvedic herbs. Fast-absorbing liquid for liver regeneration. Shop now!",
+    keywords: [
+      "liver oil extract",
+      "ayurvedic liver oil",
+      "omega liver support",
+      "milk thistle oil",
+      "liquid liver supplement",
+      "hepatic oil supplement",
+      "natural liver regeneration",
+      "fatty acid liver health",
+      "bhringraj oil supplement",
+      "liver detox oil",
+    ],
+    ingredients: [
+      "Cold-Pressed Organic Sesame Oil",
+      "Flaxseed Oil (Omega-3 & Omega-6)",
+      "Milk Thistle Seed Oil (80% Silymarin)",
+      "Bhringraj (Eclipta Alba) Oil Infusion",
+      "Kalmegh (Andrographis) CO2 Extract",
+      "Turmeric CO2 Extract (95% Curcuminoids)",
+      "Black Cumin Seed Oil",
+      "Vitamin E (Mixed Tocopherols)",
+      "Black Pepper Extract (Piperine)",
+      "Rosemary Antioxidant",
+    ],
+    howToUse: "Take 1 teaspoon (5ml) daily. Can be taken directly, held under tongue for 30 seconds for sublingual absorption, or mixed into food/smoothies. Best taken with a meal containing healthy fats for optimal absorption. Do not heat or cook with this oil. Can be increased to 2 teaspoons daily for intensive support.",
+    warnings: "For oral use only. Consult a healthcare provider before use if pregnant, nursing, or taking blood-thinning medications. Store in refrigerator after opening and use within 60 days. Do not use if seal is broken. May cause mild digestive upset initially; reduce dose if this occurs.",
+    shelfLife: "18 months from date of manufacture (60 days after opening)",
+    madeIn: "India",
+    certifications: [
+      "FSSAI Approved",
+      "Organic Certified",
+      "Cold-Pressed",
+      "GMP Certified",
+      "Third-Party Tested",
+    ],
   },
 ];
 

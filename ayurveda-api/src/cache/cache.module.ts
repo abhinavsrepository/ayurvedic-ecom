@@ -16,19 +16,30 @@ import { CacheService } from './cache.service';
   imports: [
     NestCacheModule.registerAsync<RedisClientOptions>({
       useFactory: async () => {
-        const store = await redisStore({
-          socket: {
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-          },
-          password: process.env.REDIS_PASSWORD,
-          database: parseInt(process.env.REDIS_DB || '0'),
-          ttl: parseInt(process.env.CACHE_TTL || '3600') * 1000, // Convert to ms
-        });
+        try {
+          const store = await redisStore({
+            socket: {
+              host: process.env.REDIS_HOST || 'localhost',
+              port: parseInt(process.env.REDIS_PORT || '6379'),
+              connectTimeout: 5000,
+            },
+            password: process.env.REDIS_PASSWORD,
+            database: parseInt(process.env.REDIS_DB || '0'),
+            ttl: parseInt(process.env.CACHE_TTL || '3600') * 1000, // Convert to ms
+          });
 
-        return {
-          store: store as any,
-        };
+          return {
+            store,
+            ttl: parseInt(process.env.CACHE_TTL || '3600') * 1000,
+          } as any;
+        } catch (error) {
+          console.warn('Redis connection failed, using in-memory cache instead:', error.message);
+          // Fallback to in-memory cache if Redis is not available
+          return {
+            ttl: parseInt(process.env.CACHE_TTL || '3600') * 1000,
+            max: 100,
+          } as any;
+        }
       },
     }),
   ],
