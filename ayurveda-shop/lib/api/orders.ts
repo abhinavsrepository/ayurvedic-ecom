@@ -4,7 +4,7 @@ import {
   OrderListResponse,
   OrderDetailResponse,
   OrderStatusUpdateRequest,
-  RefundRequest,
+  OrderRefundRequest,
   PageRequest,
   PageResponse,
 } from './types';
@@ -22,7 +22,7 @@ export const ordersApi = {
     return apiClient.patch<OrderDetailResponse>(`/api/orders/${id}/status`, request);
   },
 
-  processRefund: async (id: number, request: RefundRequest): Promise<OrderDetailResponse> => {
+  processRefund: async (id: number, request: OrderRefundRequest): Promise<OrderDetailResponse> => {
     return apiClient.post<OrderDetailResponse>(`/api/orders/${id}/refund`, request);
   },
 

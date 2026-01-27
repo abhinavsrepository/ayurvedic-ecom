@@ -115,7 +115,7 @@ export interface Order {
   tax: number;
   shipping: number;
   total: number;
-  shippingAddress: Address;
+  shippingAddress: ShippingAddress;
   paymentMethod: string;
   trackingNumber?: string;
   notes?: string;
@@ -133,7 +133,7 @@ export interface OrderItem {
   subtotal: number;
 }
 
-export interface Address {
+export interface ShippingAddress {
   street: string;
   city: string;
   state: string;
@@ -168,7 +168,7 @@ export interface OrderStatusUpdateRequest {
   notes?: string;
 }
 
-export interface RefundRequest {
+export interface OrderRefundRequest {
   reason: string;
   amount: number;
 }

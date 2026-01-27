@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Shield } from 'lucide-react';
+import { Analytics } from "@vercel/analytics/next"
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
