@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../styles/theme';
 import { Header, Button, Input } from '../components';
@@ -44,29 +37,21 @@ export const CheckoutScreen: React.FC = () => {
   ];
 
   const handlePlaceOrder = () => {
-    Alert.alert(
-      'Order Confirmation',
-      'Are you sure you want to place this order?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Place Order',
-          onPress: () => {
-            clearCart();
-            Alert.alert(
-              'Success',
-              'Your order has been placed successfully!',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => navigation.navigate('Home' as never),
-                },
-              ]
-            );
-          },
+    Alert.alert('Order Confirmation', 'Are you sure you want to place this order?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Place Order',
+        onPress: () => {
+          clearCart();
+          Alert.alert('Success', 'Your order has been placed successfully!', [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('Home' as never),
+            },
+          ]);
         },
-      ]
-    );
+      },
+    ]);
   };
 
   return (
@@ -84,10 +69,7 @@ export const CheckoutScreen: React.FC = () => {
           {addresses.map((address, index) => (
             <TouchableOpacity
               key={address.id}
-              style={[
-                styles.addressCard,
-                selectedAddress === index && styles.selectedCard,
-              ]}
+              style={[styles.addressCard, selectedAddress === index && styles.selectedCard]}
               onPress={() => setSelectedAddress(index)}
             >
               <View style={styles.radioButton}>
@@ -116,10 +98,7 @@ export const CheckoutScreen: React.FC = () => {
           {paymentMethods.map((method, index) => (
             <TouchableOpacity
               key={method.id}
-              style={[
-                styles.paymentCard,
-                selectedPayment === index && styles.selectedCard,
-              ]}
+              style={[styles.paymentCard, selectedPayment === index && styles.selectedCard]}
               onPress={() => setSelectedPayment(index)}
             >
               <View style={styles.radioButton}>
@@ -154,30 +133,30 @@ export const CheckoutScreen: React.FC = () => {
           <View style={styles.summaryCard}>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Subtotal</Text>
-              <Text style={styles.summaryValue}>${cart.subtotal.toFixed(2)}</Text>
+              <Text style={styles.summaryValue}>${cart?.subtotal?.toFixed(2) || '0.00'}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Tax</Text>
-              <Text style={styles.summaryValue}>${cart.tax.toFixed(2)}</Text>
+              <Text style={styles.summaryValue}>${cart?.tax?.toFixed(2) || '0.00'}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Shipping</Text>
               <Text style={styles.summaryValue}>
-                {cart.shipping === 0 ? 'FREE' : `$${cart.shipping.toFixed(2)}`}
+                {cart?.shipping === 0 ? 'FREE' : `$${cart?.shipping?.toFixed(2) || '0.00'}`}
               </Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.summaryRow}>
               <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalValue}>${cart.total.toFixed(2)}</Text>
+              <Text style={styles.totalValue}>${cart?.total?.toFixed(2) || '0.00'}</Text>
             </View>
           </View>
         </View>
 
         {/* Order Items */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Items ({cart.items.length})</Text>
-          {cart.items.map((item) => (
+          <Text style={styles.sectionTitle}>Items ({cart?.items?.length || 0})</Text>
+          {(cart?.items || []).map((item) => (
             <View key={item.product.id} style={styles.orderItem}>
               <Text style={styles.orderItemName} numberOfLines={1}>
                 {item.product.name}
@@ -197,7 +176,7 @@ export const CheckoutScreen: React.FC = () => {
       <View style={styles.bottomActions}>
         <View style={styles.totalContainer}>
           <Text style={styles.totalText}>Total Amount</Text>
-          <Text style={styles.totalAmount}>${cart.total.toFixed(2)}</Text>
+          <Text style={styles.totalAmount}>${cart?.total?.toFixed(2) || '0.00'}</Text>
         </View>
         <Button
           title="Place Order"

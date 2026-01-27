@@ -19,10 +19,10 @@ import * as userService from '../services/api/userService';
  *
  * @example
  * ```tsx
- * const { data: wishlist, isLoading } = useWishlist();
+ * const { data: wishlist, isLoading } = useWishlistQuery();
  * ```
  */
-export const useWishlist = () => {
+export const useWishlistQuery = () => {
   return useQuery({
     queryKey: wishlistKeys.items(),
     queryFn: userService.getWishlist,
@@ -225,4 +225,49 @@ export const useWishlistCount = () => {
     staleTime: 1 * 60 * 1000, // 1 minute
     initialData: itemCount,
   });
+};
+
+/**
+ * Combined wishlist hook
+ * Provides all wishlist state and mutations in a single hook
+ *
+ * @example
+ * ```tsx
+ * const { wishlist, isInWishlist, toggleWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+ * ```
+ */
+export const useWishlist = () => {
+  const {
+    data: wishlist,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: wishlistKeys.items(),
+    queryFn: userService.getWishlist,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  const { isInWishlist: isInWishlistStore } = useWishlistStore();
+  const addToWishlistMutation = useAddToWishlist();
+  const removeFromWishlistMutation = useRemoveFromWishlist();
+  const toggleWishlistMutation = useToggleWishlist();
+
+  const isInWishlist = (productId: string) => {
+    return isInWishlistStore(productId) || wishlist?.some((p: any) => p.id === productId) || false;
+  };
+
+  const toggleWishlist = (productId: string) => {
+    toggleWishlistMutation.mutate(productId);
+  };
+
+  return {
+    wishlist: wishlist || [],
+    isInWishlist,
+    toggleWishlist,
+    addToWishlist: addToWishlistMutation.mutate,
+    removeFromWishlist: removeFromWishlistMutation.mutate,
+    isLoading,
+    error,
+  };
 };

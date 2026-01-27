@@ -1,7 +1,18 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { toast } from "sonner";
+import {
+  cartApi,
+  type CartItem as ApiCartItem,
+  type Cart,
+} from "@/lib/api/cart";
 
 export interface CartItem {
   id: string;
@@ -14,111 +25,161 @@ export interface CartItem {
   quantity: number;
   variant?: string;
   variantId?: string;
+  lineTotal: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (item: Omit<CartItem, 'id'>) => void;
-  removeFromCart: (itemId: string) => void;
-  updateQuantity: (itemId: string, quantity: number) => void;
-  clearCart: () => void;
+  isLoading: boolean;
+  subtotal: number;
+  itemCount: number;
+  addToCart: (item: Omit<CartItem, "id" | "lineTotal">) => Promise<void>;
+  removeFromCart: (itemId: string) => Promise<void>;
+  updateQuantity: (itemId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   getCartTotal: () => number;
   getCartCount: () => number;
   getItemQuantity: (productId: string, variantId?: string) => number;
+  refreshCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [subtotal, setSubtotal] = useState(0);
+  const [itemCount, setItemCount] = useState(0);
 
-  // Load cart from localStorage on mount
+  const transformApiCartItem = (item: ApiCartItem): CartItem => ({
+    id: item.id,
+    productId: item.productId,
+    name: item.name,
+    slug: item.slug,
+    price: item.price,
+    originalPrice: item.originalPrice,
+    image: item.image,
+    quantity: item.quantity,
+    variantId: item.variantId,
+    lineTotal: item.lineTotal,
+  });
+
+  const refreshCart = useCallback(async () => {
+    if (!mounted) return;
+
+    setIsLoading(true);
+    try {
+      const cart = await cartApi.getCart();
+      const transformedItems = cart.items.map(transformApiCartItem);
+      setItems(transformedItems);
+      setSubtotal(cart.subtotal);
+      setItemCount(cart.itemCount);
+    } catch (error) {
+      console.error("Failed to load cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [mounted]);
+
   useEffect(() => {
     setMounted(true);
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('ayurveda_cart');
-      if (savedCart) {
-        try {
-          setItems(JSON.parse(savedCart));
-        } catch (error) {
-          console.error('Failed to parse cart:', error);
-        }
-      }
-    }
   }, []);
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
-    if (mounted && typeof window !== 'undefined') {
-      localStorage.setItem('ayurveda_cart', JSON.stringify(items));
+    if (mounted) {
+      refreshCart();
     }
-  }, [items, mounted]);
+  }, [mounted, refreshCart]);
 
-  const addToCart = (item: Omit<CartItem, 'id'>) => {
-    setItems((prevItems) => {
-      // Check if item already exists (same product and variant)
-      const existingItemIndex = prevItems.findIndex(
-        (i) => i.productId === item.productId && i.variantId === item.variantId
-      );
+  const addToCart = async (item: Omit<CartItem, "id" | "lineTotal">) => {
+    try {
+      const cart = await cartApi.addItem({
+        productId: item.productId,
+        quantity: item.quantity,
+        variantId: item.variantId,
+      });
 
-      if (existingItemIndex > -1) {
-        // Update quantity of existing item
-        const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex].quantity += item.quantity;
-        toast.success('Updated cart quantity');
-        return updatedItems;
-      } else {
-        // Add new item
-        const newItem: CartItem = {
-          ...item,
-          id: `${item.productId}-${item.variantId || 'default'}-${Date.now()}`,
-        };
-        toast.success('Added to cart', {
-          description: `${item.name} has been added to your cart`,
-        });
-        return [...prevItems, newItem];
-      }
-    });
+      const transformedItems = cart.items.map(transformApiCartItem);
+      setItems(transformedItems);
+      setSubtotal(cart.subtotal);
+      setItemCount(cart.itemCount);
+
+      toast.success("Added to cart", {
+        description: `${item.name} has been added to your cart`,
+      });
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+      toast.error("Failed to add item to cart");
+      throw error;
+    }
   };
 
-  const removeFromCart = (itemId: string) => {
-    setItems((prevItems) => {
-      const filtered = prevItems.filter((item) => item.id !== itemId);
-      toast.success('Removed from cart');
-      return filtered;
-    });
+  const removeFromCart = async (itemId: string) => {
+    try {
+      const cart = await cartApi.removeItem(itemId);
+
+      const transformedItems = cart.items.map(transformApiCartItem);
+      setItems(transformedItems);
+      setSubtotal(cart.subtotal);
+      setItemCount(cart.itemCount);
+
+      toast.success("Removed from cart");
+    } catch (error) {
+      console.error("Failed to remove from cart:", error);
+      toast.error("Failed to remove item from cart");
+      throw error;
+    }
   };
 
-  const updateQuantity = (itemId: string, quantity: number) => {
+  const updateQuantity = async (itemId: string, quantity: number) => {
     if (quantity < 1) {
-      removeFromCart(itemId);
+      await removeFromCart(itemId);
       return;
     }
 
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === itemId ? { ...item, quantity } : item
-      )
-    );
+    try {
+      const cart = await cartApi.updateItem(itemId, { quantity });
+
+      const transformedItems = cart.items.map(transformApiCartItem);
+      setItems(transformedItems);
+      setSubtotal(cart.subtotal);
+      setItemCount(cart.itemCount);
+    } catch (error) {
+      console.error("Failed to update cart quantity:", error);
+      toast.error("Failed to update quantity");
+      throw error;
+    }
   };
 
-  const clearCart = () => {
-    setItems([]);
-    toast.success('Cart cleared');
+  const clearCart = async () => {
+    try {
+      const cart = await cartApi.clearCart();
+
+      const transformedItems = cart.items.map(transformApiCartItem);
+      setItems(transformedItems);
+      setSubtotal(cart.subtotal);
+      setItemCount(cart.itemCount);
+
+      toast.success("Cart cleared");
+    } catch (error) {
+      console.error("Failed to clear cart:", error);
+      toast.error("Failed to clear cart");
+      throw error;
+    }
   };
 
   const getCartTotal = () => {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0);
+    return subtotal;
   };
 
   const getCartCount = () => {
-    return items.reduce((count, item) => count + item.quantity, 0);
+    return itemCount;
   };
 
   const getItemQuantity = (productId: string, variantId?: string) => {
     const item = items.find(
-      (i) => i.productId === productId && i.variantId === variantId
+      (i) => i.productId === productId && i.variantId === variantId,
     );
     return item ? item.quantity : 0;
   };
@@ -127,6 +188,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     <CartContext.Provider
       value={{
         items,
+        isLoading,
+        subtotal,
+        itemCount,
         addToCart,
         removeFromCart,
         updateQuantity,
@@ -134,6 +198,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         getCartTotal,
         getCartCount,
         getItemQuantity,
+        refreshCart,
       }}
     >
       {children}
@@ -144,7 +209,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 }

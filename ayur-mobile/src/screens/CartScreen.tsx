@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Image,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
 import { theme } from '../styles/theme';
@@ -28,18 +20,14 @@ export const CartScreen: React.FC = () => {
       <TouchableOpacity
         style={styles.deleteAction}
         onPress={() => {
-          Alert.alert(
-            'Remove Item',
-            `Remove ${productName} from cart?`,
-            [
-              { text: 'Cancel', style: 'cancel' },
-              {
-                text: 'Remove',
-                style: 'destructive',
-                onPress: () => removeFromCart(productId),
-              },
-            ]
-          );
+          Alert.alert('Remove Item', `Remove ${productName} from cart?`, [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Remove',
+              style: 'destructive',
+              onPress: () => removeFromCart(productId),
+            },
+          ]);
         }}
       >
         <Ionicons name="trash-outline" size={24} color="#FFF" />
@@ -69,14 +57,14 @@ export const CartScreen: React.FC = () => {
             {/* Quantity Controls */}
             <View style={styles.quantityContainer}>
               <TouchableOpacity
-                onPress={() => updateQuantity(product.id, quantity - 1)}
+                onPress={() => updateQuantity({ itemId: product.id, quantity: quantity - 1 })}
                 style={styles.quantityButton}
               >
                 <Ionicons name="remove" size={16} color={theme.colors.text} />
               </TouchableOpacity>
               <Text style={styles.quantityText}>{quantity}</Text>
               <TouchableOpacity
-                onPress={() => updateQuantity(product.id, quantity + 1)}
+                onPress={() => updateQuantity({ itemId: product.id, quantity: quantity + 1 })}
                 style={styles.quantityButton}
               >
                 <Ionicons name="add" size={16} color={theme.colors.text} />
@@ -84,10 +72,7 @@ export const CartScreen: React.FC = () => {
             </View>
           </View>
 
-          <TouchableOpacity
-            onPress={() => removeFromCart(product.id)}
-            style={styles.removeButton}
-          >
+          <TouchableOpacity onPress={() => removeFromCart(product.id)} style={styles.removeButton}>
             <Ionicons name="close" size={20} color={theme.colors.textMuted} />
           </TouchableOpacity>
         </View>
@@ -95,7 +80,7 @@ export const CartScreen: React.FC = () => {
     );
   };
 
-  if (itemCount === 0) {
+  if (itemCount === 0 || !cart) {
     return (
       <View style={styles.container}>
         <Header title="Shopping Cart" showBack showCart={false} />
@@ -115,7 +100,7 @@ export const CartScreen: React.FC = () => {
       <Header title="Shopping Cart" showBack showCart={false} />
 
       <FlatList
-        data={cart.items}
+        data={cart?.items || []}
         renderItem={renderCartItem}
         keyExtractor={(item) => item.product.id}
         contentContainerStyle={styles.listContent}
@@ -127,27 +112,27 @@ export const CartScreen: React.FC = () => {
       <View style={styles.summary}>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Subtotal</Text>
-          <Text style={styles.summaryValue}>${cart.subtotal.toFixed(2)}</Text>
+          <Text style={styles.summaryValue}>${cart?.subtotal?.toFixed(2) || '0.00'}</Text>
         </View>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Tax</Text>
-          <Text style={styles.summaryValue}>${cart.tax.toFixed(2)}</Text>
+          <Text style={styles.summaryValue}>${cart?.tax?.toFixed(2) || '0.00'}</Text>
         </View>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Shipping</Text>
           <Text style={styles.summaryValue}>
-            {cart.shipping === 0 ? 'FREE' : `$${cart.shipping.toFixed(2)}`}
+            {cart?.shipping === 0 ? 'FREE' : `$${cart?.shipping?.toFixed(2) || '0.00'}`}
           </Text>
         </View>
-        {cart.subtotal < 50 && (
+        {(cart?.subtotal || 0) < 50 && (
           <Text style={styles.freeShippingNote}>
-            Add ${(50 - cart.subtotal).toFixed(2)} more for FREE shipping!
+            Add ${(50 - (cart?.subtotal || 0)).toFixed(2)} more for FREE shipping!
           </Text>
         )}
         <View style={styles.divider} />
         <View style={styles.summaryRow}>
           <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>${cart.total.toFixed(2)}</Text>
+          <Text style={styles.totalValue}>${cart?.total?.toFixed(2) || '0.00'}</Text>
         </View>
 
         <Button

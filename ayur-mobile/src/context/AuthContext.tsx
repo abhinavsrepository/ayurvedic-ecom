@@ -49,10 +49,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (email && password) {
+          const now = new Date().toISOString();
           const userData: User = {
             id: 'user_' + Date.now(),
             email,
             name: email.split('@')[0],
+            createdAt: now,
+            updatedAt: now,
           };
           setUser(userData);
           saveUser(userData);
@@ -69,10 +72,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (email && password && name) {
+          const now = new Date().toISOString();
           const userData: User = {
             id: 'user_' + Date.now(),
             email,
             name,
+            createdAt: now,
+            updatedAt: now,
           };
           setUser(userData);
           saveUser(userData);

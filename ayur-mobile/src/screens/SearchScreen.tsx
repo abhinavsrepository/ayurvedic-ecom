@@ -9,8 +9,14 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../styles/theme';
 import { Header, Input, ProductCard, EmptyState } from '../components';
-import { useProducts } from '../hooks/useProducts';
+import { useSearchProducts } from '../hooks/useProducts';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type SearchNavigationProp = NativeStackNavigationProp<{
+  Products: { category?: string };
+  ProductDetails: { productId: string };
+}>;
 
 const RECENT_SEARCHES = ['Ashwagandha', 'Face Oil', 'Green Tea', 'Turmeric'];
 const SUGGESTED_SEARCHES = ['Hair Care', 'Stress Relief', 'Immunity', 'Skin Care', 'Digestion'];
@@ -20,11 +26,16 @@ const SUGGESTED_SEARCHES = ['Hair Care', 'Stress Relief', 'Immunity', 'Skin Care
  * Advanced search with suggestions and recent searches
  */
 export const SearchScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<SearchNavigationProp>();
   const [searchQuery, setSearchQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState(RECENT_SEARCHES);
 
-  const { products, loading } = useProducts(undefined, searchQuery);
+  const { data: searchResults, isLoading: loading } = useSearchProducts(
+    searchQuery,
+    undefined,
+    { enabled: searchQuery.length >= 2 }
+  );
+  const products = searchResults?.data || [];
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -68,7 +79,7 @@ export const SearchScreen: React.FC = () => {
                 <ProductCard
                   product={item}
                   onPress={() =>
-                    navigation.navigate('ProductDetails' as never, { productId: item.id } as never)
+                    navigation.navigate('ProductDetails', { productId: item.id })
                   }
                 />
               </View>
@@ -134,7 +145,7 @@ export const SearchScreen: React.FC = () => {
                 key={index}
                 style={styles.categoryItem}
                 onPress={() => {
-                  navigation.navigate('Products' as never, { category } as never);
+                  navigation.navigate('Products', { category });
                 }}
               >
                 <View style={styles.categoryIconContainer}>

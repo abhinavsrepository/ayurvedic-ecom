@@ -20,10 +20,10 @@ import * as cartService from '../services/api/cartService';
  *
  * @example
  * ```tsx
- * const { data: cart, isLoading } = useCart();
+ * const { data: cart, isLoading } = useCartQuery();
  * ```
  */
-export const useCart = () => {
+export const useCartQuery = () => {
   return useQuery({
     queryKey: cartKeys.current(),
     queryFn: cartService.getCart,
@@ -131,13 +131,8 @@ export const useUpdateCartItem = () => {
   const { updateQuantity } = useCartStore();
 
   return useMutation({
-    mutationFn: ({
-      itemId,
-      quantity,
-    }: {
-      itemId: string;
-      quantity: number;
-    }) => cartService.updateCartItem(itemId, quantity),
+    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
+      cartService.updateCartItem(itemId, quantity),
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: cartKeys.current() });
       const previousCart = queryClient.getQueryData(cartKeys.current());
@@ -353,19 +348,41 @@ export const useSyncCart = () => {
 };
 
 /**
- * Hook for calculating shipping cost
+ * Combined cart hook
+ * Provides all cart state and mutations in a single hook
  *
- * @param addressId - Shipping address ID
  * @example
  * ```tsx
- * const { data: shipping } = useCalculateShipping('address-123');
+ * const { cart, itemCount, addToCart, removeFromCart, updateQuantity, clearCart } = useCart();
  * ```
  */
-export const useCalculateShipping = (addressId: string) => {
-  return useQuery({
-    queryKey: [...cartKeys.all, 'shipping', addressId],
-    queryFn: () => cartService.calculateShipping(addressId),
-    enabled: !!addressId,
-    staleTime: 2 * 60 * 1000, // 2 minutes
+export const useCart = () => {
+  const {
+    data: cart,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: cartKeys.current(),
+    queryFn: cartService.getCart,
+    staleTime: 1 * 60 * 1000, // 1 minute
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  const { data: count } = useCartCount();
+
+  const addToCartMutation = useAddToCart();
+  const updateMutation = useUpdateCartItem();
+  const removeMutation = useRemoveFromCart();
+  const clearMutation = useClearCart();
+
+  return {
+    cart,
+    itemCount: count || 0,
+    isLoading,
+    error,
+    addToCart: addToCartMutation.mutate,
+    removeFromCart: removeMutation.mutate,
+    updateQuantity: updateMutation.mutate,
+    clearCart: clearMutation.mutate,
+  };
 };

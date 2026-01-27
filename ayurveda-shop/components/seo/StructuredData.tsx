@@ -163,6 +163,67 @@ export function generateArticleSchema({
 }
 
 /**
+ * BlogPosting Schema Generator
+ * More specific than Article for blog content
+ */
+export function generateBlogPostingSchema({
+  title,
+  description,
+  image,
+  datePublished,
+  dateModified,
+  author,
+  url,
+  category,
+  readTime,
+  publisherName = 'Ayurveda Haven',
+  publisherLogo = '/logo.png',
+}: {
+  title: string;
+  description: string;
+  image?: string;
+  datePublished: string;
+  dateModified?: string;
+  author: string;
+  url: string;
+  category?: string;
+  readTime?: string;
+  publisherName?: string;
+  publisherLogo?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: title,
+    description,
+    image: image ? [image] : [],
+    datePublished,
+    dateModified: dateModified || datePublished,
+    author: {
+      '@type': 'Person',
+      name: author,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: publisherName,
+      logo: {
+        '@type': 'ImageObject',
+        url: publisherLogo,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url,
+    },
+    articleSection: category || 'Ayurvedic Wellness',
+    keywords: [category, 'Ayurveda', 'wellness', 'health', 'natural remedies'],
+    ...(readTime && {
+      timeRequired: readTime,
+    }),
+  };
+}
+
+/**
  * Review Schema Generator
  */
 export function generateReviewSchema({
@@ -302,6 +363,49 @@ export function generateBreadcrumbSchema(
       name: item.name,
       item: item.url,
     })),
+  };
+}
+
+/**
+ * CollectionPage Schema Generator
+ * For blog listing pages
+ */
+export function generateCollectionPageSchema({
+  name,
+  description,
+  url,
+  items,
+}: {
+  name: string;
+  description: string;
+  url: string;
+  items: Array<{
+    name: string;
+    description: string;
+    image?: string;
+    url: string;
+    datePublished: string;
+  }>;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name,
+    description,
+    url,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        '@type': 'BlogPosting',
+        position: index + 1,
+        name: item.name,
+        description: item.description,
+        image: item.image,
+        url: item.url,
+        datePublished: item.datePublished,
+      })),
+    },
   };
 }
 

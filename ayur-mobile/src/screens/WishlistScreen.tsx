@@ -4,13 +4,19 @@ import { theme } from '../styles/theme';
 import { Header, ProductCard, EmptyState } from '../components';
 import { useWishlist } from '../hooks/useWishlist';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type WishlistNavigationProp = NativeStackNavigationProp<{
+  Products: undefined;
+  ProductDetails: { productId: string };
+}>;
 
 /**
  * Wishlist Screen
  * Displays user's wishlist items with heart animation
  */
 export const WishlistScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<WishlistNavigationProp>();
   const { wishlist } = useWishlist();
 
   if (wishlist.length === 0) {
@@ -22,7 +28,7 @@ export const WishlistScreen: React.FC = () => {
           title="Your wishlist is empty"
           message="Save your favorite products to your wishlist"
           actionLabel="Explore Products"
-          onAction={() => navigation.navigate('Products' as never)}
+          onAction={() => navigation.navigate('Products')}
         />
       </View>
     );
@@ -39,7 +45,7 @@ export const WishlistScreen: React.FC = () => {
             <ProductCard
               product={item}
               onPress={() =>
-                navigation.navigate('ProductDetails' as never, { productId: item.id } as never)
+                navigation.navigate('ProductDetails', { productId: item.id })
               }
             />
           </View>

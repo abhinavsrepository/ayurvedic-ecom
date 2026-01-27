@@ -28,7 +28,6 @@ export const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -36,14 +35,11 @@ export const LoginScreen: React.FC = () => {
       return;
     }
 
-    setLoading(true);
     try {
-      await login(email, password);
+      await login.mutateAsync({ email, password });
       // Navigation will be handled by App.tsx based on auth state
     } catch (error) {
       Alert.alert('Login Failed', error instanceof Error ? error.message : 'Please try again');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -111,7 +107,7 @@ export const LoginScreen: React.FC = () => {
           <Button
             title="Login"
             onPress={handleLogin}
-            loading={loading}
+            loading={login.isPending}
             fullWidth
             size="lg"
           />

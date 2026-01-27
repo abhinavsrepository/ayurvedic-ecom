@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../styles/theme';
 import { ProductCardProps } from '../types';
@@ -29,10 +22,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const handleWishlistPress = (e: any) => {
     e.stopPropagation();
-    toggleWishlist(product);
+    toggleWishlist(product.id);
   };
 
-  const discountPercentage = product.discount ||
+  const discountPercentage =
+    product.discount ||
     (product.originalPrice
       ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
       : 0);
@@ -40,11 +34,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
       <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: product.thumbnail }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: product.thumbnail }} style={styles.image} resizeMode="cover" />
         {discountPercentage > 0 && (
           <View style={styles.discountBadge}>
             <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
@@ -94,15 +84,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <View style={styles.priceContainer}>
           <Text style={styles.price}>${product.price.toFixed(2)}</Text>
           {product.originalPrice && (
-            <Text style={styles.originalPrice}>
-              ${product.originalPrice.toFixed(2)}
-            </Text>
+            <Text style={styles.originalPrice}>${product.originalPrice.toFixed(2)}</Text>
           )}
         </View>
 
-        {!product.inStock && (
-          <Text style={styles.outOfStock}>Out of Stock</Text>
-        )}
+        {!product.inStock && <Text style={styles.outOfStock}>Out of Stock</Text>}
       </View>
     </TouchableOpacity>
   );

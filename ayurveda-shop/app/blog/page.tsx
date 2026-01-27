@@ -2,13 +2,28 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Clock, Search, Filter } from "lucide-react";
-import { scrollReveal, staggerContainer, staggerItem } from "@/lib/motion-variants";
+import { ArrowRight, Clock, Search, Filter, Calendar } from "lucide-react";
+import {
+  scrollReveal,
+  staggerContainer,
+  staggerItem,
+} from "@/lib/motion-variants";
 import { useInView } from "react-intersection-observer";
-import { useState, useMemo } from "react";
-import { wisdomPosts, extendedWisdomPosts } from "@/lib/data/products";
+import { useState, useEffect, useMemo } from "react";
+import { blogApi, type BlogPost } from "@/lib/api/blog";
+import StructuredData from "@/components/seo/StructuredData";
+import { SITE_CONFIG } from "@/lib/seo/config";
+import { toast } from "sonner";
 
-const categories = ["All", "Ayurvedic Basics", "Lifestyle", "Herbs & Spices", "Nutrition", "Wellness", "Dosha Guide"];
+const defaultCategories = [
+  "All",
+  "Ayurvedic Basics",
+  "Lifestyle",
+  "Herbs & Spices",
+  "Nutrition",
+  "Wellness",
+  "Dosha Guide",
+];
 
 export default function BlogPage() {
   const [ref, inView] = useInView({
@@ -16,39 +31,94 @@ export default function BlogPage() {
     threshold: 0.1,
   });
 
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<string[]>(defaultCategories);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Combine all blog posts
-  const allPosts = useMemo(() => {
-    return extendedWisdomPosts || wisdomPosts;
+  useEffect(() => {
+    loadPosts();
+    loadCategories();
   }, []);
 
-  // Filter posts based on category and search
-  const filteredPosts = useMemo(() => {
-    let filtered = allPosts;
+  const loadPosts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await blogApi.getPosts({ page: 0, size: 100 });
+      const publishedPosts = response.content.filter(
+        (p) => p.status === "PUBLISHED",
+      );
+      setPosts(publishedPosts);
+    } catch (error) {
+      console.error("Failed to load posts:", error);
+      toast.error("Failed to load blog posts");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    // Filter by category
+  const loadCategories = async () => {
+    try {
+      const response = await blogApi.getCategories();
+      if (response.length > 0) {
+        setCategories(["All", ...response.map((c) => c.name)]);
+      }
+    } catch (error) {
+      console.error("Failed to load categories:", error);
+    }
+  };
+
+  const filteredPosts = useMemo(() => {
+    let filtered = posts;
+
     if (selectedCategory !== "All") {
       filtered = filtered.filter((post) => post.category === selectedCategory);
     }
 
-    // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (post) =>
           post.title.toLowerCase().includes(query) ||
-          post.excerpt.toLowerCase().includes(query) ||
-          post.category.toLowerCase().includes(query)
+          (post.excerpt && post.excerpt.toLowerCase().includes(query)) ||
+          (post.category && post.category.toLowerCase().includes(query)),
       );
     }
 
     return filtered;
-  }, [allPosts, selectedCategory, searchQuery]);
+  }, [posts, selectedCategory, searchQuery]);
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary via-white to-secondary">
+      <StructuredData
+        data={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Ayurvedic Wisdom Blog",
+          description:
+            "Explore our collection of Ayurvedic articles on wellness, herbs, nutrition, and holistic health practices.",
+          url: `${SITE_CONFIG.url}/blog`,
+          itemListElement: filteredPosts.map((post) => ({
+            "@type": "BlogPosting",
+            name: post.title,
+            description: post.excerpt,
+            image: post.featuredImage,
+            url: `${SITE_CONFIG.url}/blog/${post.slug}`,
+            datePublished: post.publishedAt,
+          })),
+        }}
+      />
+
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 overflow-hidden">
         {/* Decorative Background Elements */}
@@ -114,8 +184,9 @@ export default function BlogPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              Explore time-tested knowledge, holistic practices, and ancient remedies
-              for a balanced, healthy life rooted in Ayurvedic tradition.
+              Explore time-tested knowledge, holistic practices, and ancient
+              remedies for a balanced, healthy life rooted in Ayurvedic
+              tradition.
             </motion.p>
 
             {/* Search Bar */}
@@ -167,7 +238,12 @@ export default function BlogPage() {
       {/* Blog Posts Grid */}
       <section className="py-16">
         <div className="container mx-auto px-4 lg:px-8" ref={ref}>
-          {filteredPosts.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-20">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <p className="mt-4 text-text-secondary">Loading articles...</p>
+            </div>
+          ) : filteredPosts.length > 0 ? (
             <motion.div
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
               variants={staggerContainer}
@@ -186,21 +262,25 @@ export default function BlogPage() {
                       <div className="relative aspect-[16/10] overflow-hidden bg-secondary">
                         <div
                           className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
-                          style={{ backgroundImage: `url(${post.image})` }}
+                          style={{
+                            backgroundImage: `url(${post.featuredImage || "/placeholder.png"})`,
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
                         {/* Category Badge */}
-                        <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-primary text-xs font-semibold">
-                            {post.category}
-                          </span>
-                        </div>
+                        {post.category && (
+                          <div className="absolute top-4 left-4">
+                            <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-primary text-xs font-semibold">
+                              {post.category}
+                            </span>
+                          </div>
+                        )}
 
-                        {/* Read Time */}
+                        {/* Views */}
                         <div className="absolute bottom-4 right-4 flex items-center gap-1 text-white text-sm">
-                          <Clock className="w-4 h-4" />
-                          <span>{post.readTime}</span>
+                          <Calendar className="w-4 h-4" />
+                          <span>{formatDate(post.publishedAt)}</span>
                         </div>
                       </div>
 
@@ -209,9 +289,11 @@ export default function BlogPage() {
                         <h3 className="font-serif font-bold text-xl text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
                           {post.title}
                         </h3>
-                        <p className="text-text-secondary text-sm line-clamp-3 mb-4 leading-relaxed flex-grow">
-                          {post.excerpt}
-                        </p>
+                        {post.excerpt && (
+                          <p className="text-text-secondary text-sm line-clamp-3 mb-4 leading-relaxed flex-grow">
+                            {post.excerpt}
+                          </p>
+                        )}
 
                         {/* Read More Link */}
                         <motion.div
@@ -238,7 +320,8 @@ export default function BlogPage() {
                 No articles found
               </h3>
               <p className="text-text-secondary">
-                Try adjusting your search or filter to find what you're looking for.
+                Try adjusting your search or filter to find what you're looking
+                for.
               </p>
             </motion.div>
           )}
@@ -259,8 +342,8 @@ export default function BlogPage() {
               Get Wellness Tips in Your Inbox
             </h2>
             <p className="text-lg mb-8 text-white/90">
-              Subscribe to our newsletter for weekly Ayurvedic wisdom, seasonal guides,
-              and exclusive wellness content.
+              Subscribe to our newsletter for weekly Ayurvedic wisdom, seasonal
+              guides, and exclusive wellness content.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">

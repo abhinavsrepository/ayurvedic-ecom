@@ -59,4 +59,47 @@ export class RazorpayService {
 
         return generatedSignature === signature;
     }
+
+    verifyWebhookSignature(payload: any, signature: string): boolean {
+        const webhookSecret = this.configService.get<string>('RAZORPAY_WEBHOOK_SECRET');
+        if (!webhookSecret) {
+            this.logger.warn('RAZORPAY_WEBHOOK_SECRET is not defined');
+            return false;
+        }
+
+        const hmac = crypto.createHmac('sha256', webhookSecret);
+        hmac.update(JSON.stringify(payload));
+        const generatedSignature = hmac.digest('hex');
+
+        return generatedSignature === signature;
+    }
+
+    async getPayment(paymentId: string) {
+        if (!this.razorpay) {
+            throw new Error('Razorpay is not initialized');
+        }
+
+        try {
+            return await this.razorpay.payments.fetch(paymentId);
+        } catch (error) {
+            this.logger.error(`Failed to fetch payment: ${error.message}`);
+            throw error;
+        }
+    }
+
+    async createRefund(paymentId: string, amount: number, notes?: Record<string, string>) {
+        if (!this.razorpay) {
+            throw new Error('Razorpay is not initialized');
+        }
+
+        try {
+            return await this.razorpay.payments.refund(paymentId, {
+                amount: Math.round(amount * 100), // Razorpay expects amount in paise
+                notes: notes || {},
+            });
+        } catch (error) {
+            this.logger.error(`Failed to create refund: ${error.message}`);
+            throw error;
+        }
+    }
 }

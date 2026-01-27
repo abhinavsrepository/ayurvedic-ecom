@@ -14,11 +14,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '../styles/theme';
 import { Button, ProductCard, LoadingSpinner } from '../components';
-import { useProducts } from '../hooks/useProducts';
+import { useProduct, useRelatedProducts } from '../hooks/useProducts';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import reviewsData from '../data/reviews.json';
+
+type ProductDetailsNavigationProp = NativeStackNavigationProp<{
+  Cart: undefined;
+  ProductDetails: { productId: string };
+}>;
 
 const { width } = Dimensions.get('window');
 
@@ -27,16 +33,15 @@ const { width } = Dimensions.get('window');
  * Shows complete product information with image slider, reviews, and related products
  */
 export const ProductDetailsScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<ProductDetailsNavigationProp>();
   const route = useRoute();
   const { productId } = route.params as { productId: string };
 
-  const { getProductById, getRelatedProducts } = useProducts();
+  const { data: product } = useProduct(productId);
+  const { data: relatedProducts } = useRelatedProducts(productId);
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
-  const product = getProductById(productId);
-  const relatedProducts = getRelatedProducts(productId);
   const productReviews = reviewsData.filter((r) => r.productId === productId);
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -54,7 +59,7 @@ export const ProductDetailsScreen: React.FC = () => {
   const inWishlist = isInWishlist(product.id);
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    addToCart({ productId: product.id, quantity });
 
     // Animation
     Animated.sequence([
@@ -74,8 +79,8 @@ export const ProductDetailsScreen: React.FC = () => {
   };
 
   const handleBuyNow = () => {
-    addToCart(product, quantity);
-    navigation.navigate('Cart' as never);
+    addToCart({ productId: product.id, quantity });
+    navigation.navigate('Cart');
   };
 
   return (
@@ -85,10 +90,7 @@ export const ProductDetailsScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
           <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => toggleWishlist(product)}
-          style={styles.headerButton}
-        >
+        <TouchableOpacity onPress={() => toggleWishlist(product.id)} style={styles.headerButton}>
           <Ionicons
             name={inWishlist ? 'heart' : 'heart-outline'}
             size={24}
@@ -119,10 +121,7 @@ export const ProductDetailsScreen: React.FC = () => {
             {product.images.map((_, index) => (
               <View
                 key={index}
-                style={[
-                  styles.indicator,
-                  index === selectedImageIndex && styles.indicatorActive,
-                ]}
+                style={[styles.indicator, index === selectedImageIndex && styles.indicatorActive]}
               />
             ))}
           </View>
@@ -228,9 +227,7 @@ export const ProductDetailsScreen: React.FC = () => {
                 <View key={review.id} style={styles.reviewCard}>
                   <View style={styles.reviewHeader}>
                     <View style={styles.reviewAvatar}>
-                      <Text style={styles.reviewAvatarText}>
-                        {review.userName.charAt(0)}
-                      </Text>
+                      <Text style={styles.reviewAvatarText}>{review.userName.charAt(0)}</Text>
                     </View>
                     <View style={styles.reviewInfo}>
                       <Text style={styles.reviewName}>{review.userName}</Text>
@@ -254,18 +251,18 @@ export const ProductDetailsScreen: React.FC = () => {
           )}
 
           {/* Related Products */}
-          {relatedProducts.length > 0 && (
+          {(relatedProducts || []).length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>You May Also Like</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {relatedProducts.map((relatedProduct) => (
+                {(relatedProducts || []).map((relatedProduct) => (
                   <View key={relatedProduct.id} style={styles.relatedProductCard}>
                     <ProductCard
                       product={relatedProduct}
                       onPress={() =>
-                        navigation.push('ProductDetails' as never, {
+                        navigation.navigate('ProductDetails', {
                           productId: relatedProduct.id,
-                        } as never)
+                        })
                       }
                     />
                   </View>
@@ -289,10 +286,7 @@ export const ProductDetailsScreen: React.FC = () => {
             <Ionicons name="remove" size={20} color={theme.colors.text} />
           </TouchableOpacity>
           <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity
-            onPress={() => setQuantity(quantity + 1)}
-            style={styles.quantityButton}
-          >
+          <TouchableOpacity onPress={() => setQuantity(quantity + 1)} style={styles.quantityButton}>
             <Ionicons name="add" size={20} color={theme.colors.text} />
           </TouchableOpacity>
         </View>

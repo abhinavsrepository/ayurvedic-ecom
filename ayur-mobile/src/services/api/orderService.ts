@@ -19,19 +19,24 @@ export interface CreateOrderData {
 }
 
 /**
+ * Order item with detailed product info for order details response
+ */
+export interface OrderDetailItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productImage: string;
+  quantity: number;
+  price: number;
+  total: number;
+}
+
+/**
  * Order with detailed items
  */
-export interface OrderDetails extends Order {
+export interface OrderDetails extends Omit<Order, 'items'> {
   billingAddress?: Address;
-  items: Array<{
-    id: string;
-    productId: string;
-    productName: string;
-    productImage: string;
-    quantity: number;
-    price: number;
-    total: number;
-  }>;
+  items: OrderDetailItem[];
 }
 
 /**

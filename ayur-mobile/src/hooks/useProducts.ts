@@ -22,10 +22,10 @@ import { Product, ProductFilters, DoshaType } from '../types';
  * @param params - Query parameters including filters
  * @example
  * ```tsx
- * const { data, isLoading } = useProducts({ category: 'Oils', page: 1 });
+ * const { data, isLoading } = useProductsQuery({ category: 'Oils', page: 1 });
  * ```
  */
-export const useProducts = (params?: productService.ProductQueryParams) => {
+export const useProductsQuery = (params?: productService.ProductQueryParams) => {
   return useQuery({
     queryKey: productKeys.list(params),
     queryFn: () => productService.getProducts(params),
@@ -213,10 +213,7 @@ export const useCategories = () => {
  * const { data: reviews } = useProductReviews('prod-123');
  * ```
  */
-export const useProductReviews = (
-  productId: string,
-  params?: productService.PaginationParams
-) => {
+export const useProductReviews = (productId: string, params?: productService.PaginationParams) => {
   return useQuery({
     queryKey: productKeys.reviews(productId),
     queryFn: () => productService.getProductReviews(productId, params),
@@ -320,13 +317,8 @@ export const useDeleteProductReview = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      productId,
-      reviewId,
-    }: {
-      productId: string;
-      reviewId: string;
-    }) => productService.deleteProductReview(productId, reviewId),
+    mutationFn: ({ productId, reviewId }: { productId: string; reviewId: string }) =>
+      productService.deleteProductReview(productId, reviewId),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: productKeys.reviews(variables.productId),
@@ -352,13 +344,8 @@ export const useMarkReviewHelpful = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      productId,
-      reviewId,
-    }: {
-      productId: string;
-      reviewId: string;
-    }) => productService.markReviewHelpful(productId, reviewId),
+    mutationFn: ({ productId, reviewId }: { productId: string; reviewId: string }) =>
+      productService.markReviewHelpful(productId, reviewId),
     onSuccess: (data, variables) => {
       // Optimistically update the review
       queryClient.invalidateQueries({
@@ -404,8 +391,7 @@ export const useCheckProductStock = (productId: string) => {
 export const useInfiniteProducts = (params?: Omit<productService.ProductQueryParams, 'page'>) => {
   return useInfiniteQuery({
     queryKey: [...productKeys.lists(), 'infinite', params],
-    queryFn: ({ pageParam = 1 }) =>
-      productService.getProducts({ ...params, page: pageParam }),
+    queryFn: ({ pageParam = 1 }) => productService.getProducts({ ...params, page: pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       if (lastPage.pagination.hasNext) {
@@ -415,4 +401,41 @@ export const useInfiniteProducts = (params?: Omit<productService.ProductQueryPar
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
+};
+
+/**
+ * Combined products hook
+ * Provides commonly used product queries in a single hook
+ *
+ * @example
+ * ```tsx
+ * const { products, getFeaturedProducts, getBestSellers, loading } = useProducts();
+ * ```
+ */
+export const useProducts = () => {
+  const { data: productsData, isLoading: productsLoading } = useQuery({
+    queryKey: productKeys.list(),
+    queryFn: () => productService.getProducts(),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const { data: featuredProducts, isLoading: featuredLoading } = useQuery({
+    queryKey: productKeys.featured(),
+    queryFn: () => productService.getFeaturedProducts(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const { data: bestSellers, isLoading: bestSellersLoading } = useQuery({
+    queryKey: productKeys.bestSellers(),
+    queryFn: () => productService.getBestSellers(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  return {
+    products: productsData?.data || [],
+    loading: productsLoading || featuredLoading || bestSellersLoading,
+    getFeaturedProducts: () => featuredProducts || [],
+    getBestSellers: () => bestSellers || [],
+  };
 };

@@ -37,10 +37,10 @@ export const Button: React.FC<ButtonProps> = ({
   ];
 
   const textStyle: TextStyle[] = [
-    styles.text,
+    styles.baseText,
     styles[`text_${variant}`],
     styles[`textSize_${size}`],
-    disabled && styles.textDisabled,
+    ...(disabled ? [styles.textDisabled] : []),
   ];
 
   return (
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: theme.colors.primary,
   },
-  text: {
+  baseText: {
     backgroundColor: 'transparent',
     shadowOpacity: 0,
     elevation: 0,

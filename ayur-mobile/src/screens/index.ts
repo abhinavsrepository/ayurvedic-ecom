@@ -15,4 +15,4 @@ export { CheckoutScreen } from './CheckoutScreen';
 export { WishlistScreen } from './WishlistScreen';
 export { ProfileScreen } from './ProfileScreen';
 export { SearchScreen } from './SearchScreen';
-export { AyurBiometricsScreen } from './AyurBiometricsScreen';
+// export { AyurBiometricsScreen } from './AyurBiometricsScreen'; // Temporarily disabled due to expo-camera compatibility issues

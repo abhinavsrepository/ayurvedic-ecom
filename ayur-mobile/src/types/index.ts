@@ -75,6 +75,22 @@ export interface User {
   phone?: string;
   avatar?: string;
   doshaType?: DoshaType;
+  doshaProfile?: {
+    primary: 'Vata' | 'Pitta' | 'Kapha';
+    secondary?: 'Vata' | 'Pitta' | 'Kapha';
+    score: {
+      vata: number;
+      pitta: number;
+      kapha: number;
+    };
+  };
+  preferences?: {
+    language: string;
+    currency: string;
+    notifications: boolean;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Address {

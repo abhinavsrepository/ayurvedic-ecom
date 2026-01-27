@@ -21,7 +21,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { CameraView, useCameraPermissions, CameraType } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue,
@@ -37,7 +37,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useDoshaMorphingTheme } from '../hooks/useDoshaMorphingTheme';
 import { useDoshaStore } from '../store/doshaStore';
-import { analyzeBiometrics, biometricsToQuizResult, BiometricAnalysis } from '../services/ayurBiometricsService';
+import {
+  analyzeBiometrics,
+  biometricsToQuizResult,
+  BiometricAnalysis,
+} from '../services/ayurBiometricsService';
 import { useNavigation } from '@react-navigation/native';
 
 type ScanType = 'tongue' | 'face';
@@ -49,12 +53,12 @@ export const AyurBiometricsScreen: React.FC = () => {
   const navigation = useNavigation();
   const theme = useDoshaMorphingTheme();
 
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanType, setScanType] = useState<ScanType>('tongue');
   const [isScanning, setIsScanning] = useState(false);
   const [analysis, setAnalysis] = useState<BiometricAnalysis | null>(null);
 
-  const cameraRef = useRef<Camera>(null);
+  const cameraRef = useRef<CameraView>(null);
   const { saveResults } = useDoshaStore();
 
   // Scanning animation
@@ -62,11 +66,10 @@ export const AyurBiometricsScreen: React.FC = () => {
   const glowOpacity = useSharedValue(0.3);
 
   useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
+    if (!permission?.granted) {
+      requestPermission();
+    }
+  }, [permission]);
 
   useEffect(() => {
     if (isScanning) {
@@ -81,10 +84,7 @@ export const AyurBiometricsScreen: React.FC = () => {
       );
 
       glowOpacity.value = withRepeat(
-        withSequence(
-          withTiming(0.8, { duration: 1000 }),
-          withTiming(0.3, { duration: 1000 })
-        ),
+        withSequence(withTiming(0.8, { duration: 1000 }), withTiming(0.3, { duration: 1000 })),
         -1,
         true
       );
@@ -113,11 +113,14 @@ export const AyurBiometricsScreen: React.FC = () => {
     try {
       setIsScanning(true);
 
-      // Capture photo
+      // Capture photo using new CameraView API
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.7,
-        base64: false,
       });
+
+      if (!photo) {
+        throw new Error('Failed to capture photo');
+      }
 
       // Analyze with AI service (mock)
       const result = await analyzeBiometrics(photo.uri, scanType);
@@ -162,7 +165,7 @@ export const AyurBiometricsScreen: React.FC = () => {
     }
   };
 
-  if (hasPermission === null) {
+  if (!permission) {
     return (
       <View style={[styles.container, styles.centered]}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -173,10 +176,10 @@ export const AyurBiometricsScreen: React.FC = () => {
     );
   }
 
-  if (hasPermission === false) {
+  if (!permission.granted) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <Ionicons name="camera-off" size={64} color={theme.colors.textSecondary} />
+        <Ionicons name="videocam-off-outline" size={64} color={theme.colors.textSecondary} />
         <Text style={[styles.message, { color: theme.colors.text, marginTop: theme.spacing.md }]}>
           Camera permission denied
         </Text>
@@ -189,7 +192,7 @@ export const AyurBiometricsScreen: React.FC = () => {
               paddingHorizontal: theme.spacing.lg,
               paddingVertical: theme.spacing.md,
               marginTop: theme.spacing.lg,
-            }
+            },
           ]}
           onPress={() => navigation.goBack()}
         >
@@ -202,21 +205,10 @@ export const AyurBiometricsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Camera */}
-      <Camera
-        ref={cameraRef}
-        style={styles.camera}
-        type={CameraType.front}
-      >
+      <CameraView ref={cameraRef} style={styles.camera} facing="front">
         {/* Header */}
-        <BlurView
-          intensity={theme.visual.glassBlur}
-          tint="dark"
-          style={styles.header}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.headerButton}
-          >
+        <BlurView intensity={theme.visual.glassBlur} tint="dark" style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
             <Ionicons name="close" size={28} color="#FFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>AyurBiometrics Scan</Text>
@@ -233,7 +225,7 @@ export const AyurBiometricsScreen: React.FC = () => {
               {
                 borderRadius: theme.borderRadius.button,
                 overflow: 'hidden',
-              }
+              },
             ]}
           >
             <TouchableOpacity
@@ -242,15 +234,14 @@ export const AyurBiometricsScreen: React.FC = () => {
                 scanType === 'tongue' && styles.scanTypeButtonActive,
                 {
                   borderRadius: theme.borderRadius.button,
-                }
+                },
               ]}
               onPress={() => setScanType('tongue')}
               disabled={isScanning}
             >
-              <Text style={[
-                styles.scanTypeText,
-                scanType === 'tongue' && styles.scanTypeTextActive,
-              ]}>
+              <Text
+                style={[styles.scanTypeText, scanType === 'tongue' && styles.scanTypeTextActive]}
+              >
                 👅 Tongue
               </Text>
             </TouchableOpacity>
@@ -260,15 +251,12 @@ export const AyurBiometricsScreen: React.FC = () => {
                 scanType === 'face' && styles.scanTypeButtonActive,
                 {
                   borderRadius: theme.borderRadius.button,
-                }
+                },
               ]}
               onPress={() => setScanType('face')}
               disabled={isScanning}
             >
-              <Text style={[
-                styles.scanTypeText,
-                scanType === 'face' && styles.scanTypeTextActive,
-              ]}>
+              <Text style={[styles.scanTypeText, scanType === 'face' && styles.scanTypeTextActive]}>
                 😊 Face
               </Text>
             </TouchableOpacity>
@@ -286,10 +274,12 @@ export const AyurBiometricsScreen: React.FC = () => {
           </Animated.View>
 
           {/* Guideline shape */}
-          <View style={[
-            styles.guideline,
-            scanType === 'tongue' ? styles.guidelineTongue : styles.guidelineFace,
-          ]}>
+          <View
+            style={[
+              styles.guideline,
+              scanType === 'tongue' ? styles.guidelineTongue : styles.guidelineFace,
+            ]}
+          >
             {/* Corner markers */}
             <View style={styles.cornerTL} />
             <View style={styles.cornerTR} />
@@ -318,7 +308,7 @@ export const AyurBiometricsScreen: React.FC = () => {
               {
                 borderRadius: theme.borderRadius.lg,
                 padding: theme.spacing.md,
-              }
+              },
             ]}
           >
             <Text style={styles.instructionText}>
@@ -332,10 +322,7 @@ export const AyurBiometricsScreen: React.FC = () => {
         {/* Capture Button */}
         <View style={styles.captureContainer}>
           <TouchableOpacity
-            style={[
-              styles.captureButton,
-              isScanning && styles.captureButtonDisabled,
-            ]}
+            style={[styles.captureButton, isScanning && styles.captureButtonDisabled]}
             onPress={handleCapture}
             disabled={isScanning}
             activeOpacity={0.8}
@@ -347,22 +334,10 @@ export const AyurBiometricsScreen: React.FC = () => {
             )}
           </TouchableOpacity>
 
-          {!isScanning && (
-            <Text style={styles.captureText}>
-              Tap to scan
-            </Text>
-          )}
-          {isScanning && (
-            <Animated.Text
-              entering={FadeIn}
-              exiting={FadeOut}
-              style={styles.scanningText}
-            >
-              Analyzing...
-            </Text>
-          )}
+          {!isScanning && <Text style={styles.captureText}>Tap to scan</Text>}
+          {isScanning && <Text style={styles.scanningText}>Analyzing...</Text>}
         </View>
-      </Camera>
+      </CameraView>
     </View>
   );
 };

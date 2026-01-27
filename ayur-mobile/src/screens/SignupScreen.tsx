@@ -22,14 +22,13 @@ import { useNavigation } from '@react-navigation/native';
  */
 export const SignupScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { signup } = useAuth();
+  const { register } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -47,14 +46,11 @@ export const SignupScreen: React.FC = () => {
       return;
     }
 
-    setLoading(true);
     try {
-      await signup(email, password, name);
+      await register.mutateAsync({ email, password, name });
       // Navigation will be handled by App.tsx based on auth state
     } catch (error) {
       Alert.alert('Signup Failed', error instanceof Error ? error.message : 'Please try again');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -137,7 +133,7 @@ export const SignupScreen: React.FC = () => {
           <Button
             title="Sign Up"
             onPress={handleSignup}
-            loading={loading}
+            loading={register.isPending}
             fullWidth
             size="lg"
           />

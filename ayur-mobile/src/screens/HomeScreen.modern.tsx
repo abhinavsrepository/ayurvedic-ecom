@@ -16,8 +16,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  FlatList,
 } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   FadeInDown,
@@ -36,7 +36,7 @@ import { Header, CategoryCard, LoadingSpinner } from '../components';
 import { ModernProductCard } from '../components/ProductCard.modern';
 import { useProducts } from '../hooks/useProducts';
 import { useNavigation } from '@react-navigation/native';
-import { CategoryType } from '../types';
+import { CategoryType, Product } from '../types';
 
 const CATEGORIES: { name: CategoryType; icon: string }[] = [
   { name: 'Oils', icon: 'water-outline' },
@@ -51,26 +51,32 @@ const CATEGORIES: { name: CategoryType; icon: string }[] = [
 /**
  * Dosha-specific hero configurations
  */
-const DOSHA_HERO_CONFIG = {
+const DOSHA_HERO_CONFIG: Record<'Vata' | 'Pitta' | 'Kapha', {
+  title: string;
+  subtitle: string;
+  emoji: string;
+  gradient: readonly [string, string];
+  cta: string;
+}> = {
   Vata: {
     title: 'Balance Your Vata',
     subtitle: 'Grounding warmth for air & ether',
     emoji: '🍃',
-    gradient: ['#E3F2FD', '#BBDEFB'],
+    gradient: ['#E3F2FD', '#BBDEFB'] as const,
     cta: 'Discover Grounding Products',
   },
   Pitta: {
     title: 'Cool Your Pitta',
     subtitle: 'Calm the fire within',
     emoji: '🔥',
-    gradient: ['#FFF3E0', '#FFE0B2'],
+    gradient: ['#FFF3E0', '#FFE0B2'] as const,
     cta: 'Find Cooling Solutions',
   },
   Kapha: {
     title: 'Energize Your Kapha',
     subtitle: 'Light & stimulating for earth & water',
     emoji: '🌿',
-    gradient: ['#F1F8E9', '#DCEDC8'],
+    gradient: ['#F1F8E9', '#DCEDC8'] as const,
     cta: 'Explore Energizing Products',
   },
 };
@@ -194,9 +200,9 @@ export const ModernHomeScreen: React.FC = () => {
                         borderRadius: theme.borderRadius.button,
                       }
                     ]}
-                    onPress={() => navigation.navigate('Products' as never, {
+                    onPress={() => (navigation as any).navigate('Products', {
                       dosha: doshaResult.primary
-                    } as never)}
+                    })}
                     activeOpacity={0.8}
                   >
                     <BlurView
@@ -306,7 +312,7 @@ export const ModernHomeScreen: React.FC = () => {
             ]}>
               Shop by Category
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Products' as never)}>
+            <TouchableOpacity onPress={() => (navigation as any).navigate('Products')}>
               <Text style={[
                 styles.seeAll,
                 {
@@ -332,7 +338,7 @@ export const ModernHomeScreen: React.FC = () => {
                 category={category.name}
                 icon={category.icon}
                 onPress={() =>
-                  navigation.navigate('Products' as never, { category: category.name } as never)
+                  (navigation as any).navigate('Products', { category: category.name })
                 }
               />
             ))}
@@ -365,7 +371,7 @@ export const ModernHomeScreen: React.FC = () => {
             ]}>
               Featured Products
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Products' as never)}>
+            <TouchableOpacity onPress={() => (navigation as any).navigate('Products')}>
               <Text style={[
                 styles.seeAll,
                 {
@@ -379,20 +385,20 @@ export const ModernHomeScreen: React.FC = () => {
           </View>
 
           <View style={{ height: 300, paddingHorizontal: theme.spacing.sm }}>
-            <FlashList
+            <FlatList<Product>
               data={featuredProducts.slice(0, 6)}
               renderItem={({ item }) => (
                 <ModernProductCard
                   product={item}
                   onPress={() =>
-                    navigation.navigate('ProductDetails' as never, { productId: item.id } as never)
+                    (navigation as any).navigate('ProductDetails', { productId: item.id })
                   }
                 />
               )}
               keyExtractor={(item) => item.id}
               horizontal
-              estimatedItemSize={200}
               showsHorizontalScrollIndicator={false}
+              initialNumToRender={4}
             />
           </View>
         </Animated.View>
@@ -431,7 +437,7 @@ export const ModernHomeScreen: React.FC = () => {
                 Best Sellers
               </Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('Products' as never)}>
+            <TouchableOpacity onPress={() => (navigation as any).navigate('Products')}>
               <Text style={[
                 styles.seeAll,
                 {
@@ -445,20 +451,20 @@ export const ModernHomeScreen: React.FC = () => {
           </View>
 
           <View style={{ height: 300, paddingHorizontal: theme.spacing.sm }}>
-            <FlashList
+            <FlatList<Product>
               data={bestSellers.slice(0, 6)}
               renderItem={({ item }) => (
                 <ModernProductCard
                   product={item}
                   onPress={() =>
-                    navigation.navigate('ProductDetails' as never, { productId: item.id } as never)
+                    (navigation as any).navigate('ProductDetails', { productId: item.id })
                   }
                 />
               )}
               keyExtractor={(item) => item.id}
               horizontal
-              estimatedItemSize={200}
               showsHorizontalScrollIndicator={false}
+              initialNumToRender={4}
             />
           </View>
         </Animated.View>

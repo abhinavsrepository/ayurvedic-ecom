@@ -211,10 +211,7 @@ export const useVerifyOTP = () => {
  * }
  * ```
  */
-export const useCurrentUser = (options?: {
-  enabled?: boolean;
-  refetchOnMount?: boolean;
-}) => {
+export const useCurrentUser = (options?: { enabled?: boolean; refetchOnMount?: boolean }) => {
   const { user, isAuthenticated } = useAuthStore();
 
   return useQuery({
@@ -246,7 +243,10 @@ export const useCurrentUser = (options?: {
  */
 export const useChangePassword = () => {
   return useMutation({
-    mutationFn: ({ currentPassword, newPassword }: {
+    mutationFn: ({
+      currentPassword,
+      newPassword,
+    }: {
       currentPassword: string;
       newPassword: string;
     }) => authService.changePassword(currentPassword, newPassword),
@@ -290,10 +290,8 @@ export const useForgotPassword = () => {
  */
 export const useResetPassword = () => {
   return useMutation({
-    mutationFn: ({ token, newPassword }: {
-      token: string;
-      newPassword: string;
-    }) => authService.resetPassword(token, newPassword),
+    mutationFn: ({ token, newPassword }: { token: string; newPassword: string }) =>
+      authService.resetPassword(token, newPassword),
     onError: (error) => {
       console.error('Reset password error:', error);
     },
@@ -398,4 +396,44 @@ export const useLoginWithApple = () => {
       console.error('Apple login error:', error);
     },
   });
+};
+
+/**
+ * Combined authentication hook
+ * Provides all auth state and mutations in a single hook
+ *
+ * @example
+ * ```tsx
+ * const { user, isAuthenticated, login, register, logout } = useAuth();
+ *
+ * if (!isAuthenticated) {
+ *   return <LoginScreen />;
+ * }
+ * ```
+ */
+export const useAuth = () => {
+  const { user, isAuthenticated, isLoading, accessToken } = useAuthStore();
+  const login = useLogin();
+  const register = useRegister();
+  const logout = useLogout();
+  const loginWithGoogle = useLoginWithGoogle();
+  const loginWithApple = useLoginWithApple();
+  const sendOTP = useSendOTP();
+  const verifyOTP = useVerifyOTP();
+  const refreshToken = useRefreshToken();
+
+  return {
+    user,
+    isAuthenticated,
+    isLoading,
+    accessToken,
+    login,
+    register,
+    logout,
+    loginWithGoogle,
+    loginWithApple,
+    sendOTP,
+    verifyOTP,
+    refreshToken,
+  };
 };

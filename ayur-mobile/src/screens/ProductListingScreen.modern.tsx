@@ -16,25 +16,27 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
+  FlatList,
 } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
+// FlashList removed in favor of FlatList for better TypeScript support
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
   useAnimatedStyle,
   interpolate,
-  Extrapolate,
+  Extrapolation,
 } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
-import { useDoshaMorphingTheme, useDoshaShadow } from '../hooks/useDoshaMorphingTheme';
+import { useDoshaMorphingTheme } from '../hooks/useDoshaMorphingTheme';
 import { ModernProductCard } from '../components/ProductCard.modern';
 import { Header, Input, Button, LoadingSpinner, EmptyState } from '../components';
-import { useProducts } from '../hooks/useProducts';
+import { useProductsQuery, useSearchProducts } from '../hooks/useProducts';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { ProductFilters, CategoryType } from '../types';
+import { ProductFilters, CategoryType, Product } from '../types';
 
-const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
+// Use regular FlatList with Animated wrapper for better type support
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<Product>);
 
 /**
  * Modern Product Listing Screen with FlashList and Dosha-morphing
@@ -45,7 +47,6 @@ export const ModernProductListingScreen: React.FC = () => {
   const params = route.params as { category?: CategoryType } | undefined;
 
   const theme = useDoshaMorphingTheme();
-  const shadow = useDoshaShadow('lg');
 
   const [filters, setFilters] = useState<ProductFilters>({
     category: params?.category,
@@ -54,7 +55,24 @@ export const ModernProductListingScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterModal, setShowFilterModal] = useState(false);
 
-  const { products, loading } = useProducts(filters, searchQuery);
+  // Use products query with filters
+  const { data: productsData, isLoading: productsLoading } = useProductsQuery({
+    category: filters.category,
+    sortBy: filters.sortBy,
+  });
+
+  // Use search query when search is active
+  const { data: searchData, isLoading: searchLoading } = useSearchProducts(
+    searchQuery,
+    undefined,
+    { enabled: searchQuery.length >= 2 }
+  );
+
+  // Determine which products to show
+  const products: Product[] = searchQuery.length >= 2
+    ? (searchData?.data || [])
+    : (productsData?.data || []);
+  const loading = productsLoading || searchLoading;
 
   // Scroll animation
   const scrollY = useSharedValue(0);
@@ -71,7 +89,7 @@ export const ModernProductListingScreen: React.FC = () => {
       scrollY.value,
       [0, 50],
       [0, 1],
-      Extrapolate.CLAMP
+      Extrapolation.CLAMP
     );
 
     return {
@@ -240,19 +258,19 @@ export const ModernProductListingScreen: React.FC = () => {
           onAction={clearFilters}
         />
       ) : (
-        <AnimatedFlashList
+        <AnimatedFlatList
           data={products}
-          renderItem={({ item }) => (
+          renderItem={({ item }: { item: Product }) => (
             <ModernProductCard
               product={item}
               onPress={() =>
-                navigation.navigate('ProductDetails' as never, { productId: item.id } as never)
+                (navigation as any).navigate('ProductDetails', { productId: item.id })
               }
             />
           )}
-          keyExtractor={(item) => item.id}
-          estimatedItemSize={estimatedItemSize}
+          keyExtractor={(item: Product) => item.id}
           numColumns={theme.layout.gridColumns}
+          key={theme.layout.gridColumns} // Force re-render when columns change
           contentContainerStyle={{
             paddingHorizontal: theme.spacing.sm,
             paddingBottom: theme.spacing.xl,
@@ -261,11 +279,14 @@ export const ModernProductListingScreen: React.FC = () => {
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           // Performance optimizations
-          drawDistance={estimatedItemSize * 4}
-          overrideItemLayout={(layout, item) => {
-            // Dynamic height based on Dosha
-            layout.size = estimatedItemSize;
-          }}
+          initialNumToRender={6}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          getItemLayout={(_, index) => ({
+            length: estimatedItemSize,
+            offset: estimatedItemSize * index,
+            index,
+          })}
         />
       )}
 

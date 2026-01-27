@@ -270,8 +270,9 @@ export const darkTheme = {
 
 /**
  * Theme Type Definition
+ * Using a union type to support both light and dark themes
  */
-export type Theme = typeof lightTheme;
+export type Theme = typeof lightTheme | typeof darkTheme;
 
 /**
  * Default Theme

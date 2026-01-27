@@ -9,7 +9,7 @@ import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import ProductClient from './ProductClient';
 import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import { type BreadcrumbItem } from '@/lib/seo/config';
-import StructuredData, { generateProductSchema, generateFAQSchema, MultipleStructuredData } from '@/components/seo/StructuredData';
+import StructuredData, { generateProductSchema, generateFAQSchema, MultipleStructuredData, generateBreadcrumbSchema, generateHowToSchema } from '@/components/seo/StructuredData';
 import { REVALIDATION_TIMES, SITE_CONFIG, getAbsoluteUrl } from '@/lib/seo/config';
 import {
   Shield,
@@ -180,6 +180,67 @@ async function ProductContent({ slug }: { slug: string }) {
       answer: `Yes, ${product.name} is made with 100% natural Ayurvedic ingredients and is safe for regular use as directed. However, we recommend performing a patch test before first use and consulting with a healthcare professional if you have any specific health conditions or are taking medications.`,
     },
     {
+      question: 'What is shelf life of this product?',
+      answer: (product as any).shelfLife 
+        ? `The shelf life of ${product.name} is ${(product as any).shelfLife}. Store in a cool, dry place away from direct sunlight for maximum effectiveness.`
+        : `Our Ayurvedic products typically have a shelf life of 24-36 months from the date of manufacture. Check packaging for the exact expiry date.`,
+    },
+    {
+      question: 'How long will it take to see results?',
+      answer: 'Ayurvedic remedies work holistically with your body\'s natural processes. While some people notice improvements within 2-4 weeks, we recommend using the product consistently for at least 2-3 months for optimal results.',
+    },
+    {
+      question: 'Can I use this product with other medications?',
+      answer: 'While our products are made from natural ingredients, we recommend consulting with your healthcare provider before combining with any prescription medications.',
+    },
+    {
+      question: 'Is this product vegan and cruelty-free?',
+      answer: `${product.name} is made with plant-based Ayurvedic ingredients. Check our certifications for specific vegan and cruelty-free status.`,
+    },
+  ]);
+
+  // Generate breadcrumb structured data for SEO
+  const breadcrumbSchema = generateBreadcrumbSchema(
+    breadcrumbItems.map(item => ({
+      name: item.name,
+      url: `${SITE_CONFIG.url}${item.url}`,
+    }))
+  );
+
+  // Generate HowTo schema for usage instructions (helps get featured snippets)
+  const howToSchema = product.usage ? generateHowToSchema({
+    name: `How to Use ${product.name}`,
+    description: `Step-by-step instructions on how to use ${product.name} for best results.`,
+    steps: [
+      {
+        name: 'Preparation',
+        text: product.usage.split(/[.!?]+/)[0] || 'Prepare product for use.',
+      },
+      {
+        name: 'Application',
+        text: product.usage.split(/[.!?]+/)[1] || 'Apply as directed.',
+      },
+      {
+        name: 'Frequency',
+        text: product.usage.includes('daily') || product.usage.includes('twice')
+          ? 'Use as recommended for optimal results.'
+          : 'Follow recommended usage frequency.',
+      },
+    ],
+    totalTime: 'PT2M',
+  }) : undefined;
+
+  // Combine all schemas
+  const allSchemas = [productSchema, faqSchema, breadcrumbSchema];
+  if (howToSchema) {
+    allSchemas.push(howToSchema);
+  }
+  [
+    {
+      question: `Is ${product.name} safe for daily use?`,
+      answer: `Yes, ${product.name} is made with 100% natural Ayurvedic ingredients and is safe for regular use as directed. However, we recommend performing a patch test before first use and consulting with a healthcare professional if you have any specific health conditions or are taking medications.`,
+    },
+    {
       question: 'What is the shelf life of this product?',
       answer: (product as any).shelfLife 
         ? `The shelf life of ${product.name} is ${(product as any).shelfLife}. Store in a cool, dry place away from direct sunlight for maximum effectiveness.`
@@ -197,12 +258,12 @@ async function ProductContent({ slug }: { slug: string }) {
       question: 'Is this product vegan and cruelty-free?',
       answer: `${product.name} is made with plant-based Ayurvedic ingredients. Check our certifications for specific vegan and cruelty-free status.`,
     },
-  ]);
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Product and FAQ Structured Data for SEO */}
-      <MultipleStructuredData schemas={[productSchema, faqSchema]} />
+      {/* Product, FAQ, Breadcrumb, and HowTo Structured Data for SEO */}
+      <MultipleStructuredData schemas={allSchemas} />
 
       <Navbar />
 

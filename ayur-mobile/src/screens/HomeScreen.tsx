@@ -15,7 +15,14 @@ import { theme } from '../styles/theme';
 import { Header, CategoryCard, ProductCard, LoadingSpinner } from '../components';
 import { useProducts } from '../hooks/useProducts';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CategoryType } from '../types';
+
+// Simple navigation type for this screen
+type HomeNavigationProp = NativeStackNavigationProp<{
+  Products: { category?: CategoryType };
+  ProductDetails: { productId: string };
+}>;
 
 const { width } = Dimensions.get('window');
 
@@ -34,7 +41,7 @@ const CATEGORIES: { name: CategoryType; icon: string }[] = [
  * Main landing page with hero banner, categories, featured products, and best sellers
  */
 export const HomeScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<HomeNavigationProp>();
   const { getFeaturedProducts, getBestSellers, loading } = useProducts();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -90,7 +97,7 @@ export const HomeScreen: React.FC = () => {
               </Text>
               <TouchableOpacity
                 style={styles.heroCTA}
-                onPress={() => navigation.navigate('Products' as never, { category: undefined })}
+                onPress={() => navigation.navigate('Products', { category: undefined })}
               >
                 <Text style={styles.heroCTAText}>Shop Now</Text>
                 <Ionicons name="arrow-forward" size={20} color={theme.colors.primary} />
@@ -106,7 +113,7 @@ export const HomeScreen: React.FC = () => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Shop by Category</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Products' as never)}>
+            <TouchableOpacity onPress={() => navigation.navigate('Products', {})}>
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -122,7 +129,7 @@ export const HomeScreen: React.FC = () => {
                 category={category.name}
                 icon={category.icon}
                 onPress={() =>
-                  navigation.navigate('Products' as never, { category: category.name } as never)
+                  navigation.navigate('Products', { category: category.name })
                 }
               />
             ))}
@@ -133,7 +140,7 @@ export const HomeScreen: React.FC = () => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Featured Products</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Products' as never)}>
+            <TouchableOpacity onPress={() => navigation.navigate('Products', {})}>
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -144,7 +151,7 @@ export const HomeScreen: React.FC = () => {
                 key={product.id}
                 product={product}
                 onPress={() =>
-                  navigation.navigate('ProductDetails' as never, { productId: product.id } as never)
+                  navigation.navigate('ProductDetails', { productId: product.id })
                 }
               />
             ))}
@@ -158,7 +165,7 @@ export const HomeScreen: React.FC = () => {
               <Ionicons name="flame" size={24} color={theme.colors.error} />
               <Text style={styles.sectionTitle}>Best Sellers</Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('Products' as never)}>
+            <TouchableOpacity onPress={() => navigation.navigate('Products', {})}>
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -169,7 +176,7 @@ export const HomeScreen: React.FC = () => {
                 key={product.id}
                 product={product}
                 onPress={() =>
-                  navigation.navigate('ProductDetails' as never, { productId: product.id } as never)
+                  navigation.navigate('ProductDetails', { productId: product.id })
                 }
               />
             ))}

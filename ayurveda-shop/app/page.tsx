@@ -9,8 +9,8 @@ import BeforeAfter from "@/components/shared/BeforeAfter";
 import VideoTestimonials from "@/components/shared/VideoTestimonials";
 import BannerDisplay from "@/components/frontend/BannerDisplay";
 import { featuredProducts, testimonials, wisdomPosts, beforeAfterData, videoTestimonials } from "@/lib/data/products";
-import { generatePageMetadata, REVALIDATION_TIMES } from '@/lib/seo/config';
-import StructuredData, { generateArticleSchema } from '@/components/seo/StructuredData';
+import { generatePageMetadata, REVALIDATION_TIMES, SITE_CONFIG } from '@/lib/seo/config';
+import StructuredData, { generateArticleSchema, generateReviewSchema, generateVideoSchema } from '@/components/seo/StructuredData';
 
 // Enable ISR - revalidate homepage every 30 minutes
 export const revalidate = 1800; // 30 minutes
@@ -34,51 +34,95 @@ export const metadata: Metadata = generatePageMetadata({
   ],
 });
 
-// Generate FAQ schema for homepage
-const homepageFAQ = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'What is Ayurveda?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Ayurveda is an ancient Indian system of natural and holistic medicine. It uses natural herbs, oils, and lifestyle practices to promote health and wellness.',
+  // Generate FAQ schema for homepage
+  const homepageFAQ = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'What is Ayurveda?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Ayurveda is an ancient Indian system of natural and holistic medicine. It uses natural herbs, oils, and lifestyle practices to promote health and wellness.',
+        },
       },
-    },
-    {
-      '@type': 'Question',
-      name: 'Are your products 100% natural?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Yes, all our products are 100% natural, organic, and cruelty-free. We source our ingredients from trusted farms and use traditional Ayurvedic formulations.',
+      {
+        '@type': 'Question',
+        name: 'Are your products 100% natural?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes, all our products are 100% natural, organic, and cruelty-free. We source our ingredients from trusted farms and use traditional Ayurvedic formulations.',
+        },
       },
-    },
-    {
-      '@type': 'Question',
-      name: 'Do you offer free shipping?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Yes, we offer free shipping on all orders above ₹999. Orders below this amount have a nominal shipping fee.',
+      {
+        '@type': 'Question',
+        name: 'Do you offer free shipping?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes, we offer free shipping on all orders above ₹999. Orders below this amount have a nominal shipping fee.',
+        },
       },
-    },
-    {
-      '@type': 'Question',
-      name: 'How long does delivery take?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Typically, orders are delivered within 3-7 business days depending on your location. We use trusted courier partners to ensure safe delivery.',
+      {
+        '@type': 'Question',
+        name: 'How long does delivery take?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Typically, orders are delivered within 3-7 business days depending on your location. We use trusted courier partners to ensure safe delivery.',
+        },
       },
-    },
   ],
-};
+  };
+
+  // Generate review schemas for testimonials (helps with rich snippets)
+  const reviewSchemas = testimonials.map(testimonial => 
+    generateReviewSchema({
+      productName: SITE_CONFIG.name,
+      reviewBody: testimonial.text,
+      rating: testimonial.rating,
+      author: testimonial.name,
+      datePublished: new Date().toISOString(),
+    })
+  );
+
+  // Generate aggregate rating for overall website reviews
+  const aggregateRating = {
+    '@context': 'https://schema.org',
+    '@type': 'AggregateRating',
+    ratingValue: ((testimonials.reduce((sum, t) => sum + t.rating, 0)) / testimonials.length).toFixed(1),
+    reviewCount: testimonials.length,
+    bestRating: '5',
+    worstRating: '1',
+    itemReviewed: {
+      '@type': 'Organization',
+      name: SITE_CONFIG.name,
+    },
+  };
+
+  // Generate video schemas for video testimonials (helps with video search results)
+  const videoSchemas = videoTestimonials.map(video =>
+    generateVideoSchema({
+      name: video.caption,
+      description: `Customer testimonial by ${video.customerName} about Ayurveda Haven products`,
+      thumbnailUrl: video.thumbnail,
+      uploadDate: new Date().toISOString(),
+      duration: 'PT2M',
+      contentUrl: video.videoUrl,
+    })
+  );
 
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* FAQ Structured Data */}
+      {/* FAQ, Review, Aggregate Rating, and Video Structured Data */}
       <StructuredData data={homepageFAQ} />
+      {reviewSchemas.map((schema, index) => (
+        <StructuredData key={index} data={schema} />
+      ))}
+      <StructuredData data={aggregateRating} />
+      {videoSchemas.map((schema, index) => (
+        <StructuredData key={`video-${index}`} data={schema} />
+      ))}
 
       <Navbar />
 

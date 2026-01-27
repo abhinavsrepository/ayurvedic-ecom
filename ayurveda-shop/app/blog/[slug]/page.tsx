@@ -2,30 +2,103 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Clock, Calendar, Share2, Facebook, Twitter, Linkedin } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  Share2,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Clock,
+} from "lucide-react";
 import { scrollReveal } from "@/lib/motion-variants";
-import { extendedWisdomPosts } from "@/lib/data/products";
 import { notFound } from "next/navigation";
 import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { blogApi, type BlogPost } from "@/lib/api/blog";
+import StructuredData from "@/components/seo/StructuredData";
+import { generateBlogPostingSchema, SITE_CONFIG } from "@/lib/seo/config";
+import { toast } from "sonner";
 
 export default function BlogPostPage() {
   const params = useParams();
   const slug = params?.slug as string;
 
-  // Find the post by slug
-  const post = extendedWisdomPosts.find((p) => p.slug === slug);
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
+
+  useEffect(() => {
+    if (slug) {
+      loadPost();
+    }
+  }, [slug]);
+
+  const loadPost = async () => {
+    try {
+      setIsLoading(true);
+      const postData = await blogApi.getPostBySlug(slug);
+      setPost(postData);
+
+      // Load related posts
+      const response = await blogApi.getPosts({ page: 0, size: 100 });
+      const related = response.content
+        .filter(
+          (p) =>
+            p.category === postData.category &&
+            p.id !== postData.id &&
+            p.status === "PUBLISHED",
+        )
+        .slice(0, 3);
+      setRelatedPosts(related);
+    } catch (error) {
+      console.error("Failed to load post:", error);
+      toast.error("Failed to load blog post");
+      notFound();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-white via-secondary/30 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="mt-4 text-text-secondary">Loading article...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!post) {
     notFound();
   }
 
-  // Get related posts (same category, excluding current)
-  const relatedPosts = extendedWisdomPosts
-    .filter((p) => p.category === post.category && p.id !== post.id)
-    .slice(0, 3);
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const blogPostingSchema = generateBlogPostingSchema({
+    title: post.title,
+    description: post.excerpt || "",
+    image: post.featuredImage || "",
+    datePublished: post.publishedAt || post.createdAt,
+    dateModified: post.updatedAt,
+    author: post.author.name,
+    url: `${SITE_CONFIG.url}/blog/${post.slug}`,
+    category: post.category,
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-secondary/30 to-white">
+      <StructuredData data={blogPostingSchema} />
+
       {/* Hero Section */}
       <section className="relative py-12 md:py-20 overflow-hidden">
         {/* Background Decorative Elements */}
@@ -69,9 +142,11 @@ export default function BlogPostPage() {
             initial="hidden"
             animate="visible"
           >
-            <span className="inline-block px-4 py-2 bg-primary/10 rounded-full text-primary font-semibold text-sm">
-              {post.category}
-            </span>
+            {post.category && (
+              <span className="inline-block px-4 py-2 bg-primary/10 rounded-full text-primary font-semibold text-sm">
+                {post.category}
+              </span>
+            )}
           </motion.div>
 
           {/* Title */}
@@ -92,12 +167,12 @@ export default function BlogPostPage() {
             transition={{ delay: 0.3 }}
           >
             <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              <span>{post.readTime}</span>
+              <Calendar className="w-5 h-5" />
+              <span>{formatDate(post.publishedAt)}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              <span>Updated Jan 2025</span>
+              <Clock className="w-5 h-5" />
+              <span>{post.viewCount} views</span>
             </div>
           </motion.div>
 
@@ -108,7 +183,9 @@ export default function BlogPostPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <span className="text-text-secondary text-sm font-medium">Share:</span>
+            <span className="text-text-secondary text-sm font-medium">
+              Share:
+            </span>
             <motion.button
               className="p-2 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all"
               whileHover={{ scale: 1.1 }}
@@ -136,18 +213,20 @@ export default function BlogPostPage() {
           </motion.div>
 
           {/* Featured Image */}
-          <motion.div
-            className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-2xl mb-12"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${post.image})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-          </motion.div>
+          {post.featuredImage && (
+            <motion.div
+              className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-2xl mb-12"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${post.featuredImage})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+            </motion.div>
+          )}
         </div>
       </section>
 
@@ -160,104 +239,39 @@ export default function BlogPostPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <div className="text-text-primary leading-relaxed space-y-6">
-              <p className="text-xl font-medium text-foreground">
+            {post.excerpt && (
+              <p className="text-xl font-medium text-foreground mb-8">
                 {post.excerpt}
               </p>
+            )}
 
-              <p>
-                Ayurveda, the ancient Indian system of medicine, has been guiding humanity
-                toward holistic wellness for over 5,000 years. This timeless wisdom offers
-                profound insights into living in harmony with nature and understanding our
-                unique constitution.
-              </p>
-
-              <h2 className="text-3xl font-serif font-bold text-foreground mt-12 mb-4">
-                The Foundation of Knowledge
-              </h2>
-
-              <p>
-                At the heart of Ayurveda lies the understanding that we are all unique
-                individuals with distinct physical, mental, and emotional characteristics.
-                This personalized approach to health and wellness sets Ayurveda apart from
-                one-size-fits-all modern approaches.
-              </p>
-
-              <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
-                <p className="italic text-foreground font-medium">
-                  "When diet is wrong, medicine is of no use. When diet is correct, medicine
-                  is of no need." - Ancient Ayurvedic Proverb
-                </p>
-              </div>
-
-              <h2 className="text-3xl font-serif font-bold text-foreground mt-12 mb-4">
-                Practical Applications
-              </h2>
-
-              <p>
-                Incorporating Ayurvedic principles into your daily life doesn't require
-                drastic changes. Start small with simple practices that align with your
-                natural rhythms and individual needs:
-              </p>
-
-              <ul className="space-y-3 my-6">
-                <li className="flex items-start gap-3">
-                  <span className="text-primary text-2xl leading-none">•</span>
-                  <span>Wake up before sunrise to align with natural circadian rhythms</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-primary text-2xl leading-none">•</span>
-                  <span>Practice tongue scraping and oil pulling for oral health</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-primary text-2xl leading-none">•</span>
-                  <span>Eat your largest meal at midday when digestive fire is strongest</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-primary text-2xl leading-none">•</span>
-                  <span>Choose foods that balance your dominant dosha</span>
-                </li>
-              </ul>
-
-              <h2 className="text-3xl font-serif font-bold text-foreground mt-12 mb-4">
-                Modern Science Meets Ancient Wisdom
-              </h2>
-
-              <p>
-                Recent scientific research has begun to validate many Ayurvedic practices
-                that have been used for millennia. Studies on herbs like turmeric,
-                ashwagandha, and holy basil have demonstrated their powerful therapeutic
-                properties, bridging the gap between traditional knowledge and modern
-                medicine.
-              </p>
-
-              <p>
-                The holistic approach of Ayurveda considers not just physical symptoms but
-                also mental, emotional, and spiritual well-being. This comprehensive
-                perspective is increasingly relevant in our modern world, where stress,
-                poor diet, and disconnection from nature contribute to chronic health
-                issues.
-              </p>
-
-              <h2 className="text-3xl font-serif font-bold text-foreground mt-12 mb-4">
-                Taking the Next Step
-              </h2>
-
-              <p>
-                Whether you're new to Ayurveda or deepening your practice, remember that
-                this is a journey of self-discovery. Pay attention to how different foods,
-                routines, and practices make you feel. Your body's wisdom, combined with
-                Ayurvedic principles, will guide you toward optimal health and balance.
-              </p>
-
-              <p className="text-lg font-medium text-primary bg-primary/5 p-6 rounded-xl mt-8">
-                Ready to explore more? Browse our collection of authentic Ayurvedic
-                products and continue your wellness journey with us.
-              </p>
-            </div>
+            {post.content && (
+              <div
+                className="text-text-primary leading-relaxed space-y-6"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+            )}
           </motion.article>
         </div>
       </section>
+
+      {/* Tags */}
+      {post.tags && post.tags.length > 0 && (
+        <section className="py-8">
+          <div className="container mx-auto px-4 lg:px-8 max-w-3xl">
+            <div className="flex flex-wrap gap-2">
+              {post.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-4 py-2 bg-secondary text-text-secondary rounded-full text-sm hover:bg-primary/10 hover:text-primary transition-all cursor-pointer"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Related Articles */}
       {relatedPosts.length > 0 && (
@@ -284,12 +298,16 @@ export default function BlogPostPage() {
                       <div className="relative aspect-[16/10] overflow-hidden bg-secondary">
                         <div
                           className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
-                          style={{ backgroundImage: `url(${relatedPost.image})` }}
+                          style={{
+                            backgroundImage: `url(${relatedPost.featuredImage || "/placeholder.png"})`,
+                          }}
                         />
                         <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-primary text-xs font-semibold">
-                            {relatedPost.category}
-                          </span>
+                          {relatedPost.category && (
+                            <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-primary text-xs font-semibold">
+                              {relatedPost.category}
+                            </span>
+                          )}
                         </div>
                       </div>
 
@@ -297,9 +315,11 @@ export default function BlogPostPage() {
                         <h3 className="font-serif font-bold text-xl text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                           {relatedPost.title}
                         </h3>
-                        <p className="text-text-secondary text-sm line-clamp-2">
-                          {relatedPost.excerpt}
-                        </p>
+                        {relatedPost.excerpt && (
+                          <p className="text-text-secondary text-sm line-clamp-2">
+                            {relatedPost.excerpt}
+                          </p>
+                        )}
                       </div>
                     </motion.article>
                   </Link>
@@ -324,8 +344,8 @@ export default function BlogPostPage() {
               Experience Authentic Ayurveda
             </h2>
             <p className="text-lg mb-8 text-white/90">
-              Discover our curated collection of premium Ayurvedic products, carefully
-              selected to support your wellness journey.
+              Discover our curated collection of premium Ayurvedic products,
+              carefully selected to support your wellness journey.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

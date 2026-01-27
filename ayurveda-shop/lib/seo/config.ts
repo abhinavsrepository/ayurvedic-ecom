@@ -5,53 +5,54 @@
  * It provides centralized metadata, structured data templates, and SEO utilities.
  */
 
-import { Metadata } from 'next';
+import { Metadata } from "next";
 
 // ========================================
 // SITE CONFIGURATION
 // ========================================
 
 export const SITE_CONFIG = {
-  name: 'Ayurveda Haven',
-  title: 'Ayurveda Haven - Pure Herbal & Natural Wellness Products',
-  description: 'Discover the healing power of Ayurveda. Premium herbal supplements, natural oils, and wellness products for holistic health. 100% organic, cruelty-free, and sustainably sourced.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://ayurvedahaven.com',
-  ogImage: '/og-image.jpg',
-  twitterHandle: '@AyurvedaHaven',
-  twitterCard: 'summary_large_image' as const,
-  locale: 'en_US',
-  type: 'website' as const,
+  name: "Ayurveda Haven",
+  title: "Ayurveda Haven - Pure Herbal & Natural Wellness Products",
+  description:
+    "Discover the healing power of Ayurveda. Premium herbal supplements, natural oils, and wellness products for holistic health. 100% organic, cruelty-free, and sustainably sourced.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://ayurvedahaven.com",
+  ogImage: "/og-image.jpg",
+  twitterHandle: "@AyurvedaHaven",
+  twitterCard: "summary_large_image" as const,
+  locale: "en_US",
+  type: "website" as const,
   keywords: [
-    'ayurveda',
-    'herbal products',
-    'natural wellness',
-    'organic supplements',
-    'ayurvedic medicine',
-    'herbal oils',
-    'holistic health',
-    'natural remedies',
-    'ayurvedic skincare',
-    'organic wellness',
+    "ayurveda",
+    "herbal products",
+    "natural wellness",
+    "organic supplements",
+    "ayurvedic medicine",
+    "herbal oils",
+    "holistic health",
+    "natural remedies",
+    "ayurvedic skincare",
+    "organic wellness",
   ],
-  author: 'Ayurveda Haven',
-  email: 'info@ayurvedahaven.com',
-  phone: '+91 123 456 7890',
+  author: "Ayurveda Haven",
+  email: "info@ayurvedahaven.com",
+  phone: "+91 123 456 7890",
   address: {
-    streetAddress: '123 Wellness Street',
-    addressLocality: 'Mumbai',
-    addressRegion: 'MH',
-    postalCode: '400001',
-    addressCountry: 'IN',
+    streetAddress: "123 Wellness Street",
+    addressLocality: "Mumbai",
+    addressRegion: "MH",
+    postalCode: "400001",
+    addressCountry: "IN",
   },
   social: {
-    facebook: 'https://facebook.com/ayurvedahaven',
-    instagram: 'https://instagram.com/ayurvedahaven',
-    twitter: 'https://twitter.com/ayurvedahaven',
-    youtube: 'https://youtube.com/@ayurvedahaven',
-    linkedin: 'https://linkedin.com/company/ayurvedahaven',
+    facebook: "https://facebook.com/ayurvedahaven",
+    instagram: "https://instagram.com/ayurvedahaven",
+    twitter: "https://twitter.com/ayurvedahaven",
+    youtube: "https://youtube.com/@ayurvedahaven",
+    linkedin: "https://linkedin.com/company/ayurvedahaven",
   },
-  foundingDate: '2020-01-01',
-  priceRange: '₹₹',
+  foundingDate: "2020-01-01",
+  priceRange: "₹₹",
   aggregateRating: {
     ratingValue: 4.8,
     reviewCount: 2847,
@@ -81,7 +82,7 @@ export const DEFAULT_METADATA: Metadata = {
     telephone: false,
   },
   openGraph: {
-    type: 'website',
+    type: "website",
     locale: SITE_CONFIG.locale,
     url: SITE_CONFIG.url,
     title: SITE_CONFIG.title,
@@ -110,20 +111,22 @@ export const DEFAULT_METADATA: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
     yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
-    ...(process.env.NEXT_PUBLIC_BING_VERIFICATION ? { bing: process.env.NEXT_PUBLIC_BING_VERIFICATION } : {}),
+    ...(process.env.NEXT_PUBLIC_BING_VERIFICATION
+      ? { bing: process.env.NEXT_PUBLIC_BING_VERIFICATION }
+      : {}),
   },
   alternates: {
     canonical: SITE_CONFIG.url,
   },
-  category: 'Health & Wellness',
+  category: "Health & Wellness",
 };
 
 // ========================================
@@ -133,7 +136,7 @@ export const DEFAULT_METADATA: Metadata = {
 export function generatePageMetadata({
   title,
   description,
-  path = '',
+  path = "",
   keywords = [],
   ogImage,
   noIndex = false,
@@ -167,7 +170,7 @@ export function generatePageMetadata({
       ],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description,
       site: SITE_CONFIG.twitterHandle,
@@ -183,9 +186,9 @@ export function generatePageMetadata({
       googleBot: {
         index: !noIndex,
         follow: !noIndex,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
     },
   };
@@ -218,7 +221,7 @@ export function generateProductMetadata({
   seoTitle?: string;
   seoDescription?: string;
 }): Metadata {
-  const title = seoTitle || `${name} - ${category || 'Ayurvedic Products'}`;
+  const title = seoTitle || `${name} - ${category || "Ayurvedic Products"}`;
   const desc = seoDescription || description;
   const url = `${SITE_CONFIG.url}/product/${slug}`;
 
@@ -227,15 +230,15 @@ export function generateProductMetadata({
     description: desc,
     keywords: [
       name,
-      category || '',
-      brand || '',
-      'ayurvedic',
-      'natural',
-      'organic',
-      'herbal',
+      category || "",
+      brand || "",
+      "ayurvedic",
+      "natural",
+      "organic",
+      "herbal",
     ].filter(Boolean),
     openGraph: {
-      type: 'product' as any,
+      type: "product" as any,
       url,
       title,
       description: desc,
@@ -252,7 +255,7 @@ export function generateProductMetadata({
         : [],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description: desc,
       site: SITE_CONFIG.twitterHandle,
@@ -268,9 +271,9 @@ export function generateProductMetadata({
       googleBot: {
         index: true,
         follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
     },
   };
@@ -303,7 +306,7 @@ export function generateBlogMetadata({
     keywords: [...SITE_CONFIG.keywords, ...tags],
     authors: author ? [{ name: author }] : [{ name: SITE_CONFIG.author }],
     openGraph: {
-      type: 'article',
+      type: "article",
       url,
       title,
       description,
@@ -324,7 +327,7 @@ export function generateBlogMetadata({
         : [],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description,
       site: SITE_CONFIG.twitterHandle,
@@ -340,9 +343,9 @@ export function generateBlogMetadata({
       googleBot: {
         index: true,
         follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
     },
   };
@@ -359,10 +362,10 @@ export interface BreadcrumbItem {
 
 export function generateBreadcrumbList(items: BreadcrumbItem[]) {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
+      "@type": "ListItem",
       position: index + 1,
       name: item.name,
       item: `${SITE_CONFIG.url}${item.url}`,
@@ -381,16 +384,79 @@ export interface FAQItem {
 
 export function generateFAQSchema(faqs: FAQItem[]) {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
     mainEntity: faqs.map((faq) => ({
-      '@type': 'Question',
+      "@type": "Question",
       name: faq.question,
       acceptedAnswer: {
-        '@type': 'Answer',
+        "@type": "Answer",
         text: faq.answer,
       },
     })),
+  };
+}
+
+// ========================================
+// BLOG POSTING SCHEMA UTILITIES
+// ========================================
+
+export interface BlogPostingSchemaParams {
+  title: string;
+  description: string;
+  image: string;
+  datePublished: string;
+  dateModified: string;
+  author: string;
+  url: string;
+  category?: string;
+  readTime?: string;
+}
+
+export function generateBlogPostingSchema({
+  title,
+  description,
+  image,
+  datePublished,
+  dateModified,
+  author,
+  url,
+  category,
+  readTime,
+}: BlogPostingSchemaParams) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description: description,
+    image: {
+      "@type": "ImageObject",
+      url: image,
+    },
+    datePublished: datePublished,
+    dateModified: dateModified,
+    author: {
+      "@type": "Organization",
+      name: author,
+      url: SITE_CONFIG.url,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_CONFIG.name,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_CONFIG.url}/logo.png`,
+        width: 512,
+        height: 512,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": url,
+    },
+    url: url,
+    ...(category && { articleSection: category }),
+    ...(readTime && { timeRequired: readTime }),
   };
 }
 
@@ -399,32 +465,32 @@ export function generateFAQSchema(faqs: FAQItem[]) {
 // ========================================
 
 export const ORGANIZATION_SCHEMA = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  '@id': `${SITE_CONFIG.url}/#organization`,
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${SITE_CONFIG.url}/#organization`,
   name: SITE_CONFIG.name,
   url: SITE_CONFIG.url,
   logo: {
-    '@type': 'ImageObject',
+    "@type": "ImageObject",
     url: `${SITE_CONFIG.url}/logo.png`,
     width: 512,
     height: 512,
   },
   image: {
-    '@type': 'ImageObject',
+    "@type": "ImageObject",
     url: SITE_CONFIG.ogImage,
   },
   description: SITE_CONFIG.description,
   email: SITE_CONFIG.email,
   telephone: SITE_CONFIG.phone,
   address: {
-    '@type': 'PostalAddress',
+    "@type": "PostalAddress",
     ...SITE_CONFIG.address,
   },
   sameAs: Object.values(SITE_CONFIG.social),
   foundingDate: SITE_CONFIG.foundingDate,
   aggregateRating: {
-    '@type': 'AggregateRating',
+    "@type": "AggregateRating",
     ...SITE_CONFIG.aggregateRating,
   },
 };
@@ -434,9 +500,9 @@ export const ORGANIZATION_SCHEMA = {
 // ========================================
 
 export const LOCAL_BUSINESS_SCHEMA = {
-  '@context': 'https://schema.org',
-  '@type': 'Store',
-  '@id': `${SITE_CONFIG.url}/#localbusiness`,
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "@id": `${SITE_CONFIG.url}/#localbusiness`,
   name: SITE_CONFIG.name,
   image: SITE_CONFIG.ogImage,
   url: SITE_CONFIG.url,
@@ -444,25 +510,25 @@ export const LOCAL_BUSINESS_SCHEMA = {
   email: SITE_CONFIG.email,
   priceRange: SITE_CONFIG.priceRange,
   address: {
-    '@type': 'PostalAddress',
+    "@type": "PostalAddress",
     ...SITE_CONFIG.address,
   },
   openingHoursSpecification: [
     {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      opens: '09:00',
-      closes: '18:00',
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      opens: "09:00",
+      closes: "18:00",
     },
     {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: 'Saturday',
-      opens: '09:00',
-      closes: '14:00',
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Saturday",
+      opens: "09:00",
+      closes: "14:00",
     },
   ],
   aggregateRating: {
-    '@type': 'AggregateRating',
+    "@type": "AggregateRating",
     ...SITE_CONFIG.aggregateRating,
   },
   sameAs: Object.values(SITE_CONFIG.social),
@@ -473,23 +539,23 @@ export const LOCAL_BUSINESS_SCHEMA = {
 // ========================================
 
 export const WEBSITE_SCHEMA = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  '@id': `${SITE_CONFIG.url}/#website`,
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE_CONFIG.url}/#website`,
   url: SITE_CONFIG.url,
   name: SITE_CONFIG.name,
   description: SITE_CONFIG.description,
   publisher: {
-    '@id': `${SITE_CONFIG.url}/#organization`,
+    "@id": `${SITE_CONFIG.url}/#organization`,
   },
   potentialAction: [
     {
-      '@type': 'SearchAction',
+      "@type": "SearchAction",
       target: {
-        '@type': 'EntryPoint',
+        "@type": "EntryPoint",
         urlTemplate: `${SITE_CONFIG.url}/shop?q={search_term_string}`,
       },
-      'query-input': 'required name=search_term_string',
+      "query-input": "required name=search_term_string",
     },
   ],
 };
@@ -525,13 +591,16 @@ export const REVALIDATION_TIMES = {
 /**
  * Clean and truncate text for SEO descriptions
  */
-export function truncateDescription(text: string, maxLength: number = 160): string {
+export function truncateDescription(
+  text: string,
+  maxLength: number = 160,
+): string {
   if (text.length <= maxLength) return text;
 
   const truncated = text.substring(0, maxLength - 3);
-  const lastSpace = truncated.lastIndexOf(' ');
+  const lastSpace = truncated.lastIndexOf(" ");
 
-  return truncated.substring(0, lastSpace) + '...';
+  return truncated.substring(0, lastSpace) + "...";
 }
 
 /**
@@ -539,7 +608,7 @@ export function truncateDescription(text: string, maxLength: number = 160): stri
  */
 export function jsonLdScriptProps<T extends Record<string, any>>(data: T) {
   return {
-    type: 'application/ld+json',
+    type: "application/ld+json",
     dangerouslySetInnerHTML: { __html: JSON.stringify(data) },
   };
 }
@@ -548,7 +617,7 @@ export function jsonLdScriptProps<T extends Record<string, any>>(data: T) {
  * Get absolute URL from path
  */
 export function getAbsoluteUrl(path: string): string {
-  return `${SITE_CONFIG.url}${path.startsWith('/') ? path : `/${path}`}`;
+  return `${SITE_CONFIG.url}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
 /**
@@ -558,8 +627,8 @@ export function getOgImageUrl(path?: string): string {
   if (!path) return `${SITE_CONFIG.url}${SITE_CONFIG.ogImage}`;
 
   // If it's already an absolute URL, return it
-  if (path.startsWith('http')) return path;
+  if (path.startsWith("http")) return path;
 
   // Otherwise, make it absolute
-  return `${SITE_CONFIG.url}${path.startsWith('/') ? path : `/${path}`}`;
+  return `${SITE_CONFIG.url}${path.startsWith("/") ? path : `/${path}`}`;
 }

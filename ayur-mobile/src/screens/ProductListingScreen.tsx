@@ -10,16 +10,21 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../styles/theme';
 import { Header, ProductCard, Input, Button, LoadingSpinner, EmptyState } from '../components';
-import { useProducts } from '../hooks/useProducts';
+import { useProductsQuery, useSearchProducts } from '../hooks/useProducts';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProductFilters, CategoryType } from '../types';
+
+type ListingNavigationProp = NativeStackNavigationProp<{
+  ProductDetails: { productId: string };
+}>;
 
 /**
  * Product Listing Screen
  * Shows products with filtering, sorting, and search capabilities
  */
 export const ProductListingScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<ListingNavigationProp>();
   const route = useRoute();
   const params = route.params as { category?: CategoryType } | undefined;
 
@@ -30,7 +35,22 @@ export const ProductListingScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterModal, setShowFilterModal] = useState(false);
 
-  const { products, loading } = useProducts(filters, searchQuery);
+  // Use search query if provided, otherwise use category filters
+  const { data: searchResults, isLoading: searchLoading } = useSearchProducts(
+    searchQuery,
+    undefined,
+    { enabled: searchQuery.length >= 2 }
+  );
+
+  const { data: productsData, isLoading: productsLoading } = useProductsQuery({
+    category: filters.category,
+    sortBy: filters.sortBy,
+  });
+
+  const products = searchQuery.length >= 2
+    ? (searchResults?.data || [])
+    : (productsData?.data || []);
+  const loading = searchQuery.length >= 2 ? searchLoading : productsLoading;
 
   const handleSort = (sortBy: ProductFilters['sortBy']) => {
     setFilters({ ...filters, sortBy });
@@ -115,7 +135,7 @@ export const ProductListingScreen: React.FC = () => {
               <ProductCard
                 product={item}
                 onPress={() =>
-                  navigation.navigate('ProductDetails' as never, { productId: item.id } as never)
+                  navigation.navigate('ProductDetails', { productId: item.id })
                 }
               />
             </View>

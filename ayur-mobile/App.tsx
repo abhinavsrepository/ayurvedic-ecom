@@ -74,13 +74,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <AuthProvider>
-            <CartProvider>
-              <WishlistProvider>
-                <AppContent />
-              </WishlistProvider>
-            </CartProvider>
-          </AuthProvider>
+          <AppContent />
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>

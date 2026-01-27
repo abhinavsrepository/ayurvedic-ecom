@@ -18,6 +18,12 @@ const STATIC_PAGES = [
     lastModified: new Date(),
   },
   {
+    url: '/about',
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+    lastModified: new Date(),
+  },
+  {
     url: '/shop',
     changeFrequency: 'hourly' as const,
     priority: 0.9,

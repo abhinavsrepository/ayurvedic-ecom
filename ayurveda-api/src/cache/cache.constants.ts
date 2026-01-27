@@ -72,6 +72,21 @@ export const CACHE_KEYS = {
   USER_WISHLIST: (userId: string) => `user:wishlist:${userId}`,
   USER_PROFILE: (userId: string) => `user:profile:${userId}`,
 
+  // Cart
+  CART_BY_ID: (cartId: string) => `cart:id:${cartId}`,
+  CART_BY_SESSION: (sessionId: string) => `cart:session:${sessionId}`,
+  CART_BY_USER: (userId: string) => `cart:user:${userId}`,
+
+  // Reviews
+  REVIEWS_BY_PRODUCT: (productId: string, page: number, size: number) =>
+    `reviews:product:${productId}:${page}:${size}`,
+  REVIEW_STATS_BY_PRODUCT: (productId: string) => `reviews:stats:${productId}`,
+  REVIEWS_BY_USER: (userId: string) => `reviews:user:${userId}`,
+
+  // Addresses
+  ADDRESSES_BY_CUSTOMER: (customerId: string) => `addresses:customer:${customerId}`,
+  ADDRESS_DEFAULT: (customerId: string) => `addresses:default:${customerId}`,
+
   // Orders
   ORDER_BY_ID: (id: string) => `order:id:${id}`,
   ORDER_BY_NUMBER: (orderNumber: string) => `order:number:${orderNumber}`,
@@ -95,5 +110,8 @@ export const CACHE_PATTERNS = {
   ALL_STATS: 'stats:*',
   ALL_ORDERS: 'orders:*',
   ALL_CUSTOMERS: 'customers:*',
+  ALL_CARTS: 'cart:*',
+  ALL_REVIEWS: 'reviews:*',
+  ALL_ADDRESSES: 'addresses:*',
   USER_DATA: (userId: string) => `user:*:${userId}`,
 };

@@ -73,6 +73,7 @@ export interface LayoutHelpers {
   gridGap: number;
   cardElevation: number;
   componentScale: number;
+  typographyScale: number;
 }
 
 /**
@@ -88,11 +89,26 @@ export interface VisualHelpers {
 }
 
 /**
+ * Base colors type (allows both light and dark theme color values)
+ */
+type BaseColors = {
+  [K in keyof typeof lightTheme.colors]: string;
+};
+
+/**
+ * Extended colors with mode and aliases
+ */
+export interface ExtendedColors extends BaseColors {
+  mode: 'light' | 'dark';
+  textMuted: string;
+}
+
+/**
  * Complete Dosha-morphing theme
  */
 export interface DoshaMorphingTheme {
-  // Base theme (colors from existing theme)
-  colors: typeof lightTheme.colors;
+  // Base theme (colors from existing theme with extensions)
+  colors: ExtendedColors;
 
   // Dynamic values
   spacing: DynamicSpacing;
@@ -199,6 +215,7 @@ export const useDoshaMorphingTheme = (): DoshaMorphingTheme => {
     gridGap: doshaConfig.layout.gridGap,
     cardElevation: doshaConfig.layout.cardElevation,
     componentScale: doshaConfig.layout.componentScale,
+    typographyScale: doshaConfig.layout.typographyScale,
   }), [doshaConfig.layout]);
 
   // Visual helpers
@@ -211,8 +228,15 @@ export const useDoshaMorphingTheme = (): DoshaMorphingTheme => {
     hoverScale: doshaConfig.visual.hoverScale,
   }), [doshaConfig.visual]);
 
+  // Extended colors with mode and textMuted alias
+  const extendedColors: ExtendedColors = {
+    ...baseTheme.colors,
+    mode: isDarkMode ? 'dark' : 'light',
+    textMuted: baseTheme.colors.textTertiary,
+  };
+
   return {
-    colors: baseTheme.colors,
+    colors: extendedColors,
     spacing,
     borderRadius,
     animation,

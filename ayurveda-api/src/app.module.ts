@@ -11,6 +11,12 @@ import { OrdersModule } from './orders/orders.module';
 import { CustomersModule } from './customers/customers.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AdminModule } from './admin/admin.module';
+import { CartModule } from './cart/cart.module';
+import { CacheModule } from './cache/cache.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { BlogModule } from './blog/blog.module';
+import { AddressesModule } from './addresses/addresses.module';
+import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -22,12 +28,18 @@ import { RolesGuard } from './common/guards/roles.guard';
       limit: 100,  // General rate limit
     }]),
     PrismaModule,
+    CacheModule,
     AuthModule,
     ProductsModule,
     OrdersModule,
     CustomersModule,
     PaymentsModule,
     AdminModule,
+    CartModule,
+    ReviewsModule,
+    BlogModule,
+    AddressesModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [

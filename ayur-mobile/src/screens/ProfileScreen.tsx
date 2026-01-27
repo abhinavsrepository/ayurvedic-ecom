@@ -29,7 +29,7 @@ export const ProfileScreen: React.FC = () => {
         text: 'Logout',
         style: 'destructive',
         onPress: async () => {
-          await logout();
+          await logout.mutateAsync();
         },
       },
     ]);

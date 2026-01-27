@@ -28,6 +28,7 @@ export const theme = {
     textSecondary: '#757575',
     textLight: '#FFFFFF',
     textMuted: '#9E9E9E',
+    textTertiary: '#9E9E9E',
 
     // Border & Divider
     border: '#E0E0E0',

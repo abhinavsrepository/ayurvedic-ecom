@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useCallback } from 'react';
-import { useSyncStore } from '../store/syncStore';
+import { useSyncStore, SyncResult } from '../store/syncStore';
 import { useNetworkStatus } from './useNetworkStatus';
 
 /**
@@ -154,7 +154,8 @@ export const useSyncQueueStatus = () => {
  */
 export const useAddToSyncQueue = () => {
   const { addToQueue } = useSyncStore();
-  const { isOnline } = useNetworkStatus();
+  const { isConnected, isInternetReachable } = useNetworkStatus();
+  const isOnline = isConnected && (isInternetReachable ?? true);
 
   const addToSyncQueue = useCallback(
     (item: Parameters<typeof addToQueue>[0]) => {
@@ -187,7 +188,7 @@ export const useAddToSyncQueue = () => {
  * ```
  */
 export const useOnSyncComplete = (
-  callback: (result: NonNullable<ReturnType<typeof useSyncStore>['syncResult']>) => void
+  callback: (result: SyncResult) => void
 ) => {
   const { syncResult, isSyncing } = useSyncStore();
   const prevIsSyncing = useRef(isSyncing);
