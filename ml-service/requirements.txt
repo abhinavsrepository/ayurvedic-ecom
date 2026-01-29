@@ -7,3 +7,4 @@ scipy==1.11.4
 gunicorn==21.2.0
 python-dateutil==2.8.2
 pydantic-settings==2.1.0
+pyod==1.1.3

@@ -5,11 +5,15 @@ Detect anomalies in business metrics (revenue, orders, traffic, etc.)
 
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from datetime import datetime, timedelta
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Type variables for pyod models
+IForest: Any = None
+LOF: Any = None
 
 try:
     from pyod.models.iforest import IForest
@@ -71,6 +75,10 @@ class AnomalyDetector:
     ) -> List[Dict]:
         """Machine learning-based anomaly detection using Isolation Forest or LOF"""
         try:
+            if self.model is None:
+                logger.warning("Model not available, falling back to statistical detection")
+                return self._statistical_detection(data, metric_column)
+
             # Prepare features
             df = data.copy()
             df['date'] = pd.to_datetime(df['date'])
@@ -208,15 +216,19 @@ class AnomalyDetector:
 
         # Revenue anomalies
         if 'revenue' in revenue_data.columns:
+            revenue_subset = revenue_data[['date', 'revenue']].copy()
+            revenue_subset.columns = ['date', 'value']
             results['revenue_anomalies'] = self.detect_anomalies(
-                revenue_data[['date', 'revenue']].rename(columns={'revenue': 'value'}),
+                revenue_subset,
                 metric_column='value'
             )
 
         # Order anomalies
         if 'orders' in revenue_data.columns:
+            orders_subset = revenue_data[['date', 'orders']].copy()
+            orders_subset.columns = ['date', 'value']
             results['order_anomalies'] = self.detect_anomalies(
-                revenue_data[['date', 'orders']].rename(columns={'orders': 'value'}),
+                orders_subset,
                 metric_column='value'
             )
 
@@ -224,8 +236,10 @@ class AnomalyDetector:
         if 'revenue' in revenue_data.columns and 'orders' in revenue_data.columns:
             aov_data = revenue_data.copy()
             aov_data['aov'] = aov_data['revenue'] / aov_data['orders'].replace(0, 1)
+            aov_subset = aov_data[['date', 'aov']].copy()
+            aov_subset.columns = ['date', 'value']
             results['aov_anomalies'] = self.detect_anomalies(
-                aov_data[['date', 'aov']].rename(columns={'aov': 'value'}),
+                aov_subset,
                 metric_column='value'
             )
 
@@ -247,15 +261,19 @@ class AnomalyDetector:
         anomalies = []
 
         if 'visitors' in traffic_data.columns:
+            visitors_subset = traffic_data[['date', 'visitors']].copy()
+            visitors_subset.columns = ['date', 'value']
             visitor_anomalies = self.detect_anomalies(
-                traffic_data[['date', 'visitors']].rename(columns={'visitors': 'value'}),
+                visitors_subset,
                 metric_column='value'
             )
             anomalies.extend(visitor_anomalies)
 
         if 'page_views' in traffic_data.columns:
+            pageviews_subset = traffic_data[['date', 'page_views']].copy()
+            pageviews_subset.columns = ['date', 'value']
             pageview_anomalies = self.detect_anomalies(
-                traffic_data[['date', 'page_views']].rename(columns={'page_views': 'value'}),
+                pageviews_subset,
                 metric_column='value'
             )
             anomalies.extend(pageview_anomalies)
