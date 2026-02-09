@@ -66,12 +66,39 @@ export const adminApi = {
     return apiClient.get(`/api/orders/${orderId}`);
   },
 
-  updateOrderStatus: async (orderId: string, status: string, notes?: string): Promise<Order> => {
-    return apiClient.patch(`/api/orders/${orderId}/status`, { status, notes });
+  // ✅ Updated to use backend's cancel endpoint
+  cancelOrder: async (orderId: string, reason?: string): Promise<Order> => {
+    return apiClient.patch(`/api/orders/${orderId}/cancel`, { reason });
   },
 
+  // ✅ Updated to use backend's refund endpoint
   processRefund: async (orderId: string, amount: number, reason: string): Promise<Order> => {
     return apiClient.post(`/api/orders/${orderId}/refund`, { amount, reason });
+  },
+
+  // ✅ Add tracking endpoint
+  trackOrder: async (orderId: string): Promise<any> => {
+    return apiClient.get(`/api/orders/${orderId}/track`);
+  },
+
+  // ✅ Add customer search
+  searchCustomers: async (query: string, params?: {
+    page?: number;
+    size?: number;
+  }) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('q', query);
+    if (params?.page) queryParams.append('page', String(params.page));
+    if (params?.size) queryParams.append('size', String(params.size));
+
+    return apiClient.get(`/api/customers?${queryParams.toString()}`);
+  },
+
+  // ✅ Add customer export
+  exportCustomers: async (): Promise<Blob> => {
+    return apiClient.get<Blob>('/api/customers/export', {
+      responseType: 'blob',
+    });
   },
 
   // Products
@@ -129,14 +156,22 @@ export const adminApi = {
   getCustomer: async (customerId: string) => {
     return apiClient.get(`/api/customers/${customerId}`);
   },
+
+  // ✅ Add customer stats endpoint
+  getCustomerStats: async (customerId: string) => {
+    return apiClient.get(`/api/customers/${customerId}/stats`);
+  },
 };
 
 // Export individual API modules for better organization
 export const ordersApi = {
   list: adminApi.getOrders,
   get: adminApi.getOrder,
-  updateStatus: adminApi.updateOrderStatus,
+  cancel: adminApi.cancelOrder,
   refund: adminApi.processRefund,
+  search: adminApi.searchCustomers,
+  export: adminApi.exportCustomers,
+  track: adminApi.trackOrder,
 };
 
 export const productsApi = {
@@ -150,4 +185,7 @@ export const productsApi = {
 export const customersApi = {
   list: adminApi.getCustomers,
   get: adminApi.getCustomer,
+  search: adminApi.searchCustomers,
+  export: adminApi.exportCustomers,
+  getStats: adminApi.getCustomerStats,
 };

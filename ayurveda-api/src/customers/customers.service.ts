@@ -221,6 +221,98 @@ export class CustomersService {
   }
 
   /**
+   * Search customers by query
+   * @param query - Search query
+   * @param queryDto - Query parameters
+   */
+  async search(query: string, queryDto: QueryCustomerDto) {
+    const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc' } = queryDto;
+
+    const where: any = {
+      deleted_at: null,
+      OR: [
+        { email: { contains: query, mode: 'insensitive' } },
+        { first_name: { contains: query, mode: 'insensitive' } },
+        { last_name: { contains: query, mode: 'insensitive' } },
+      ],
+    };
+
+    const [customers, total] = await Promise.all([
+      this.prisma.customer.findMany({
+        where,
+        skip: page * size,
+        take: size,
+        orderBy: { [sortBy]: sortOrder },
+        select: {
+          id: true,
+          email: true,
+          first_name: true,
+          last_name: true,
+          phone_number: true,
+          total_orders: true,
+          total_spent: true,
+          lifetime_value: true,
+          average_order_value: true,
+          last_order_at: true,
+          created_at: true,
+        },
+      }),
+      this.prisma.customer.count({ where }),
+    ]);
+
+    return {
+      content: customers,
+      total,
+      page,
+      size,
+      totalPages: Math.ceil(total / size),
+    };
+  }
+
+  /**
+   * Export customers to CSV
+   * @param queryDto - Query parameters for filtering
+   */
+  async export(queryDto: QueryCustomerDto) {
+    const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = queryDto;
+
+    const where: any = {
+      deleted_at: null,
+    };
+
+    // Add additional filters if needed
+    if (filters.query) {
+      where.OR = [
+        { email: { contains: filters.query, mode: 'insensitive' } },
+        { first_name: { contains: filters.query, mode: 'insensitive' } },
+        { last_name: { contains: filters.query, mode: 'insensitive' } },
+      ];
+    }
+
+    const customers = await this.prisma.customer.findMany({
+      where,
+      skip: page * size,
+      take: size,
+      orderBy: { [sortBy]: sortOrder },
+      select: {
+        id: true,
+        email: true,
+        first_name: true,
+        last_name: true,
+        phone_number: true,
+        total_orders: true,
+        total_spent: true,
+        lifetime_value: true,
+        average_order_value: true,
+        last_order_at: true,
+        created_at: true,
+      },
+    });
+
+    return customers;
+  }
+
+  /**
    * Invalidate customer-related caches
    */
   private async invalidateCustomerCaches(id?: string) {

@@ -430,6 +430,128 @@ export class OrdersService {
   }
 
   /**
+   * Track an order
+   * @param id - Order ID
+   * @param userId - User ID requesting tracking info (optional for admin)
+   */
+  async trackOrder(id: string, userId?: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        order_number: true,
+        status: true,
+        payment_status: true,
+        fulfillment_status: true,
+        tracking_number: true,
+        carrier: true,
+        created_at: true,
+        updated_at: true,
+        shipping_address_line1: true,
+        shipping_address_line2: true,
+        shipping_city: true,
+        shipping_state: true,
+        shipping_postal_code: true,
+        shipping_country: true,
+        customers: {
+          select: {
+            email: true,
+            first_name: true,
+            last_name: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID '${id}' not found`);
+    }
+
+    // If userId provided, verify access
+    if (userId && order.customers.email !== userId) {
+      throw new ForbiddenException('You do not have access to this order');
+    }
+
+    return {
+      orderNumber: order.order_number,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      fulfillmentStatus: order.fulfillment_status,
+      trackingNumber: order.tracking_number,
+      carrier: order.carrier,
+      shippingAddress: {
+        line1: order.shipping_address_line1,
+        line2: order.shipping_address_line2,
+        city: order.shipping_city,
+        state: order.shipping_state,
+        postalCode: order.shipping_postal_code,
+        country: order.shipping_country,
+      },
+      createdAt: order.created_at,
+      updatedAt: order.updated_at,
+    };
+  }
+
+  /**
+   * Export orders to CSV
+   * @param queryDto - Query parameters for filtering
+   */
+  async export(queryDto: QueryOrderDto) {
+    const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = queryDto;
+
+    const where: any = {};
+
+    // Apply filters if provided
+    if (filters.status) {
+      where.status = filters.status;
+    }
+
+    if (filters.paymentStatus) {
+      where.payment_status = filters.paymentStatus;
+    }
+
+    const orders = await this.prisma.order.findMany({
+      where,
+      skip: page * size,
+      take: size,
+      orderBy: { [sortBy]: sortOrder },
+      select: {
+        id: true,
+        order_number: true,
+        status: true,
+        payment_status: true,
+        payment_method: true,
+        total: true,
+        subtotal: true,
+        tax_amount: true,
+        shipping_amount: true,
+        discount_amount: true,
+        items: {
+          select: {
+            product_name: true,
+            quantity: true,
+            unit_price: true,
+            line_total: true,
+          },
+        },
+        customer_id: true,
+        created_at: true,
+        updated_at: true,
+        tracking_number: true,
+        carrier: true,
+        shipping_address_line1: true,
+        shipping_address_line2: true,
+        shipping_city: true,
+        shipping_state: true,
+        shipping_postal_code: true,
+        shipping_country: true,
+      },
+    });
+
+    return orders;
+  }
+
+  /**
    * Invalidate order-related caches
    */
   private async invalidateOrderCaches(customerId?: string, orderId?: string) {

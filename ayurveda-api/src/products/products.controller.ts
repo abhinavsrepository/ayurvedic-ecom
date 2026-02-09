@@ -107,4 +107,33 @@ export class ProductsController {
   remove(@Param('id') id: string) {
     return this.productsService.remove(id);
   }
+
+  @Public()
+  @Get('search')
+  @ApiOperation({ summary: 'Search products by query' })
+  @ApiResponse({ status: 200, description: 'Products found' })
+  @ApiResponse({ status: 400, description: 'Invalid query parameter' })
+  async search(
+    @Query('q') query: string,
+    @Query() queryDto: QueryProductDto,
+  ) {
+    return this.productsService.search(query, queryDto);
+  }
+
+  @Patch(':id/stock')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'manager')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update product stock (Admin/Manager only)' })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiResponse({ status: 200, description: 'Stock updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async updateStock(
+    @Param('id') id: string,
+    @Body('quantity') quantity: number,
+  ) {
+    return this.productsService.updateStock(id, quantity);
+  }
 }

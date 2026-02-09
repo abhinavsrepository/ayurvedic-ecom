@@ -92,4 +92,37 @@ export class CustomersController {
   getStats(@Param('id') id: string) {
     return this.customersService.getCustomerStats(id);
   }
+
+  /**
+   * Search customers (Admin only)
+   */
+  @Public()
+  @Get('search')
+  @Roles('admin', 'manager')
+  @ApiOperation({ summary: 'Search customers by query (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Customers found' })
+  @ApiResponse({ status: 400, description: 'Invalid query parameter' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  async search(
+    @Query('q') query: string,
+    @Query() queryDto: QueryCustomerDto,
+  ) {
+    return this.customersService.search(query, queryDto);
+  }
+
+  /**
+   * Export customers (Admin only)
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'manager')
+  @ApiBearerAuth()
+  @Get('export')
+  @ApiOperation({ summary: 'Export customers to CSV (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Export initiated' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  async export(@Query() queryDto: QueryCustomerDto) {
+    return this.customersService.export(queryDto);
+  }
 }

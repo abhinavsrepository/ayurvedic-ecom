@@ -106,4 +106,18 @@ export class OrdersController {
   trackOrder(@Param('id') id: string, @CurrentUser('email') userId: string) {
     return this.ordersService.trackOrder(id, userId);
   }
+
+  /**
+   * Export orders to CSV (Admin only)
+   */
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('export')
+  @ApiOperation({ summary: 'Export orders to CSV (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Export initiated' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  async export(@Query() queryDto: QueryOrderDto) {
+    return this.ordersService.export(queryDto);
+  }
 }

@@ -281,6 +281,61 @@ export class ProductsService {
   }
 
   /**
+   * Search products by query
+   */
+  async search(query: string, queryDto: QueryProductDto) {
+    const { page = 0, size = 20, sortBy = 'createdAt', sortOrder = 'desc' } = queryDto;
+
+    const where: any = {};
+
+    // Search in name, description, and tags
+    where.OR = [
+      { name: { contains: query, mode: 'insensitive' } },
+      { description: { contains: query, mode: 'insensitive' } },
+      { tags: { has: query } },
+    ];
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        skip: page * size,
+        take: size,
+        orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    return {
+      content: products,
+      total,
+      page,
+      size,
+      totalPages: Math.ceil(total / size),
+    };
+  }
+
+  /**
+   * Update product stock
+   */
+  async updateStock(id: string, quantity: number) {
+    // Check if product exists
+    await this.findOne(id);
+
+    const product = await this.prisma.product.update({
+      where: { id },
+      data: {
+        stockQuantity: quantity,
+      },
+    });
+
+    // Invalidate cache
+    await this.invalidateProductCaches(id, product.slug);
+
+    this.logger.log(`Product stock updated: ${product.name} - ${quantity}`);
+    return product;
+  }
+
+  /**
    * Invalidate product-related caches
    */
   private async invalidateProductCaches(id?: string, slug?: string) {
