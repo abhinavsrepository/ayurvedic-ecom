@@ -59,7 +59,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getHealth", null);
 __decorate([
-    (0, common_1.Get)('api/products'),
+    (0, common_1.Get)('products/legacy'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)

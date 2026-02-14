@@ -139,6 +139,48 @@ let AuthService = class AuthService {
             },
         };
     }
+    async register(registerDto) {
+        const existing = await this.prisma.user.findFirst({
+            where: {
+                OR: [{ username: registerDto.username }, { email: registerDto.email }],
+            },
+        });
+        if (existing) {
+            throw new common_1.ConflictException('Username or email already exists');
+        }
+        const hashedPassword = await this.hashPassword(registerDto.password);
+        const user = await this.prisma.user.create({
+            data: {
+                username: registerDto.username,
+                email: registerDto.email,
+                password: hashedPassword,
+                full_name: registerDto.fullName || registerDto.username,
+                enabled: true,
+            },
+            include: { user_roles: { include: { roles: true } } },
+        });
+        const payload = {
+            sub: user.id,
+            username: user.username,
+            email: user.email,
+            roles: user.user_roles.map((ur) => ur.roles.name),
+        };
+        const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+        const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+        return {
+            accessToken,
+            refreshToken,
+            tokenType: 'Bearer',
+            expiresIn: 900,
+            user: {
+                username: user.username,
+                email: user.email,
+                fullName: user.full_name || '',
+                roles: payload.roles,
+                twoFaEnabled: user.two_fa_enabled || false,
+            },
+        };
+    }
     async refreshToken(refreshToken) {
         try {
             const payload = this.jwtService.verify(refreshToken);

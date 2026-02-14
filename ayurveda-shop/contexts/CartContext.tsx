@@ -51,6 +51,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [subtotal, setSubtotal] = useState(0);
   const [itemCount, setItemCount] = useState(0);
+  const [apiAvailable, setApiAvailable] = useState(true);
 
   const transformApiCartItem = (item: ApiCartItem): CartItem => ({
     id: item.id,
@@ -65,6 +66,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     lineTotal: item.lineTotal,
   });
 
+  const calculateTotals = useCallback((cartItems: CartItem[]) => {
+    const newSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const newCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    return { subtotal: newSubtotal, count: newCount };
+  }, []);
+
   const refreshCart = useCallback(async () => {
     if (!mounted) return;
 
@@ -75,12 +82,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setItems(transformedItems);
       setSubtotal(cart.subtotal);
       setItemCount(cart.itemCount);
-    } catch (error) {
-      console.error("Failed to load cart:", error);
+      setApiAvailable(true);
+    } catch (error: any) {
+      // Silently handle API unavailability
+      if (error?.message === 'API_UNAVAILABLE') {
+        setApiAvailable(false);
+        // Use local storage for cart if API is down
+        const localCart = typeof window !== 'undefined' 
+          ? JSON.parse(localStorage.getItem('local_cart') || '[]') 
+          : [];
+        setItems(localCart);
+        const { subtotal, count } = calculateTotals(localCart);
+        setSubtotal(subtotal);
+        setItemCount(count);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [mounted]);
+  }, [mounted, calculateTotals]);
 
   useEffect(() => {
     setMounted(true);
@@ -92,24 +111,66 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [mounted, refreshCart]);
 
+  // Save to localStorage whenever cart changes (for offline mode)
+  useEffect(() => {
+    if (mounted && !apiAvailable && typeof window !== 'undefined') {
+      localStorage.setItem('local_cart', JSON.stringify(items));
+    }
+  }, [items, mounted, apiAvailable]);
+
   const addToCart = async (item: Omit<CartItem, "id" | "lineTotal">) => {
     try {
-      const cart = await cartApi.addItem({
-        productId: item.productId,
-        quantity: item.quantity,
-        variantId: item.variantId,
-      });
-
-      const transformedItems = cart.items.map(transformApiCartItem);
-      setItems(transformedItems);
-      setSubtotal(cart.subtotal);
-      setItemCount(cart.itemCount);
+      if (apiAvailable) {
+        const cart = await cartApi.addItem({
+          productId: item.productId,
+          quantity: item.quantity,
+          variantId: item.variantId,
+        });
+        const transformedItems = cart.items.map(transformApiCartItem);
+        setItems(transformedItems);
+        setSubtotal(cart.subtotal);
+        setItemCount(cart.itemCount);
+      } else {
+        // Local mode
+        setItems((prev) => {
+          const existingIndex = prev.findIndex(
+            (i) => i.productId === item.productId && i.variantId === item.variantId
+          );
+          
+          let newItems;
+          if (existingIndex >= 0) {
+            newItems = prev.map((i, idx) => 
+              idx === existingIndex 
+                ? { ...i, quantity: i.quantity + item.quantity, lineTotal: i.price * (i.quantity + item.quantity) }
+                : i
+            );
+          } else {
+            const newItem: CartItem = {
+              ...item,
+              id: `local_${Date.now()}`,
+              lineTotal: item.price * item.quantity,
+            };
+            newItems = [...prev, newItem];
+          }
+          
+          const { subtotal, count } = calculateTotals(newItems);
+          setSubtotal(subtotal);
+          setItemCount(count);
+          return newItems;
+        });
+      }
 
       toast.success("Added to cart", {
         description: `${item.name} has been added to your cart`,
       });
-    } catch (error) {
-      console.error("Failed to add to cart:", error);
+    } catch (error: any) {
+      // Fallback to local mode
+      if (error?.message === 'API_UNAVAILABLE') {
+        setApiAvailable(false);
+        // Retry with local mode
+        await addToCart(item);
+        return;
+      }
       toast.error("Failed to add item to cart");
       throw error;
     }
@@ -117,16 +178,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const removeFromCart = async (itemId: string) => {
     try {
-      const cart = await cartApi.removeItem(itemId);
-
-      const transformedItems = cart.items.map(transformApiCartItem);
-      setItems(transformedItems);
-      setSubtotal(cart.subtotal);
-      setItemCount(cart.itemCount);
+      if (apiAvailable) {
+        const cart = await cartApi.removeItem(itemId);
+        const transformedItems = cart.items.map(transformApiCartItem);
+        setItems(transformedItems);
+        setSubtotal(cart.subtotal);
+        setItemCount(cart.itemCount);
+      } else {
+        // Local mode
+        setItems((prev) => {
+          const newItems = prev.filter((i) => i.id !== itemId);
+          const { subtotal, count } = calculateTotals(newItems);
+          setSubtotal(subtotal);
+          setItemCount(count);
+          return newItems;
+        });
+      }
 
       toast.success("Removed from cart");
-    } catch (error) {
-      console.error("Failed to remove from cart:", error);
+    } catch (error: any) {
+      if (error?.message === 'API_UNAVAILABLE') {
+        setApiAvailable(false);
+        await removeFromCart(itemId);
+        return;
+      }
       toast.error("Failed to remove item from cart");
       throw error;
     }
@@ -139,14 +214,32 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const cart = await cartApi.updateItem(itemId, { quantity });
-
-      const transformedItems = cart.items.map(transformApiCartItem);
-      setItems(transformedItems);
-      setSubtotal(cart.subtotal);
-      setItemCount(cart.itemCount);
-    } catch (error) {
-      console.error("Failed to update cart quantity:", error);
+      if (apiAvailable) {
+        const cart = await cartApi.updateItem(itemId, { quantity });
+        const transformedItems = cart.items.map(transformApiCartItem);
+        setItems(transformedItems);
+        setSubtotal(cart.subtotal);
+        setItemCount(cart.itemCount);
+      } else {
+        // Local mode
+        setItems((prev) => {
+          const newItems = prev.map((item) =>
+            item.id === itemId
+              ? { ...item, quantity, lineTotal: item.price * quantity }
+              : item
+          );
+          const { subtotal, count } = calculateTotals(newItems);
+          setSubtotal(subtotal);
+          setItemCount(count);
+          return newItems;
+        });
+      }
+    } catch (error: any) {
+      if (error?.message === 'API_UNAVAILABLE') {
+        setApiAvailable(false);
+        await updateQuantity(itemId, quantity);
+        return;
+      }
       toast.error("Failed to update quantity");
       throw error;
     }
@@ -154,28 +247,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = async () => {
     try {
-      const cart = await cartApi.clearCart();
-
-      const transformedItems = cart.items.map(transformApiCartItem);
-      setItems(transformedItems);
-      setSubtotal(cart.subtotal);
-      setItemCount(cart.itemCount);
+      if (apiAvailable) {
+        const cart = await cartApi.clearCart();
+        const transformedItems = cart.items.map(transformApiCartItem);
+        setItems(transformedItems);
+        setSubtotal(cart.subtotal);
+        setItemCount(cart.itemCount);
+      } else {
+        // Local mode
+        setItems([]);
+        setSubtotal(0);
+        setItemCount(0);
+      }
 
       toast.success("Cart cleared");
-    } catch (error) {
-      console.error("Failed to clear cart:", error);
+    } catch (error: any) {
+      if (error?.message === 'API_UNAVAILABLE') {
+        setApiAvailable(false);
+        await clearCart();
+        return;
+      }
       toast.error("Failed to clear cart");
       throw error;
     }
   };
 
-  const getCartTotal = () => {
-    return subtotal;
-  };
-
-  const getCartCount = () => {
-    return itemCount;
-  };
+  const getCartTotal = () => subtotal;
+  const getCartCount = () => itemCount;
 
   const getItemQuantity = (productId: string, variantId?: string) => {
     const item = items.find(

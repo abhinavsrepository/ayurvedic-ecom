@@ -100,6 +100,44 @@ let RazorpayService = RazorpayService_1 = class RazorpayService {
         const generatedSignature = hmac.digest('hex');
         return generatedSignature === signature;
     }
+    verifyWebhookSignature(payload, signature) {
+        const webhookSecret = this.configService.get('RAZORPAY_WEBHOOK_SECRET');
+        if (!webhookSecret) {
+            this.logger.warn('RAZORPAY_WEBHOOK_SECRET is not defined');
+            return false;
+        }
+        const hmac = crypto.createHmac('sha256', webhookSecret);
+        hmac.update(JSON.stringify(payload));
+        const generatedSignature = hmac.digest('hex');
+        return generatedSignature === signature;
+    }
+    async getPayment(paymentId) {
+        if (!this.razorpay) {
+            throw new Error('Razorpay is not initialized');
+        }
+        try {
+            return await this.razorpay.payments.fetch(paymentId);
+        }
+        catch (error) {
+            this.logger.error(`Failed to fetch payment: ${error.message}`);
+            throw error;
+        }
+    }
+    async createRefund(paymentId, amount, notes) {
+        if (!this.razorpay) {
+            throw new Error('Razorpay is not initialized');
+        }
+        try {
+            return await this.razorpay.payments.refund(paymentId, {
+                amount: Math.round(amount * 100),
+                notes: notes || {},
+            });
+        }
+        catch (error) {
+            this.logger.error(`Failed to create refund: ${error.message}`);
+            throw error;
+        }
+    }
 };
 exports.RazorpayService = RazorpayService;
 exports.RazorpayService = RazorpayService = RazorpayService_1 = __decorate([

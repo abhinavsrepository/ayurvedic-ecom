@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBoFCd4FRy5r6EJAIWsobrSTrYQ4rZtECk";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 interface Message {
   role: string;
@@ -25,6 +25,13 @@ Remember: You provide guidance and education, NOT diagnosis or treatment. Patien
 
 export async function POST(request: NextRequest) {
   try {
+    if (!GEMINI_API_KEY) {
+      return NextResponse.json(
+        { error: "GEMINI_API_KEY is not configured" },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const { message, history = [] } = body;
 

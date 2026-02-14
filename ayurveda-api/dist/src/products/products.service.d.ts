@@ -10,10 +10,13 @@ export declare class ProductsService {
     constructor(prisma: PrismaService, cacheService: CacheService);
     create(createProductDto: CreateProductDto): Promise<{
         id: string;
-        sku: string;
         name: string;
-        slug: string;
         description: string | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
+        sku: string;
+        slug: string;
         short_description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -34,17 +37,17 @@ export declare class ProductsService {
         seo_description: string | null;
         seo_keywords: string | null;
         deleted_at: Date | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
     }>;
     findAll(query: QueryProductDto): Promise<{
         content: {
             id: string;
-            sku: string;
             name: string;
-            slug: string;
             description: string | null;
+            created_at: Date;
+            updated_at: Date;
+            version: bigint | null;
+            sku: string;
+            slug: string;
             short_description: string | null;
             price: import("@prisma/client/runtime/library").Decimal;
             compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -65,9 +68,6 @@ export declare class ProductsService {
             seo_description: string | null;
             seo_keywords: string | null;
             deleted_at: Date | null;
-            created_at: Date;
-            updated_at: Date;
-            version: bigint | null;
         }[];
         total: number;
         page: number;
@@ -76,10 +76,13 @@ export declare class ProductsService {
     }>;
     findOne(id: string): Promise<{
         id: string;
-        sku: string;
         name: string;
-        slug: string;
         description: string | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
+        sku: string;
+        slug: string;
         short_description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -100,16 +103,16 @@ export declare class ProductsService {
         seo_description: string | null;
         seo_keywords: string | null;
         deleted_at: Date | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
     }>;
     findBySlug(slug: string): Promise<{
         id: string;
-        sku: string;
         name: string;
-        slug: string;
         description: string | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
+        sku: string;
+        slug: string;
         short_description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -130,16 +133,16 @@ export declare class ProductsService {
         seo_description: string | null;
         seo_keywords: string | null;
         deleted_at: Date | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
     }>;
     update(id: string, updateProductDto: UpdateProductDto): Promise<{
         id: string;
-        sku: string;
         name: string;
-        slug: string;
         description: string | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
+        sku: string;
+        slug: string;
         short_description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
@@ -160,12 +163,75 @@ export declare class ProductsService {
         seo_description: string | null;
         seo_keywords: string | null;
         deleted_at: Date | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
     }>;
     remove(id: string): Promise<{
         message: string;
+    }>;
+    search(query: string, queryDto: QueryProductDto): Promise<{
+        content: {
+            id: string;
+            name: string;
+            description: string | null;
+            created_at: Date;
+            updated_at: Date;
+            version: bigint | null;
+            sku: string;
+            slug: string;
+            short_description: string | null;
+            price: import("@prisma/client/runtime/library").Decimal;
+            compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
+            cost_price: import("@prisma/client/runtime/library").Decimal | null;
+            status: string;
+            category: string | null;
+            subcategory: string | null;
+            brand: string | null;
+            weight_grams: number | null;
+            is_featured: boolean | null;
+            ingredients: string | null;
+            benefits: string | null;
+            dosha_vata: boolean | null;
+            dosha_pitta: boolean | null;
+            dosha_kapha: boolean | null;
+            usage_instructions: string | null;
+            seo_title: string | null;
+            seo_description: string | null;
+            seo_keywords: string | null;
+            deleted_at: Date | null;
+        }[];
+        total: number;
+        page: number;
+        size: number;
+        totalPages: number;
+    }>;
+    updateStock(id: string, quantity: number): Promise<{
+        id: string;
+        name: string;
+        description: string | null;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
+        sku: string;
+        slug: string;
+        short_description: string | null;
+        price: import("@prisma/client/runtime/library").Decimal;
+        compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
+        cost_price: import("@prisma/client/runtime/library").Decimal | null;
+        status: string;
+        category: string | null;
+        subcategory: string | null;
+        brand: string | null;
+        weight_grams: number | null;
+        is_featured: boolean | null;
+        ingredients: string | null;
+        benefits: string | null;
+        dosha_vata: boolean | null;
+        dosha_pitta: boolean | null;
+        dosha_kapha: boolean | null;
+        usage_instructions: string | null;
+        seo_title: string | null;
+        seo_description: string | null;
+        seo_keywords: string | null;
+        deleted_at: Date | null;
     }>;
     private invalidateProductCaches;
 }

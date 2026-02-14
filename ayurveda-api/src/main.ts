@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+﻿import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
@@ -85,17 +85,19 @@ async function bootstrap() {
   await app.listen(port);
 
   console.log('');
-  console.log('🚀 ========================================');
-  console.log('🚀  Ayurveda E-Commerce API');
-  console.log('🚀 ========================================');
-  console.log(`🚀  Application: http://localhost:${port}`);
-  console.log(`📚  Swagger: http://localhost:${port}/api-docs`);
-  console.log(`❤️   Health: http://localhost:${port}/actuator/health`);
-  console.log(`🔐  Auth: JWT + 2FA + RBAC`);
-  console.log(`📦  Products: CRUD + Search`);
-  console.log(`📋  Orders: Management + Analytics`);
-  console.log('🚀 ========================================');
+  console.log('ðŸš€ ========================================');
+  console.log('ðŸš€  Ayurveda E-Commerce API');
+  console.log('ðŸš€ ========================================');
+  console.log(`ðŸš€  Application: http://localhost:${port}`);
+  console.log(`ðŸ“š  Swagger: http://localhost:${port}/api-docs`);
+  console.log(`â¤ï¸   Health: http://localhost:${port}/api/actuator/health`);
+  console.log(`ðŸ”  Auth: JWT + 2FA + RBAC`);
+  console.log(`ðŸ“¦  Products: CRUD + Search`);
+  console.log(`ðŸ“‹  Orders: Management + Analytics`);
+  console.log('ðŸš€ ========================================');
   console.log('');
 }
 
 bootstrap();
+
+

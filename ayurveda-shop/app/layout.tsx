@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import GamificationWrapper from "@/components/gamification/GamificationWrapper";
@@ -15,7 +15,6 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  display: "swap",
   preload: true,
   fallback: ['system-ui', 'arial'],
 });
@@ -25,13 +24,23 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   weight: ["400", "600", "700"],
-  display: "swap",
   preload: true,
   fallback: ['Georgia', 'serif'],
 });
 
+// Separate viewport export for Next.js 14+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#2E7D32",
+};
+
 // Enhanced metadata with full SEO optimization
-export const metadata: Metadata = DEFAULT_METADATA;
+export const metadata: Metadata = {
+  ...DEFAULT_METADATA,
+  // Remove viewport from metadata as it's now separate
+};
 
 export default function RootLayout({
   children,
@@ -51,9 +60,15 @@ export default function RootLayout({
         {process.env.NEXT_PUBLIC_API_URL && (
           <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL} crossOrigin="anonymous" />
         )}
+        
+        {/* Mobile optimization meta tags */}
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body
-        className={`${inter.variable} ${playfair.variable} antialiased`}
+        className={`${inter.variable} ${playfair.variable} antialiased min-h-screen`}
         suppressHydrationWarning
       >
         {/* Structured Data for SEO */}

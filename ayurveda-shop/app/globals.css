@@ -30,12 +30,17 @@
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
 
   /* Disable dark mode - keep consistent calming colors */
@@ -48,9 +53,72 @@
 }
 
 @layer utilities {
-  /* Custom scrollbar */
+  /* Safe area padding for mobile devices */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-inset-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Responsive container padding */
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8 xl:px-12;
+  }
+  
+  /* Section spacing */
+  .section-spacing {
+    @apply py-12 sm:py-16 lg:py-20;
+  }
+  
+  /* Mobile-first text utilities */
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+  
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl lg:text-4xl;
+  }
+  
+  .text-responsive-3xl {
+    @apply text-3xl sm:text-4xl lg:text-5xl;
+  }
+  
+  .text-responsive-4xl {
+    @apply text-4xl sm:text-5xl lg:text-6xl;
+  }
+
+  /* Touch-friendly tap targets */
+  .tap-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  .tap-target-sm {
+    @apply min-h-[36px] min-w-[36px];
+  }
+
+  /* Custom scrollbar - mobile optimized */
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
@@ -63,6 +131,17 @@
 
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-primary;
+  }
+  
+  /* Hide scrollbar on mobile but keep functionality */
+  @media (max-width: 768px) {
+    .scrollbar-hide-mobile::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide-mobile {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   }
 
   /* Selection color */
@@ -106,6 +185,17 @@
       transform: scale(1);
     }
   }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   .animate-fadeIn {
     animation: fadeIn 0.8s ease-in-out;
@@ -117,5 +207,47 @@
 
   .animate-zoomIn {
     animation: zoomIn 0.6s ease-out;
+  }
+  
+  .animate-slideUp {
+    animation: slideUp 0.5s ease-out;
+  }
+  
+  /* Prevent content shift on mobile keyboard open */
+  .fixed-mobile {
+    position: fixed;
+    width: 100%;
+    @supports (-webkit-touch-callout: none) {
+      position: sticky;
+    }
+  }
+  
+  /* Image optimization */
+  .img-responsive {
+    @apply max-w-full h-auto;
+  }
+  
+  /* Prevent horizontal overflow */
+  .no-horizontal-scroll {
+    @apply max-w-full overflow-x-hidden;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
   }
 }

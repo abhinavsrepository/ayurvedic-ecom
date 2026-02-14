@@ -28,6 +28,9 @@ let AuthController = class AuthController {
     async login(loginDto) {
         return this.authService.login(loginDto);
     }
+    async register(registerDto) {
+        return this.authService.register(registerDto);
+    }
     async refreshToken(refreshToken) {
         return this.authService.refreshToken(refreshToken);
     }
@@ -61,6 +64,18 @@ __decorate([
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('register'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new admin user' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Registration successful', type: login_dto_1.LoginResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 409, description: 'Username or email already exists' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [login_dto_1.RegisterDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "register", null);
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('refresh'),
@@ -134,7 +149,7 @@ __decorate([
 ], AuthController.prototype, "logout", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
-    (0, common_1.Controller)('api/auth'),
+    (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

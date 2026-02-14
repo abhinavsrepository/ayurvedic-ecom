@@ -88,14 +88,13 @@ export const getProducts = unstable_cache(
       });
 
       if (!response.ok) {
-        console.warn(`Backend returned ${response.status} for products endpoint, using mock data`);
         throw new Error('Backend not available');
       }
 
       const data = await response.json();
       return PageProductResponseSchema.parse(data);
     } catch (error) {
-      console.warn('Backend not available, using mock data:', error);
+      // Silently use mock data when backend is unavailable
 
       let filteredProducts = mockProducts.map(transformMockProduct);
 
@@ -170,7 +169,7 @@ export const getProductBySlug = unstable_cache(
       const data = await response.json();
       return ProductResponseSchema.parse(data);
     } catch (error) {
-      console.warn('Backend not available, using mock data for slug:', slug);
+      // Silently use mock data when backend is unavailable
       const mockProduct = mockProducts.find(p => p.slug === slug);
       if (mockProduct) {
         return transformMockProduct(mockProduct);

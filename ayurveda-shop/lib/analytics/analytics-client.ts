@@ -182,7 +182,7 @@ export class AnalyticsClient {
    */
   private async sendEvent(event: AnalyticsEvent): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/analytics/event`, {
+      const response = await fetch(`${API_BASE_URL}/api/analytics/event`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

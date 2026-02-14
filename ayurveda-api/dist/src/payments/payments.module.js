@@ -13,12 +13,13 @@ const payments_service_1 = require("./payments.service");
 const payments_controller_1 = require("./payments.controller");
 const stripe_service_1 = require("./stripe/stripe.service");
 const razorpay_service_1 = require("./razorpay/razorpay.service");
+const prisma_module_1 = require("../prisma/prisma.module");
 let PaymentsModule = class PaymentsModule {
 };
 exports.PaymentsModule = PaymentsModule;
 exports.PaymentsModule = PaymentsModule = __decorate([
     (0, common_1.Module)({
-        imports: [config_1.ConfigModule],
+        imports: [config_1.ConfigModule, prisma_module_1.PrismaModule],
         providers: [payments_service_1.PaymentsService, stripe_service_1.StripeService, razorpay_service_1.RazorpayService],
         controllers: [payments_controller_1.PaymentsController],
         exports: [payments_service_1.PaymentsService],

@@ -15,21 +15,21 @@ export declare class AnalyticsService {
         user_id: string | null;
         city: string | null;
         country: string | null;
+        session_id: string | null;
         region: string | null;
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
         timezone: string | null;
         accuracy: string | null;
-        session_id: string | null;
         ip_hash: string | null;
     }>;
     logDevice(createDeviceDto: CreateDeviceDto): Promise<{
         id: string;
         created_at: Date;
         user_id: string | null;
+        session_id: string | null;
         os: string | null;
         browser: string | null;
-        session_id: string | null;
         device_type: string | null;
         browser_version: string | null;
         device_ram: string | null;
@@ -47,8 +47,8 @@ export declare class AnalyticsService {
             id: string;
             created_at: Date;
             user_id: string | null;
-            referrer: string | null;
             session_id: string | null;
+            referrer: string | null;
             event_type: string;
             event_data: string | null;
             location_id: string | null;

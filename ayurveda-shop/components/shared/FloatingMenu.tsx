@@ -1,4 +1,5 @@
 "use client";
+
 /**
  * Quick Action FAB Menu
  * 
@@ -6,7 +7,7 @@
  * like AI Consult, Community, Rewards, and Health Tracking.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUI } from "@/contexts/UIContext";
@@ -19,6 +20,25 @@ import {
     X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+export default function FloatingMenu() {
+    const [mounted, setMounted] = useState(false);
+    const router = useRouter();
+    const {
+        setIsDoctorChatOpen,
+        setIsSpinWheelOpen,
+        setIsReferralOpen,
+        setIsScratchCardOpen
+    } = useUI();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Prevent hydration mismatch
+    if (!mounted) {
+        return null;
+    }
 
 const actions = [
     {

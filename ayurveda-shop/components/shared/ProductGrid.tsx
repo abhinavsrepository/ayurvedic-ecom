@@ -29,18 +29,18 @@ export default function ProductGrid({
       : products.filter((p) => p.category === selectedCategory);
 
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4 lg:px-8">
+    <section className="py-12 sm:py-16 lg:py-20 bg-white">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
           variants={fadeInUp}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
         >
           <motion.h2
-            className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-4"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-foreground mb-3 sm:mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -49,7 +49,7 @@ export default function ProductGrid({
             {title}
           </motion.h2>
           <motion.p
-            className="text-lg text-text-secondary max-w-2xl mx-auto"
+            className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto px-4"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -62,7 +62,7 @@ export default function ProductGrid({
         {/* Category Filters */}
         {showFilters && (
           <motion.div
-            className="flex flex-wrap justify-center gap-3 mb-12"
+            className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-12 px-2"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -73,13 +73,13 @@ export default function ProductGrid({
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 className={cn(
-                  "px-6 py-2.5 rounded-full font-medium transition-all",
+                  "px-4 py-2 sm:px-6 sm:py-2.5 rounded-full font-medium text-sm sm:text-base transition-all tap-target",
                   selectedCategory === category
                     ? "bg-primary text-white shadow-lg"
                     : "bg-secondary text-foreground hover:bg-primary-light/30"
                 )}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 {category}
               </motion.button>
@@ -89,11 +89,11 @@ export default function ProductGrid({
 
         {/* Products Grid */}
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-50px" }}
         >
           {filteredProducts.map((product, index) => (
             <ProductCard key={product.id} product={product} index={index} />
@@ -102,7 +102,7 @@ export default function ProductGrid({
 
         {/* View All Button */}
         <motion.div
-          className="text-center mt-12"
+          className="text-center mt-8 sm:mt-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -110,9 +110,9 @@ export default function ProductGrid({
         >
           <motion.a
             href="/shop"
-            className="inline-block px-8 py-4 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition-all shadow-lg hover:shadow-xl"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="inline-block w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition-all shadow-lg hover:shadow-xl tap-target"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             View All Products
           </motion.a>

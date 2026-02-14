@@ -319,6 +319,53 @@ let OrdersService = OrdersService_1 = class OrdersService {
             updatedAt: order.updated_at,
         };
     }
+    async export(queryDto) {
+        const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = queryDto;
+        const where = {};
+        if (filters.status) {
+            where.status = filters.status;
+        }
+        if (filters.paymentStatus) {
+            where.payment_status = filters.paymentStatus;
+        }
+        const orders = await this.prisma.order.findMany({
+            where,
+            skip: page * size,
+            take: size,
+            orderBy: { [sortBy]: sortOrder },
+            select: {
+                id: true,
+                order_number: true,
+                status: true,
+                payment_status: true,
+                total: true,
+                subtotal: true,
+                tax_amount: true,
+                shipping_amount: true,
+                discount_amount: true,
+                order_items: {
+                    select: {
+                        product_name: true,
+                        quantity: true,
+                        unit_price: true,
+                        line_total: true,
+                    },
+                },
+                customer_id: true,
+                created_at: true,
+                updated_at: true,
+                tracking_number: true,
+                carrier: true,
+                shipping_address_line1: true,
+                shipping_address_line2: true,
+                shipping_city: true,
+                shipping_state: true,
+                shipping_postal_code: true,
+                shipping_country: true,
+            },
+        });
+        return orders;
+    }
     async invalidateOrderCaches(customerId, orderId) {
         const promises = [];
         if (orderId) {

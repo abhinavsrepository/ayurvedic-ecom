@@ -26,6 +26,7 @@ import { QueryCustomerDto } from './dto/query-customer.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { Public } from '../common/decorators/public.decorator';
 
 @ApiTags('Customers')
 @Controller('customers')

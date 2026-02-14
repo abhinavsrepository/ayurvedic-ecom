@@ -43,8 +43,22 @@ let ProductsController = class ProductsController {
     update(id, updateProductDto) {
         return this.productsService.update(id, updateProductDto);
     }
+    async updateBySlug(slug, updateProductDto) {
+        const product = await this.productsService.findBySlug(slug);
+        return this.productsService.update(product.id, updateProductDto);
+    }
     remove(id) {
         return this.productsService.remove(id);
+    }
+    async removeBySlug(slug) {
+        const product = await this.productsService.findBySlug(slug);
+        return this.productsService.remove(product.id);
+    }
+    async search(query, queryDto) {
+        return this.productsService.search(query, queryDto);
+    }
+    async updateStock(id, quantity) {
+        return this.productsService.updateStock(id, quantity);
     }
 };
 exports.ProductsController = ProductsController;
@@ -115,6 +129,23 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "update", null);
 __decorate([
+    (0, common_1.Put)('slug/:slug'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'manager'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Update product by slug (Admin only)' }),
+    (0, swagger_1.ApiParam)({ name: 'slug', description: 'Product slug' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Product updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Product not found' }),
+    __param(0, (0, common_1.Param)('slug')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_product_dto_1.UpdateProductDto]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "updateBySlug", null);
+__decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('admin'),
@@ -131,6 +162,52 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Delete)('slug/:slug'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete product by slug (Admin only)' }),
+    (0, swagger_1.ApiParam)({ name: 'slug', description: 'Product slug' }),
+    (0, swagger_1.ApiResponse)({ status: 204, description: 'Product deleted successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Product not found' }),
+    __param(0, (0, common_1.Param)('slug')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "removeBySlug", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('search'),
+    (0, swagger_1.ApiOperation)({ summary: 'Search products by query' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Products found' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid query parameter' }),
+    __param(0, (0, common_1.Query)('q')),
+    __param(1, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, query_product_dto_1.QueryProductDto]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "search", null);
+__decorate([
+    (0, common_1.Patch)(':id/stock'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'manager'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Update product stock (Admin/Manager only)' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'Product ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Stock updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Product not found' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('quantity')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "updateStock", null);
 exports.ProductsController = ProductsController = __decorate([
     (0, swagger_1.ApiTags)('Products'),
     (0, common_1.Controller)('products'),

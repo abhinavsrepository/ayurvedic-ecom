@@ -28,8 +28,8 @@ print_info() {
 
 # Check if backend is running
 print_info "Checking if backend is running..."
-if curl -s http://localhost:3333 > /dev/null; then
-    print_success "Backend is running on http://localhost:3333"
+if curl -s http://localhost:3333/api/actuator/health > /dev/null; then
+    print_success "Backend is running on http://localhost:3333/api/actuator/health"
 else
     print_error "Backend is not running. Please start the backend first."
     print_info "Run: cd ayurveda-api && npm run start:dev"
@@ -43,7 +43,7 @@ echo "======================="
 
 # Test 1: Health Check
 echo -n "Testing health check... "
-if curl -s -o /dev/null -w "%{http_code}" http://localhost:3333/ | grep -q "200"; then
+if curl -s -o /dev/null -w "%{http_code}" http://localhost:3333/api/actuator/health | grep -q "200"; then
     print_success "Health check passed"
 else
     print_error "Health check failed"
@@ -51,7 +51,7 @@ fi
 
 # Test 2: Products API
 echo -n "Testing products API... "
-if curl -s http://localhost:3333/products?page=0&size=10 > /dev/null; then
+if curl -s http://localhost:3333/api/products?page=0&size=10 > /dev/null; then
     print_success "Products API working"
 else
     print_error "Products API failed"
@@ -59,7 +59,7 @@ fi
 
 # Test 3: Search API
 echo -n "Testing products search... "
-if curl -s http://localhost:3333/products/search?q=herbs&page=0&size=10 > /dev/null; then
+if curl -s http://localhost:3333/api/products/search?q=herbs&page=0&size=10 > /dev/null; then
     print_success "Products search working"
 else
     print_error "Products search failed"
@@ -69,7 +69,7 @@ fi
 echo -n "Testing authentication endpoint... "
 if curl -s -X POST http://localhost:3333/api/auth/login \
     -H "Content-Type: application/json" \
-    -d '{"email":"test@example.com","password":"test123"}' > /dev/null; then
+    -d '{"username":"test","password":"test123"}' > /dev/null; then
     print_success "Authentication endpoint working"
 else
     print_info "Authentication endpoint failed (may need valid credentials)"
@@ -77,7 +77,7 @@ fi
 
 # Test 5: Cart API
 echo -n "Testing cart API... "
-if curl -s -H "x-session-id: test-session-id" http://localhost:3333/cart > /dev/null; then
+if curl -s -H "x-session-id: test-session-id" http://localhost:3333/api/cart > /dev/null; then
     print_success "Cart API working"
 else
     print_error "Cart API failed"
@@ -85,7 +85,7 @@ fi
 
 # Test 6: Blog API
 echo -n "Testing blog API... "
-if curl -s http://localhost:3333/blog/posts > /dev/null; then
+if curl -s http://localhost:3333/api/blog/posts > /dev/null; then
     print_success "Blog API working"
 else
     print_error "Blog API failed"
@@ -93,7 +93,7 @@ fi
 
 # Test 7: Customers API
 echo -n "Testing customers API... "
-if curl -s http://localhost:3333/customers > /dev/null; then
+if curl -s http://localhost:3333/api/customers > /dev/null; then
     print_success "Customers API working"
 else
     print_error "Customers API failed"
@@ -101,7 +101,7 @@ fi
 
 # Test 8: Orders API
 echo -n "Testing orders API... "
-if curl -s http://localhost:3333/orders > /dev/null; then
+if curl -s http://localhost:3333/api/orders > /dev/null; then
     print_success "Orders API working"
 else
     print_error "Orders API failed"
@@ -109,7 +109,7 @@ fi
 
 # Test 9: Reviews API
 echo -n "Testing reviews API... "
-if curl -s http://localhost:3333/reviews/product/test-product > /dev/null; then
+if curl -s http://localhost:3333/api/reviews/product/test-product > /dev/null; then
     print_success "Reviews API working"
 else
     print_error "Reviews API failed"
@@ -117,7 +117,7 @@ fi
 
 # Test 10: Addresses API
 echo -n "Testing addresses API... "
-if curl -s http://localhost:3333/addresses > /dev/null; then
+if curl -s http://localhost:3333/api/addresses > /dev/null; then
     print_success "Addresses API working"
 else
     print_error "Addresses API failed"
@@ -125,7 +125,7 @@ fi
 
 # Test 11: Users API
 echo -n "Testing users API... "
-if curl -s http://localhost:3333/users/me > /dev/null; then
+if curl -s http://localhost:3333/api/users/me > /dev/null; then
     print_success "Users API working"
 else
     print_error "Users API failed"
@@ -133,7 +133,7 @@ fi
 
 # Test 12: Payments API
 echo -n "Testing payments API... "
-if curl -s http://localhost:3333/payments/create > /dev/null; then
+if curl -s http://localhost:3333/api/payments/create > /dev/null; then
     print_success "Payments API working"
 else
     print_error "Payments API failed"

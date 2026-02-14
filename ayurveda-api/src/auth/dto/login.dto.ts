@@ -19,21 +19,28 @@ export class LoginDto {
   twoFaCode?: string;
 }
 
-export class LoginResponseDto {
-  @ApiProperty()
-  accessToken: string;
+export class RegisterDto {
+  @ApiProperty({ example: 'admin' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  username: string;
 
-  @ApiProperty()
-  refreshToken: string;
+  @ApiProperty({ example: 'admin@example.com' })
+  @IsString()
+  @IsNotEmpty()
+  email: string;
 
-  @ApiProperty({ example: 'Bearer' })
-  tokenType: string;
+  @ApiProperty({ example: 'StrongPass123' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
 
-  @ApiProperty({ example: 900 })
-  expiresIn: number;
-
-  @ApiProperty()
-  user: UserInfoDto;
+  @ApiPropertyOptional({ example: 'Admin User' })
+  @IsOptional()
+  @IsString()
+  fullName?: string;
 }
 
 export class UserInfoDto {
@@ -51,6 +58,23 @@ export class UserInfoDto {
 
   @ApiProperty()
   twoFaEnabled: boolean;
+}
+
+export class LoginResponseDto {
+  @ApiProperty()
+  accessToken: string;
+
+  @ApiProperty()
+  refreshToken: string;
+
+  @ApiProperty({ example: 'Bearer' })
+  tokenType: string;
+
+  @ApiProperty({ example: 900 })
+  expiresIn: number;
+
+  @ApiProperty()
+  user: UserInfoDto;
 }
 
 export class RefreshTokenDto {

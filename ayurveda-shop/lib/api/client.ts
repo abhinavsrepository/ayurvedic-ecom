@@ -2,6 +2,9 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
+// Check if we're in development mode
+const isDev = process.env.NODE_ENV === 'development';
+
 class ApiClient {
   private client: AxiosInstance;
 
@@ -11,7 +14,7 @@ class ApiClient {
       headers: {
         'Content-Type': 'application/json',
       },
-      timeout: 30000,
+      timeout: 10000, // Reduced timeout for faster fallback
     });
 
     // Request interceptor to add auth token
@@ -34,6 +37,12 @@ class ApiClient {
       async (error: AxiosError) => {
         const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
+        // Handle network errors (backend not available)
+        if (!error.response) {
+          // Silently reject - don't log expected errors during development
+          return Promise.reject(new Error('API_UNAVAILABLE'));
+        }
+
         // If error is 401 and we haven't retried yet
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
@@ -45,6 +54,7 @@ class ApiClient {
                 headers: {
                   'X-Refresh-Token': refreshToken,
                 },
+                timeout: 5000,
               });
 
               this.setTokens(data.accessToken, data.refreshToken);
@@ -56,24 +66,20 @@ class ApiClient {
               return this.client(originalRequest);
             }
           } catch (refreshError) {
-            // Refresh failed, clear tokens and silently redirect to login
+            // Refresh failed, clear tokens and redirect to login
             this.clearTokens();
             if (typeof window !== 'undefined') {
-              // Suppress console error for expected 401s
-              console.debug('Session expired, redirecting to login');
-              window.location.href = '/admin/login';
+              // Only redirect if on admin pages
+              if (window.location.pathname.startsWith('/admin')) {
+                window.location.href = '/admin/login';
+              }
             }
-            // Return a resolved promise with null to prevent console errors
-            return Promise.resolve({ data: null } as any);
+            // Reject with original error
+            return Promise.reject(error);
           }
         }
 
-        // Suppress 401 console errors (expected when not logged in)
-        if (error.response?.status === 401) {
-          console.debug('Unauthorized request - authentication required');
-          return Promise.resolve({ data: null } as any);
-        }
-
+        // Return the error for the caller to handle
         return Promise.reject(error);
       }
     );
@@ -103,30 +109,85 @@ class ApiClient {
     localStorage.removeItem('admin_user');
   }
 
-  // HTTP methods
+  // HTTP methods with better error handling
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.get<T>(url, config);
-    return response.data;
+    try {
+      const response = await this.client.get<T>(url, config);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+      throw error;
+    }
   }
 
   async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.post<T>(url, data, config);
-    return response.data;
+    try {
+      const response = await this.client.post<T>(url, data, config);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+      throw error;
+    }
   }
 
   async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.put<T>(url, data, config);
-    return response.data;
+    try {
+      const response = await this.client.put<T>(url, data, config);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+      throw error;
+    }
   }
 
   async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.patch<T>(url, data, config);
-    return response.data;
+    try {
+      const response = await this.client.patch<T>(url, data, config);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+      throw error;
+    }
   }
 
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.delete<T>(url, config);
-    return response.data;
+    try {
+      const response = await this.client.delete<T>(url, config);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+      throw error;
+    }
+  }
+
+  // Centralized error handling - only logs in production or for unexpected errors
+  private handleError(error: unknown): void {
+    // Don't log expected errors during development
+    if (isDev) {
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        // Suppress logs for expected errors
+        if (!axiosError.response || axiosError.message === 'API_UNAVAILABLE') {
+          return; // Silently ignore
+        }
+      }
+    }
+
+    // Only log unexpected errors
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      
+      // Skip logging for expected errors
+      if (axiosError.response?.status === 401) return;
+      if (axiosError.response?.status === 404) return;
+      if (!axiosError.response) return; // Network error - already handled
+
+      console.error('API Error:', {
+        status: axiosError.response?.status,
+        url: axiosError.config?.url,
+        method: axiosError.config?.method,
+      });
+    }
   }
 }
 

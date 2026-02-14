@@ -9,6 +9,8 @@ import {
   Star,
   ThumbsUp,
   ChevronDown,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
@@ -42,8 +44,11 @@ export default function ProductClient({
     try {
       const stats = await reviewsApi.getProductRatingStats(product.id);
       setRatingStats(stats);
-    } catch (error) {
-      console.error("Failed to load rating stats:", error);
+    } catch (error: any) {
+      // Silently ignore API errors - reviews will just not show
+      if (error?.message !== 'API_UNAVAILABLE') {
+        console.debug('Reviews API unavailable');
+      }
     }
   };
 
@@ -56,14 +61,17 @@ export default function ProductClient({
         sortBy: "recent",
       });
       setReviews(response.reviews);
-    } catch (error) {
-      console.error("Failed to load reviews:", error);
+    } catch (error: any) {
+      // Silently ignore API errors
+      if (error?.message !== 'API_UNAVAILABLE') {
+        console.debug('Reviews API unavailable');
+      }
     } finally {
       setIsLoadingReviews(false);
     }
   };
 
-  const renderStars = (rating: number, size = "w-5 h-5") => {
+  const renderStars = (rating: number, size = "w-4 h-4 sm:w-5 sm:h-5") => {
     return (
       <div className="flex items-center">
         {[...Array(5)].map((_, i) => (
@@ -85,9 +93,12 @@ export default function ProductClient({
       await reviewsApi.markHelpful(reviewId);
       toast.success("Thanks for your feedback!");
       loadReviews();
-    } catch (error) {
-      console.error("Failed to mark review as helpful:", error);
-      toast.error("Failed to update helpful vote");
+    } catch (error: any) {
+      if (error?.message === 'API_UNAVAILABLE') {
+        toast.info("This feature requires a connection");
+      } else {
+        toast.error("Failed to update helpful vote");
+      }
     }
   };
 
@@ -143,7 +154,7 @@ export default function ProductClient({
           url: window.location.href,
         });
       } catch (error) {
-        console.error("Error sharing:", error);
+        console.debug("Error sharing:", error);
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
@@ -169,67 +180,67 @@ export default function ProductClient({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <div className="flex items-center space-x-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           {product.category && (
-            <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+            <span className="px-2.5 py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded-full">
               {product.category}
             </span>
           )}
           {product.stockQuantity > 0 ? (
-            <span className="text-sm text-green-600 font-medium">In Stock</span>
+            <span className="text-xs sm:text-sm text-green-600 font-medium">In Stock</span>
           ) : (
-            <span className="text-sm text-red-600 font-medium">
+            <span className="text-xs sm:text-sm text-red-600 font-medium">
               Out of Stock
             </span>
           )}
           {product.lowStock && product.stockQuantity > 0 && (
-            <span className="text-sm text-yellow-600 font-medium">
+            <span className="text-xs sm:text-sm text-yellow-600 font-medium">
               Low Stock
             </span>
           )}
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">
+        <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
           {product.name}
         </h1>
         {product.shortDescription && (
-          <p className="text-gray-600 text-lg">{product.shortDescription}</p>
+          <p className="text-gray-600 text-sm sm:text-base lg:text-lg">{product.shortDescription}</p>
         )}
       </div>
 
       {/* Rating */}
-      <div className="flex items-center space-x-4 pb-6 border-b">
+      <div className="flex items-center space-x-2 sm:space-x-4 pb-4 sm:pb-6 border-b">
         {ratingStats ? (
           <>
             {renderStars(ratingStats.averageRating)}
-            <span className="text-lg font-semibold">
+            <span className="text-base sm:text-lg font-semibold">
               {ratingStats.averageRating.toFixed(1)}
             </span>
-            <span className="text-gray-600">
+            <span className="text-gray-600 text-xs sm:text-sm">
               ({ratingStats.totalReviews} reviews)
             </span>
           </>
         ) : (
           <>
             {renderStars(0)}
-            <span className="text-lg font-semibold">0.0</span>
-            <span className="text-gray-600">(No reviews yet)</span>
+            <span className="text-base sm:text-lg font-semibold">0.0</span>
+            <span className="text-gray-600 text-xs sm:text-sm">(No reviews yet)</span>
           </>
         )}
       </div>
 
       {/* Price */}
-      <div className="flex items-baseline space-x-4">
-        <span className="text-4xl font-bold text-gray-900">
+      <div className="flex flex-wrap items-baseline gap-2 sm:gap-4">
+        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
           ₹{product.price.toLocaleString("en-IN")}
         </span>
         {product.compareAtPrice && product.compareAtPrice > product.price ? (
           <>
-            <span className="text-2xl text-gray-400 line-through">
+            <span className="text-lg sm:text-xl lg:text-2xl text-gray-400 line-through">
               ₹{product.compareAtPrice.toLocaleString("en-IN")}
             </span>
-            <span className="text-lg text-green-600 font-semibold">
+            <span className="text-sm sm:text-base lg:text-lg text-green-600 font-semibold">
               Save {discount}%
             </span>
           </>
@@ -237,133 +248,134 @@ export default function ProductClient({
       </div>
 
       {/* Quantity */}
-      <div className="space-y-3">
-        <label className="block text-sm font-semibold text-gray-900">
+      <div className="space-y-2 sm:space-y-3">
+        <label className="block text-xs sm:text-sm font-semibold text-gray-900">
           Quantity:
         </label>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3 sm:space-x-4">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-green-600 flex items-center justify-center font-semibold"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 border-gray-300 hover:border-green-600 flex items-center justify-center font-semibold tap-target transition-colors"
             disabled={product.stockQuantity <= 0}
           >
-            -
+            <Minus className="w-4 h-4" />
           </button>
-          <span className="text-xl font-semibold w-12 text-center">
+          <span className="text-lg sm:text-xl font-semibold w-10 sm:w-12 text-center">
             {quantity}
           </span>
           <button
             onClick={() =>
               setQuantity(Math.min(product.stockQuantity, quantity + 1))
             }
-            className="w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-green-600 flex items-center justify-center font-semibold"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 border-gray-300 hover:border-green-600 flex items-center justify-center font-semibold tap-target transition-colors"
             disabled={product.stockQuantity <= 0}
           >
-            +
+            <Plus className="w-4 h-4" />
           </button>
         </div>
         {product.stockQuantity > 0 && quantity >= product.stockQuantity && (
-          <p className="text-sm text-yellow-600">
+          <p className="text-xs sm:text-sm text-yellow-600">
             Maximum available quantity reached
           </p>
         )}
       </div>
 
       {/* Action Buttons */}
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         <button
           onClick={handleBuyNow}
           disabled={product.stockQuantity <= 0}
-          className="w-full py-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="w-full py-3 sm:py-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm sm:text-base tap-target"
         >
           Buy Now
         </button>
         <button
           onClick={handleAddToCart}
           disabled={product.stockQuantity <= 0}
-          className="w-full py-4 bg-white border-2 border-green-600 text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center space-x-2 disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
+          className="w-full py-3 sm:py-4 bg-white border-2 border-green-600 text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center space-x-2 disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed text-sm sm:text-base tap-target"
         >
-          <ShoppingCart className="w-5 h-5" />
+          <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>Add to Cart</span>
         </button>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <button
             onClick={handleWishlist}
-            className={`py-3 border-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 ${
+            className={`py-2.5 sm:py-3 border-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm tap-target ${
               isWishlisted
                 ? "border-red-500 bg-red-50 text-red-600"
                 : "border-gray-300 hover:border-red-400"
             }`}
           >
             <Heart
-              className={`w-5 h-5 ${isWishlisted ? "fill-red-500" : ""}`}
+              className={`w-4 h-4 sm:w-5 sm:h-5 ${isWishlisted ? "fill-red-500" : ""}`}
             />
             <span>Wishlist</span>
           </button>
           <button
             onClick={handleShare}
-            className="py-3 border-2 border-gray-300 rounded-lg font-medium hover:border-green-400 transition-colors flex items-center justify-center space-x-2"
+            className="py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg font-medium hover:border-green-400 transition-colors flex items-center justify-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm tap-target"
           >
-            <Share2 className="w-5 h-5" />
+            <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Share</span>
           </button>
         </div>
       </div>
 
       {/* Reviews Section */}
-      <div className="pt-6 border-t">
-        <h3 className="text-2xl font-bold text-gray-900 mb-6">
+      <div className="pt-4 sm:pt-6 border-t">
+        <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
           Customer Reviews
         </h3>
 
         {isLoadingReviews ? (
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-2 text-gray-600">Loading reviews...</p>
+          <div className="text-center py-6 sm:py-8">
+            <div className="inline-block animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary"></div>
+            <p className="mt-2 text-gray-600 text-sm">Loading reviews...</p>
           </div>
         ) : reviews.length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {reviews.map((review) => (
               <div
                 key={review.id}
-                className="bg-gray-50 rounded-lg p-6 space-y-3"
+                className="bg-gray-50 rounded-lg p-4 sm:p-6 space-y-2 sm:space-y-3"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center space-x-3 mb-2">
-                      <span className="font-semibold text-gray-900">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center flex-wrap gap-1.5 sm:gap-3 mb-1.5 sm:mb-2">
+                      <span className="font-semibold text-gray-900 text-sm sm:text-base">
                         {review.author.name}
                       </span>
                       {review.isVerified && (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                        <span className="px-1.5 py-0.5 bg-green-100 text-green-800 text-[10px] sm:text-xs font-medium rounded-full">
                           ✓ Verified
                         </span>
                       )}
                     </div>
                     <div className="flex items-center space-x-2">
-                      {renderStars(review.rating, "w-4 h-4")}
-                      <span className="text-sm text-gray-600">
+                      {renderStars(review.rating, "w-3 h-3 sm:w-4 sm:h-4")}
+                      <span className="text-xs sm:text-sm text-gray-600">
                         {formatDate(review.createdAt)}
                       </span>
                     </div>
                   </div>
                   <button
                     onClick={() => handleHelpful(review.id)}
-                    className="flex items-center space-x-1 text-sm text-gray-600 hover:text-primary transition-colors"
+                    className="flex items-center space-x-1 text-xs sm:text-sm text-gray-600 hover:text-primary transition-colors tap-target flex-shrink-0"
                   >
-                    <ThumbsUp className="w-4 h-4" />
-                    <span>Helpful ({review.helpfulCount})</span>
+                    <ThumbsUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Helpful</span>
+                    <span>({review.helpfulCount})</span>
                   </button>
                 </div>
 
                 {review.title && (
-                  <h4 className="font-semibold text-gray-900">
+                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">
                     {review.title}
                   </h4>
                 )}
 
                 {review.comment && (
-                  <p className="text-gray-700 text-sm leading-relaxed">
+                  <p className="text-gray-700 text-xs sm:text-sm leading-relaxed">
                     {review.comment}
                   </p>
                 )}
@@ -376,7 +388,7 @@ export default function ProductClient({
                   setShowAllReviews(true);
                   loadReviews();
                 }}
-                className="w-full py-3 border-2 border-gray-300 rounded-lg font-medium hover:border-green-600 transition-colors flex items-center justify-center space-x-2"
+                className="w-full py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg font-medium hover:border-green-600 transition-colors flex items-center justify-center space-x-2 text-sm tap-target"
               >
                 <span>View All {ratingStats.totalReviews} Reviews</span>
                 <ChevronDown className="w-4 h-4" />
@@ -384,11 +396,11 @@ export default function ProductClient({
             )}
           </div>
         ) : (
-          <div className="text-center py-8 bg-gray-50 rounded-lg">
-            <p className="text-gray-600 mb-4">
+          <div className="text-center py-6 sm:py-8 bg-gray-50 rounded-lg">
+            <p className="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">
               No reviews yet. Be the first to review this product!
             </p>
-            <button className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors">
+            <button className="px-4 sm:px-6 py-2.5 sm:py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm tap-target">
               Write a Review
             </button>
           </div>

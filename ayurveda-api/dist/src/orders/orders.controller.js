@@ -40,6 +40,9 @@ let OrdersController = class OrdersController {
     trackOrder(id, userId) {
         return this.ordersService.trackOrder(id, userId);
     }
+    async export(queryDto) {
+        return this.ordersService.export(queryDto);
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -110,6 +113,19 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "trackOrder", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Get)('export'),
+    (0, swagger_1.ApiOperation)({ summary: 'Export orders to CSV (Admin only)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Export initiated' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [query_order_dto_1.QueryOrderDto]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "export", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, swagger_1.ApiTags)('Orders'),
     (0, common_1.Controller)('orders'),

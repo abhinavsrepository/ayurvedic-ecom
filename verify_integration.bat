@@ -10,9 +10,9 @@ setlocal enabledelayedexpansion
 
 :check_backend
 echo ℹ Checking if backend is running...
-curl -s http://localhost:3333 >nul 2>&1
+curl -s http://localhost:3333/api/actuator/health >nul 2>&1
 if %errorlevel% equ 0 (
-    echo ✓ Backend is running on http://localhost:3333
+echo ✓ Backend is running on http://localhost:3333/api/actuator/health
 ) else (
     echo ✗ Backend is not running. Please start the backend first.
     echo ℹ Run: cd ayurveda-api ^&^& npm run start:dev
@@ -107,7 +107,7 @@ echo =======================
 echo.
 
 echo Testing products API...
-curl -s http://localhost:3333/products?page=0^&size=10 >nul 2>&1
+curl -s http://localhost:3333/api/products?page=0^&size=10 >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Products API working
 ) else (
@@ -116,7 +116,7 @@ if %errorlevel% equ 0 (
 echo.
 
 echo Testing products search...
-curl -s http://localhost:3333/products/search?q=herbs^&page=0^&size=10 >nul 2>&1
+curl -s http://localhost:3333/api/products/search?q=herbs^&page=0^&size=10 >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Products search working
 ) else (
@@ -125,7 +125,7 @@ if %errorlevel% equ 0 (
 echo.
 
 echo Testing cart API...
-curl -s -H "x-session-id: test-session-id" http://localhost:3333/cart >nul 2>&1
+curl -s -H "x-session-id: test-session-id" http://localhost:3333/api/cart >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Cart API working
 ) else (
@@ -134,7 +134,7 @@ if %errorlevel% equ 0 (
 echo.
 
 echo Testing blog API...
-curl -s http://localhost:3333/blog/posts >nul 2>&1
+curl -s http://localhost:3333/api/blog/posts >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Blog API working
 ) else (
@@ -143,7 +143,7 @@ if %errorlevel% equ 0 (
 echo.
 
 echo Testing customers API...
-curl -s http://localhost:3333/customers >nul 2>&1
+curl -s http://localhost:3333/api/customers >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Customers API working
 ) else (
@@ -152,7 +152,7 @@ if %errorlevel% equ 0 (
 echo.
 
 echo Testing orders API...
-curl -s http://localhost:3333/orders >nul 2>&1
+curl -s http://localhost:3333/api/orders >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Orders API working
 ) else (
@@ -161,7 +161,7 @@ if %errorlevel% equ 0 (
 echo.
 
 echo Testing reviews API...
-curl -s http://localhost:3333/reviews/product/test-product >nul 2>&1
+curl -s http://localhost:3333/api/reviews/product/test-product >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Reviews API working
 ) else (
@@ -170,7 +170,7 @@ if %errorlevel% equ 0 (
 echo.
 
 echo Testing addresses API...
-curl -s http://localhost:3333/addresses >nul 2>&1
+curl -s http://localhost:3333/api/addresses >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Addresses API working
 ) else (
@@ -179,7 +179,7 @@ if %errorlevel% equ 0 (
 echo.
 
 echo Testing users API...
-curl -s http://localhost:3333/users/me >nul 2>&1
+curl -s http://localhost:3333/api/users/me >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Users API working
 ) else (
@@ -188,7 +188,7 @@ if %errorlevel% equ 0 (
 echo.
 
 echo Testing payments API...
-curl -s http://localhost:3333/payments/create >nul 2>&1
+curl -s http://localhost:3333/api/payments/create >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✓ Payments API working
 ) else (

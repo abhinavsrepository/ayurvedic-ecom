@@ -34,6 +34,14 @@ export declare const CACHE_KEYS: {
     USER_CART: (userId: string) => string;
     USER_WISHLIST: (userId: string) => string;
     USER_PROFILE: (userId: string) => string;
+    CART_BY_ID: (cartId: string) => string;
+    CART_BY_SESSION: (sessionId: string) => string;
+    CART_BY_USER: (userId: string) => string;
+    REVIEWS_BY_PRODUCT: (productId: string, page: number, size: number) => string;
+    REVIEW_STATS_BY_PRODUCT: (productId: string) => string;
+    REVIEWS_BY_USER: (userId: string) => string;
+    ADDRESSES_BY_CUSTOMER: (customerId: string) => string;
+    ADDRESS_DEFAULT: (customerId: string) => string;
     ORDER_BY_ID: (id: string) => string;
     ORDER_BY_NUMBER: (orderNumber: string) => string;
     ORDER_LIST: (customerId: string, page: number, size: number, filter?: string) => string;
@@ -50,5 +58,8 @@ export declare const CACHE_PATTERNS: {
     ALL_STATS: string;
     ALL_ORDERS: string;
     ALL_CUSTOMERS: string;
+    ALL_CARTS: string;
+    ALL_REVIEWS: string;
+    ALL_ADDRESSES: string;
     USER_DATA: (userId: string) => string;
 };

@@ -11,13 +11,13 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto, LoginResponseDto, VerifyTwoFaDto } from './dto/login.dto';
+import { LoginDto, LoginResponseDto, RegisterDto, VerifyTwoFaDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('Authentication')
-@Controller('api/auth')
+@Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -29,6 +29,16 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(loginDto);
+  }
+
+  @Public()
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register a new admin user' })
+  @ApiResponse({ status: 201, description: 'Registration successful', type: LoginResponseDto })
+  @ApiResponse({ status: 409, description: 'Username or email already exists' })
+  async register(@Body() registerDto: RegisterDto): Promise<LoginResponseDto> {
+    return this.authService.register(registerDto);
   }
 
   @Public()

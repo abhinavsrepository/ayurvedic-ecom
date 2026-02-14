@@ -13,7 +13,13 @@ export class JwtRefreshStrategy extends PassportStrategy(
     private config: ConfigService,
     private prisma: PrismaService,
   ) {
-    const refreshSecret = config.get<string>('JWT_REFRESH_SECRET') || config.get<string>('JWT_SECRET') || 'default-refresh-secret-key';
+    const refreshSecret =
+      config.get<string>('JWT_REFRESH_SECRET') ||
+      config.get<string>('JWT_SECRET');
+    if (!refreshSecret) {
+      throw new Error('JWT_REFRESH_SECRET or JWT_SECRET is required');
+    }
+
     super({
       jwtFromRequest: ExtractJwt.fromHeader('x-refresh-token'),
       secretOrKey: refreshSecret,

@@ -8,24 +8,28 @@ export declare class OrdersController {
         content: ({
             order_items: {
                 id: string;
-                product_id: string;
                 sku: string;
-                product_name: string;
                 quantity: number;
+                product_id: string;
+                product_name: string;
                 unit_price: import("@prisma/client/runtime/library").Decimal;
                 line_total: import("@prisma/client/runtime/library").Decimal;
             }[];
         } & {
             id: string;
-            order_number: string;
+            created_at: Date;
+            updated_at: Date;
+            version: bigint | null;
             status: string;
+            total: import("@prisma/client/runtime/library").Decimal;
+            notes: string | null;
+            order_number: string;
             payment_status: string;
             fulfillment_status: string | null;
             subtotal: import("@prisma/client/runtime/library").Decimal;
             tax_amount: import("@prisma/client/runtime/library").Decimal | null;
             shipping_amount: import("@prisma/client/runtime/library").Decimal | null;
             discount_amount: import("@prisma/client/runtime/library").Decimal | null;
-            total: import("@prisma/client/runtime/library").Decimal;
             coupon_code: string | null;
             shipping_address_line1: string | null;
             shipping_address_line2: string | null;
@@ -38,12 +42,8 @@ export declare class OrdersController {
             utm_source: string | null;
             utm_medium: string | null;
             utm_campaign: string | null;
-            notes: string | null;
             cancelled_at: Date | null;
             cancelled_reason: string | null;
-            created_at: Date;
-            updated_at: Date;
-            version: bigint | null;
             customer_id: string;
         })[];
         total: number;
@@ -60,32 +60,36 @@ export declare class OrdersController {
     findOne(id: string, userId: string): Promise<{
         order_items: {
             id: string;
-            discount_amount: import("@prisma/client/runtime/library").Decimal | null;
-            product_id: string;
             sku: string;
-            product_name: string;
             quantity: number;
+            product_id: string;
+            discount_amount: import("@prisma/client/runtime/library").Decimal | null;
+            product_name: string;
             unit_price: import("@prisma/client/runtime/library").Decimal;
             line_total: import("@prisma/client/runtime/library").Decimal;
         }[];
         customers: {
             id: string;
             email: string;
+            phone_number: string | null;
             first_name: string;
             last_name: string;
-            phone_number: string | null;
         };
     } & {
         id: string;
-        order_number: string;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
         status: string;
+        total: import("@prisma/client/runtime/library").Decimal;
+        notes: string | null;
+        order_number: string;
         payment_status: string;
         fulfillment_status: string | null;
         subtotal: import("@prisma/client/runtime/library").Decimal;
         tax_amount: import("@prisma/client/runtime/library").Decimal | null;
         shipping_amount: import("@prisma/client/runtime/library").Decimal | null;
         discount_amount: import("@prisma/client/runtime/library").Decimal | null;
-        total: import("@prisma/client/runtime/library").Decimal;
         coupon_code: string | null;
         shipping_address_line1: string | null;
         shipping_address_line2: string | null;
@@ -98,43 +102,43 @@ export declare class OrdersController {
         utm_source: string | null;
         utm_medium: string | null;
         utm_campaign: string | null;
-        notes: string | null;
         cancelled_at: Date | null;
         cancelled_reason: string | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
         customer_id: string;
     }>;
     create(userId: string, createOrderDto: CreateOrderDto): Promise<{
         order_items: {
             id: string;
-            discount_amount: import("@prisma/client/runtime/library").Decimal | null;
-            product_id: string;
             sku: string;
-            product_name: string;
             quantity: number;
+            product_id: string;
+            discount_amount: import("@prisma/client/runtime/library").Decimal | null;
+            product_name: string;
             unit_price: import("@prisma/client/runtime/library").Decimal;
             line_total: import("@prisma/client/runtime/library").Decimal;
         }[];
         customers: {
             id: string;
             email: string;
+            phone_number: string | null;
             first_name: string;
             last_name: string;
-            phone_number: string | null;
         };
     } & {
         id: string;
-        order_number: string;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
         status: string;
+        total: import("@prisma/client/runtime/library").Decimal;
+        notes: string | null;
+        order_number: string;
         payment_status: string;
         fulfillment_status: string | null;
         subtotal: import("@prisma/client/runtime/library").Decimal;
         tax_amount: import("@prisma/client/runtime/library").Decimal | null;
         shipping_amount: import("@prisma/client/runtime/library").Decimal | null;
         discount_amount: import("@prisma/client/runtime/library").Decimal | null;
-        total: import("@prisma/client/runtime/library").Decimal;
         coupon_code: string | null;
         shipping_address_line1: string | null;
         shipping_address_line2: string | null;
@@ -147,39 +151,39 @@ export declare class OrdersController {
         utm_source: string | null;
         utm_medium: string | null;
         utm_campaign: string | null;
-        notes: string | null;
         cancelled_at: Date | null;
         cancelled_reason: string | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
         customer_id: string;
     }>;
     cancelOrder(id: string, userId: string, reason?: string): Promise<{
         order_items: {
             id: string;
-            discount_amount: import("@prisma/client/runtime/library").Decimal | null;
             created_at: Date;
             version: bigint | null;
-            order_id: string;
-            product_id: string;
             sku: string;
-            product_name: string;
             quantity: number;
+            product_id: string;
+            discount_amount: import("@prisma/client/runtime/library").Decimal | null;
+            order_id: string;
+            product_name: string;
             unit_price: import("@prisma/client/runtime/library").Decimal;
             line_total: import("@prisma/client/runtime/library").Decimal;
         }[];
     } & {
         id: string;
-        order_number: string;
+        created_at: Date;
+        updated_at: Date;
+        version: bigint | null;
         status: string;
+        total: import("@prisma/client/runtime/library").Decimal;
+        notes: string | null;
+        order_number: string;
         payment_status: string;
         fulfillment_status: string | null;
         subtotal: import("@prisma/client/runtime/library").Decimal;
         tax_amount: import("@prisma/client/runtime/library").Decimal | null;
         shipping_amount: import("@prisma/client/runtime/library").Decimal | null;
         discount_amount: import("@prisma/client/runtime/library").Decimal | null;
-        total: import("@prisma/client/runtime/library").Decimal;
         coupon_code: string | null;
         shipping_address_line1: string | null;
         shipping_address_line2: string | null;
@@ -192,12 +196,8 @@ export declare class OrdersController {
         utm_source: string | null;
         utm_medium: string | null;
         utm_campaign: string | null;
-        notes: string | null;
         cancelled_at: Date | null;
         cancelled_reason: string | null;
-        created_at: Date;
-        updated_at: Date;
-        version: bigint | null;
         customer_id: string;
     }>;
     trackOrder(id: string, userId: string): Promise<{
@@ -218,4 +218,32 @@ export declare class OrdersController {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    export(queryDto: QueryOrderDto): Promise<{
+        id: string;
+        created_at: Date;
+        updated_at: Date;
+        status: string;
+        order_items: {
+            quantity: number;
+            product_name: string;
+            unit_price: import("@prisma/client/runtime/library").Decimal;
+            line_total: import("@prisma/client/runtime/library").Decimal;
+        }[];
+        total: import("@prisma/client/runtime/library").Decimal;
+        order_number: string;
+        payment_status: string;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        tax_amount: import("@prisma/client/runtime/library").Decimal | null;
+        shipping_amount: import("@prisma/client/runtime/library").Decimal | null;
+        discount_amount: import("@prisma/client/runtime/library").Decimal | null;
+        shipping_address_line1: string | null;
+        shipping_address_line2: string | null;
+        shipping_city: string | null;
+        shipping_state: string | null;
+        shipping_postal_code: string | null;
+        shipping_country: string | null;
+        tracking_number: string | null;
+        carrier: string | null;
+        customer_id: string;
+    }[]>;
 }

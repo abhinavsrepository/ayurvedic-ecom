@@ -24,7 +24,7 @@ export class AppController {
     }
   }
 
-  @Get('api/products')
+  @Get('products/legacy')
   async getProducts() {
     const products = await this.prisma.product.findMany({
       take: 20,

@@ -19,7 +19,11 @@ let JwtRefreshStrategy = class JwtRefreshStrategy extends (0, passport_1.Passpor
     config;
     prisma;
     constructor(config, prisma) {
-        const refreshSecret = config.get('JWT_REFRESH_SECRET') || config.get('JWT_SECRET') || 'default-refresh-secret-key';
+        const refreshSecret = config.get('JWT_REFRESH_SECRET') ||
+            config.get('JWT_SECRET');
+        if (!refreshSecret) {
+            throw new Error('JWT_REFRESH_SECRET or JWT_SECRET is required');
+        }
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromHeader('x-refresh-token'),
             secretOrKey: refreshSecret,

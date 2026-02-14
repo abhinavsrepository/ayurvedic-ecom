@@ -9,6 +9,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -93,6 +94,24 @@ export class ProductsController {
     return this.productsService.update(id, updateProductDto);
   }
 
+  @Put('slug/:slug')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'manager')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update product by slug (Admin only)' })
+  @ApiParam({ name: 'slug', description: 'Product slug' })
+  @ApiResponse({ status: 200, description: 'Product updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async updateBySlug(
+    @Param('slug') slug: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    const product = await this.productsService.findBySlug(slug);
+    return this.productsService.update(product.id, updateProductDto);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
@@ -106,6 +125,22 @@ export class ProductsController {
   @ApiResponse({ status: 404, description: 'Product not found' })
   remove(@Param('id') id: string) {
     return this.productsService.remove(id);
+  }
+
+  @Delete('slug/:slug')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete product by slug (Admin only)' })
+  @ApiParam({ name: 'slug', description: 'Product slug' })
+  @ApiResponse({ status: 204, description: 'Product deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async removeBySlug(@Param('slug') slug: string) {
+    const product = await this.productsService.findBySlug(slug);
+    return this.productsService.remove(product.id);
   }
 
   @Public()

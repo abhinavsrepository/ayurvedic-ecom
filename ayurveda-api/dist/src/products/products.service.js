@@ -207,6 +207,41 @@ let ProductsService = ProductsService_1 = class ProductsService {
         this.logger.log(`Product deleted: ${id}`);
         return { message: 'Product deleted successfully' };
     }
+    async search(query, queryDto) {
+        const { page = 0, size = 20, sortBy = 'createdAt', sortOrder = 'desc' } = queryDto;
+        const where = {};
+        where.OR = [
+            { name: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } },
+            { tags: { has: query } },
+        ];
+        const [products, total] = await Promise.all([
+            this.prisma.product.findMany({
+                where,
+                skip: page * size,
+                take: size,
+                orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
+            }),
+            this.prisma.product.count({ where }),
+        ]);
+        return {
+            content: products,
+            total,
+            page,
+            size,
+            totalPages: Math.ceil(total / size),
+        };
+    }
+    async updateStock(id, quantity) {
+        const product = await this.findOne(id);
+        await this.prisma.stock.updateMany({
+            where: { product_id: id },
+            data: { quantity },
+        });
+        await this.invalidateProductCaches(id, product.slug);
+        this.logger.log(`Product stock updated: ${product.name} - ${quantity}`);
+        return product;
+    }
     async invalidateProductCaches(id, slug) {
         const promises = [];
         if (id) {

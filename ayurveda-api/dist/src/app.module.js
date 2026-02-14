@@ -20,6 +20,12 @@ const orders_module_1 = require("./orders/orders.module");
 const customers_module_1 = require("./customers/customers.module");
 const payments_module_1 = require("./payments/payments.module");
 const admin_module_1 = require("./admin/admin.module");
+const cart_module_1 = require("./cart/cart.module");
+const cache_module_1 = require("./cache/cache.module");
+const reviews_module_1 = require("./reviews/reviews.module");
+const blog_module_1 = require("./blog/blog.module");
+const addresses_module_1 = require("./addresses/addresses.module");
+const users_module_1 = require("./users/users.module");
 const jwt_auth_guard_1 = require("./auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("./common/guards/roles.guard");
 let AppModule = class AppModule {
@@ -34,12 +40,18 @@ exports.AppModule = AppModule = __decorate([
                     limit: 100,
                 }]),
             prisma_module_1.PrismaModule,
+            cache_module_1.CacheModule,
             auth_module_1.AuthModule,
             products_module_1.ProductsModule,
             orders_module_1.OrdersModule,
             customers_module_1.CustomersModule,
             payments_module_1.PaymentsModule,
             admin_module_1.AdminModule,
+            cart_module_1.CartModule,
+            reviews_module_1.ReviewsModule,
+            blog_module_1.BlogModule,
+            addresses_module_1.AddressesModule,
+            users_module_1.UsersModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

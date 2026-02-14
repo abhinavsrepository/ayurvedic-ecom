@@ -319,13 +319,11 @@ export class ProductsService {
    */
   async updateStock(id: string, quantity: number) {
     // Check if product exists
-    await this.findOne(id);
+    const product = await this.findOne(id);
 
-    const product = await this.prisma.product.update({
-      where: { id },
-      data: {
-        stockQuantity: quantity,
-      },
+    await this.prisma.stock.updateMany({
+      where: { product_id: id },
+      data: { quantity },
     });
 
     // Invalidate cache

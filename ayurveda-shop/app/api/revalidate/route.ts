@@ -13,10 +13,17 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Secret token to prevent unauthorized revalidation
-const REVALIDATION_SECRET = process.env.REVALIDATION_SECRET || 'your-secret-token-change-in-production';
+const REVALIDATION_SECRET = process.env.REVALIDATION_SECRET;
 
 export async function POST(request: NextRequest) {
   try {
+    if (!REVALIDATION_SECRET) {
+      return NextResponse.json(
+        { error: 'REVALIDATION_SECRET is not configured', success: false },
+        { status: 500 }
+      );
+    }
+
     // Verify secret token
     const secret = request.nextUrl.searchParams.get('secret');
 
@@ -97,6 +104,13 @@ export async function POST(request: NextRequest) {
  * GET endpoint for health check
  */
 export async function GET(request: NextRequest) {
+  if (!REVALIDATION_SECRET) {
+    return NextResponse.json(
+      { error: 'REVALIDATION_SECRET is not configured', success: false },
+      { status: 500 }
+    );
+  }
+
   const secret = request.nextUrl.searchParams.get('secret');
 
   if (secret !== REVALIDATION_SECRET) {

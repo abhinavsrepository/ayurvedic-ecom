@@ -1,11 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as speakeasy from 'speakeasy';
 import * as QRCode from 'qrcode';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoginDto, LoginResponseDto, UserInfoDto } from './dto/login.dto';
+import { LoginDto, LoginResponseDto, RegisterDto, UserInfoDto } from './dto/login.dto';
 import { JwtPayload } from './strategies/jwt.strategy';
 
 @Injectable()
@@ -107,6 +107,55 @@ export class AuthService {
       refreshToken,
       tokenType: 'Bearer',
       expiresIn: 900, // 15 minutes
+      user: {
+        username: user.username,
+        email: user.email,
+        fullName: user.full_name || '',
+        roles: payload.roles,
+        twoFaEnabled: user.two_fa_enabled || false,
+      },
+    };
+  }
+
+  async register(registerDto: RegisterDto): Promise<LoginResponseDto> {
+    const existing = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ username: registerDto.username }, { email: registerDto.email }],
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException('Username or email already exists');
+    }
+
+    const hashedPassword = await this.hashPassword(registerDto.password);
+
+    const user = await this.prisma.user.create({
+      data: {
+        username: registerDto.username,
+        email: registerDto.email,
+        password: hashedPassword,
+        full_name: registerDto.fullName || registerDto.username,
+        enabled: true,
+      },
+      include: { user_roles: { include: { roles: true } } },
+    });
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+      roles: user.user_roles.map((ur) => ur.roles.name),
+    };
+
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+    return {
+      accessToken,
+      refreshToken,
+      tokenType: 'Bearer',
+      expiresIn: 900,
       user: {
         username: user.username,
         email: user.email,

@@ -11,6 +11,7 @@ import BannerDisplay from "@/components/frontend/BannerDisplay";
 import { featuredProducts, testimonials, wisdomPosts, beforeAfterData, videoTestimonials } from "@/lib/data/products";
 import { generatePageMetadata, REVALIDATION_TIMES, SITE_CONFIG } from '@/lib/seo/config';
 import StructuredData, { generateArticleSchema, generateReviewSchema, generateVideoSchema } from '@/components/seo/StructuredData';
+import { Suspense } from 'react';
 
 // Enable ISR - revalidate homepage every 30 minutes
 export const revalidate = 1800; // 30 minutes
@@ -116,13 +117,15 @@ export default function Home() {
     <div className="min-h-screen">
       {/* FAQ, Review, Aggregate Rating, and Video Structured Data */}
       <StructuredData data={homepageFAQ} />
-      {reviewSchemas.map((schema, index) => (
-        <StructuredData key={index} data={schema} />
-      ))}
+      <Suspense fallback={null}>
+        {reviewSchemas.map((schema, index) => (
+          <StructuredData key={index} data={schema} />
+        ))}
+        {videoSchemas.map((schema, index) => (
+          <StructuredData key={`video-${index}`} data={schema} />
+        ))}
+      </Suspense>
       <StructuredData data={aggregateRating} />
-      {videoSchemas.map((schema, index) => (
-        <StructuredData key={`video-${index}`} data={schema} />
-      ))}
 
       <Navbar />
 

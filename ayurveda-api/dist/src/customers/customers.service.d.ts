@@ -120,5 +120,37 @@ export declare class CustomersService {
             order_number: string;
         }[];
     }>;
+    search(query: string, queryDto: QueryCustomerDto): Promise<{
+        content: {
+            id: string;
+            created_at: Date;
+            email: string;
+            phone_number: string | null;
+            first_name: string;
+            last_name: string;
+            total_orders: number | null;
+            total_spent: import("@prisma/client/runtime/library").Decimal | null;
+            lifetime_value: import("@prisma/client/runtime/library").Decimal | null;
+            average_order_value: import("@prisma/client/runtime/library").Decimal | null;
+            last_order_at: Date | null;
+        }[];
+        total: number;
+        page: number;
+        size: number;
+        totalPages: number;
+    }>;
+    export(queryDto: QueryCustomerDto): Promise<{
+        id: string;
+        created_at: Date;
+        email: string;
+        phone_number: string | null;
+        first_name: string;
+        last_name: string;
+        total_orders: number | null;
+        total_spent: import("@prisma/client/runtime/library").Decimal | null;
+        lifetime_value: import("@prisma/client/runtime/library").Decimal | null;
+        average_order_value: import("@prisma/client/runtime/library").Decimal | null;
+        last_order_at: Date | null;
+    }[]>;
     private invalidateCustomerCaches;
 }

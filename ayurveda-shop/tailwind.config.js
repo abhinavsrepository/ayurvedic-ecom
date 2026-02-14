@@ -56,13 +56,66 @@ module.exports = {
         center: true,
         padding: {
           DEFAULT: "1rem",
-          sm: "2rem",
-          lg: "4rem",
-          xl: "5rem",
-          "2xl": "6rem",
+          sm: "1.5rem",
+          md: "2rem",
+          lg: "2.5rem",
+          xl: "3rem",
+          "2xl": "4rem",
+        },
+        screens: {
+          sm: "640px",
+          md: "768px",
+          lg: "1024px",
+          xl: "1280px",
+          "2xl": "1536px",
+        },
+      },
+      screens: {
+        'xs': '475px',
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px',
+      },
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+        '128': '32rem',
+      },
+      fontSize: {
+        'responsive-xs': ['0.75rem', { lineHeight: '1rem' }],
+        'responsive-sm': ['0.875rem', { lineHeight: '1.25rem' }],
+        'responsive-base': ['1rem', { lineHeight: '1.5rem' }],
+        'responsive-lg': ['1.125rem', { lineHeight: '1.75rem' }],
+        'responsive-xl': ['1.25rem', { lineHeight: '1.75rem' }],
+        'responsive-2xl': ['1.5rem', { lineHeight: '2rem' }],
+        'responsive-3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+        'responsive-4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'slide-up': 'slideUp 0.5s ease-out',
+        'slide-in': 'slideIn 0.5s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideIn: {
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
         },
       },
     },
   },
   plugins: [],
-};
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+}
