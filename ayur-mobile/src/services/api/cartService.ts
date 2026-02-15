@@ -101,15 +101,11 @@ export const addToCart = async (
  * @param quantity - New quantity
  * @returns Updated cart
  */
-export const updateCartItem = async (
-  itemId: string,
-  quantity: number
-): Promise<CartResponse> => {
+export const updateCartItem = async (itemId: string, quantity: number): Promise<CartResponse> => {
   try {
-    const response = await apiClient.put<ApiResponse<CartResponse>>(
-      `/cart/items/${itemId}`,
-      { quantity }
-    );
+    const response = await apiClient.put<ApiResponse<CartResponse>>(`/cart/items/${itemId}`, {
+      quantity,
+    });
 
     if (response.data.success && response.data.data) {
       return response.data.data;
@@ -277,9 +273,7 @@ export const syncCart = async (localCartItems: CartItemWithId[]): Promise<CartRe
  * @param items - Array of items to add
  * @returns Updated cart
  */
-export const addMultipleToCart = async (
-  items: AddToCartParams[]
-): Promise<CartResponse> => {
+export const addMultipleToCart = async (items: AddToCartParams[]): Promise<CartResponse> => {
   try {
     const response = await apiClient.post<ApiResponse<CartResponse>>('/cart/items/bulk', {
       items,

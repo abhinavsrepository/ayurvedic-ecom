@@ -42,7 +42,10 @@ let AuthController = class AuthController {
     }
     async verify2FA(userId, verifyDto) {
         const isValid = await this.authService.verify2FA(userId, verifyDto.code);
-        return { success: isValid, message: isValid ? '2FA enabled' : 'Invalid code' };
+        return {
+            success: isValid,
+            message: isValid ? '2FA enabled' : 'Invalid code',
+        };
     }
     async disable2FA(userId) {
         await this.authService.disable2FA(userId);
@@ -57,7 +60,11 @@ __decorate([
     (0, common_1.Post)('login'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'User login with optional 2FA' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Login successful', type: login_dto_1.LoginResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Login successful',
+        type: login_dto_1.LoginResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid credentials' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -69,7 +76,11 @@ __decorate([
     (0, common_1.Post)('register'),
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
     (0, swagger_1.ApiOperation)({ summary: 'Register a new admin user' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Registration successful', type: login_dto_1.LoginResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Registration successful',
+        type: login_dto_1.LoginResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 409, description: 'Username or email already exists' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -81,7 +92,11 @@ __decorate([
     (0, common_1.Post)('refresh'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Refresh access token' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Token refreshed', type: login_dto_1.LoginResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Token refreshed',
+        type: login_dto_1.LoginResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid refresh token' }),
     __param(0, (0, common_1.Headers)('x-refresh-token')),
     __metadata("design:type", Function),

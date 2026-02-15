@@ -44,12 +44,10 @@ export const productKeys = {
   trending: () => [...productKeys.all, 'trending'] as const,
   newArrivals: () => [...productKeys.all, 'new-arrivals'] as const,
   bestSellers: () => [...productKeys.all, 'best-sellers'] as const,
-  byCategory: (categoryId: string) =>
-    [...productKeys.all, 'category', categoryId] as const,
+  byCategory: (categoryId: string) => [...productKeys.all, 'category', categoryId] as const,
   byDosha: (doshaType: string) => [...productKeys.all, 'dosha', doshaType] as const,
   reviews: (productId: string) => [...productKeys.detail(productId), 'reviews'] as const,
-  relatedProducts: (productId: string) =>
-    [...productKeys.detail(productId), 'related'] as const,
+  relatedProducts: (productId: string) => [...productKeys.detail(productId), 'related'] as const,
 } as const;
 
 /**
@@ -111,8 +109,7 @@ export const wishlistKeys = {
   all: ['wishlist'] as const,
   items: () => [...wishlistKeys.all, 'items'] as const,
   count: () => [...wishlistKeys.all, 'count'] as const,
-  contains: (productId: string) =>
-    [...wishlistKeys.all, 'contains', productId] as const,
+  contains: (productId: string) => [...wishlistKeys.all, 'contains', productId] as const,
 } as const;
 
 /**
@@ -122,8 +119,7 @@ export const blogKeys = {
   all: ['blog'] as const,
   posts: () => [...blogKeys.all, 'posts'] as const,
   post: (id: string) => [...blogKeys.posts(), id] as const,
-  byCategory: (categoryId: string) =>
-    [...blogKeys.posts(), 'category', categoryId] as const,
+  byCategory: (categoryId: string) => [...blogKeys.posts(), 'category', categoryId] as const,
   featured: () => [...blogKeys.posts(), 'featured'] as const,
   categories: () => [...blogKeys.all, 'categories'] as const,
   search: (query: string) => [...blogKeys.posts(), 'search', query] as const,
@@ -136,8 +132,7 @@ export const blogKeys = {
 export const consultationKeys = {
   all: ['consultations'] as const,
   lists: () => [...consultationKeys.all, 'list'] as const,
-  list: (filters?: Record<string, any>) =>
-    [...consultationKeys.lists(), { filters }] as const,
+  list: (filters?: Record<string, any>) => [...consultationKeys.lists(), { filters }] as const,
   details: () => [...consultationKeys.all, 'detail'] as const,
   detail: (id: string) => [...consultationKeys.details(), id] as const,
   practitioners: () => [...consultationKeys.all, 'practitioners'] as const,
@@ -154,8 +149,7 @@ export const consultationKeys = {
 export const notificationKeys = {
   all: ['notifications'] as const,
   lists: () => [...notificationKeys.all, 'list'] as const,
-  list: (filters?: Record<string, any>) =>
-    [...notificationKeys.lists(), { filters }] as const,
+  list: (filters?: Record<string, any>) => [...notificationKeys.lists(), { filters }] as const,
   unreadCount: () => [...notificationKeys.all, 'unread-count'] as const,
   preferences: () => [...notificationKeys.all, 'preferences'] as const,
 } as const;
@@ -169,8 +163,7 @@ export const supportKeys = {
   ticket: (id: string) => [...supportKeys.tickets(), id] as const,
   faq: () => [...supportKeys.all, 'faq'] as const,
   faqCategories: () => [...supportKeys.all, 'faq-categories'] as const,
-  faqByCategory: (categoryId: string) =>
-    [...supportKeys.faq(), 'category', categoryId] as const,
+  faqByCategory: (categoryId: string) => [...supportKeys.faq(), 'category', categoryId] as const,
 } as const;
 
 /**
@@ -180,16 +173,14 @@ export const recommendationKeys = {
   all: ['recommendations'] as const,
   personalized: (userId?: string) =>
     [...recommendationKeys.all, 'personalized', userId ?? 'guest'] as const,
-  similar: (productId: string) =>
-    [...recommendationKeys.all, 'similar', productId] as const,
+  similar: (productId: string) => [...recommendationKeys.all, 'similar', productId] as const,
   trending: () => [...recommendationKeys.all, 'trending'] as const,
   forYou: () => [...recommendationKeys.all, 'for-you'] as const,
   collaborative: () => [...recommendationKeys.all, 'collaborative'] as const,
   contentBased: (productId: string) =>
     [...recommendationKeys.all, 'content-based', productId] as const,
   hybrid: () => [...recommendationKeys.all, 'hybrid'] as const,
-  doshaBased: (doshaType: string) =>
-    [...recommendationKeys.all, 'dosha-based', doshaType] as const,
+  doshaBased: (doshaType: string) => [...recommendationKeys.all, 'dosha-based', doshaType] as const,
 } as const;
 
 /**
@@ -202,8 +193,7 @@ export const searchKeys = {
   hybrid: (query: string) => [...searchKeys.all, 'hybrid', query] as const,
   autocomplete: (query: string) => [...searchKeys.all, 'autocomplete', query] as const,
   suggestions: (query: string) => [...searchKeys.all, 'suggestions', query] as const,
-  relatedQueries: (query: string) =>
-    [...searchKeys.all, 'related-queries', query] as const,
+  relatedQueries: (query: string) => [...searchKeys.all, 'related-queries', query] as const,
   history: () => [...searchKeys.all, 'history'] as const,
 } as const;
 
@@ -215,10 +205,8 @@ export const doshaKeys = {
   analysis: () => [...doshaKeys.all, 'analysis'] as const,
   quiz: () => [...doshaKeys.all, 'quiz'] as const,
   profile: () => [...doshaKeys.all, 'profile'] as const,
-  recommendations: (doshaType: string) =>
-    [...doshaKeys.all, 'recommendations', doshaType] as const,
-  balancingTips: (doshaType: string) =>
-    [...doshaKeys.all, 'balancing-tips', doshaType] as const,
+  recommendations: (doshaType: string) => [...doshaKeys.all, 'recommendations', doshaType] as const,
+  balancingTips: (doshaType: string) => [...doshaKeys.all, 'balancing-tips', doshaType] as const,
   seasonalGuidance: (doshaType: string, season?: string) =>
     [...doshaKeys.all, 'seasonal-guidance', doshaType, season ?? 'current'] as const,
 } as const;

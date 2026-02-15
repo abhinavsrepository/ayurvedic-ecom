@@ -33,7 +33,10 @@ import { CacheService } from './cache.service';
             ttl: parseInt(process.env.CACHE_TTL || '3600') * 1000,
           } as any;
         } catch (error) {
-          console.warn('Redis connection failed, using in-memory cache instead:', error.message);
+          console.warn(
+            'Redis connection failed, using in-memory cache instead:',
+            error.message,
+          );
           // Fallback to in-memory cache if Redis is not available
           return {
             ttl: parseInt(process.env.CACHE_TTL || '3600') * 1000,

@@ -16,7 +16,11 @@ export class StripeService {
     }
   }
 
-  async createPaymentIntent(amount: number, currency: string, metadata: any = {}) {
+  async createPaymentIntent(
+    amount: number,
+    currency: string,
+    metadata: any = {},
+  ) {
     if (!this.stripe) {
       throw new Error('Stripe is not initialized');
     }
@@ -36,7 +40,9 @@ export class StripeService {
         id: paymentIntent.id,
       };
     } catch (error) {
-      this.logger.error(`Stripe payment intent creation failed: ${error.message}`);
+      this.logger.error(
+        `Stripe payment intent creation failed: ${error.message}`,
+      );
       throw error;
     }
   }
@@ -47,7 +53,8 @@ export class StripeService {
     }
 
     try {
-      const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
+      const paymentIntent =
+        await this.stripe.paymentIntents.retrieve(paymentIntentId);
       return paymentIntent.status === 'succeeded';
     } catch (error) {
       this.logger.error(`Stripe payment verification failed: ${error.message}`);

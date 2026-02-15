@@ -33,7 +33,10 @@ export class QueryPostDto {
   @IsString()
   tag?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by status (admin only)', enum: PostStatus })
+  @ApiPropertyOptional({
+    description: 'Filter by status (admin only)',
+    enum: PostStatus,
+  })
   @IsOptional()
   @IsEnum(PostStatus)
   status?: PostStatus;

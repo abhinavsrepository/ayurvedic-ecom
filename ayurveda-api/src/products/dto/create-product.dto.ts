@@ -191,7 +191,11 @@ export class CreateProductDto {
   @IsString({ each: true })
   seoKeywords?: string[];
 
-  @ApiPropertyOptional({ description: 'Product rating', minimum: 0, maximum: 5 })
+  @ApiPropertyOptional({
+    description: 'Product rating',
+    minimum: 0,
+    maximum: 5,
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)

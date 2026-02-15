@@ -21,7 +21,11 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
   catch(exception: any, host: ArgumentsHost) {
     // Check if it's a Prisma error
-    if (!exception?.code || typeof exception.code !== 'string' || !exception.code.startsWith('P')) {
+    if (
+      !exception?.code ||
+      typeof exception.code !== 'string' ||
+      !exception.code.startsWith('P')
+    ) {
       // Not a Prisma error, pass it through
       throw exception;
     }

@@ -41,7 +41,10 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a payment order' })
-  @ApiResponse({ status: 201, description: 'Payment order created successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Payment order created successfully',
+  })
   @ApiResponse({ status: 400, description: 'Invalid request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Order not found' })

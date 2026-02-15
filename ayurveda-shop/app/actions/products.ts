@@ -73,7 +73,7 @@ export const getProducts = unstable_cache(
       validatedParams.sort.forEach(s => searchParams.append('sort', s));
     }
 
-    const url = `${BACKEND_URL}/products?${searchParams.toString()}`;
+    const url = `${BACKEND_URL}/api/products?${searchParams.toString()}`;
 
     try {
       const response = await fetch(url, {
@@ -85,6 +85,7 @@ export const getProducts = unstable_cache(
           revalidate: 60,
           tags: ['products'],
         },
+        signal: AbortSignal.timeout(3000), // 3 second timeout
       });
 
       if (!response.ok) {
@@ -146,7 +147,7 @@ export const getProducts = unstable_cache(
 export const getProductBySlug = unstable_cache(
   async (slug: string): Promise<ProductResponse | null> => {
     try {
-      const url = `${BACKEND_URL}/products/slug/${slug}`;
+      const url = `${BACKEND_URL}/api/products/slug/${slug}`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -157,6 +158,7 @@ export const getProductBySlug = unstable_cache(
           revalidate: 60,
           tags: [`product-${slug}`],
         },
+        signal: AbortSignal.timeout(3000), // 3 second timeout
       });
 
       if (!response.ok) {
@@ -219,7 +221,7 @@ export const searchProducts = unstable_cache(
 export const getFeaturedProducts = unstable_cache(
   async (limit: number = 8): Promise<ProductResponse[]> => {
     try {
-      const url = `${BACKEND_URL}/products?size=${limit}&sort=is_featured,desc&status=ACTIVE`;
+      const url = `${BACKEND_URL}/api/products?size=${limit}&sort=is_featured,desc&status=ACTIVE`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -230,6 +232,7 @@ export const getFeaturedProducts = unstable_cache(
           revalidate: 300,
           tags: ['featured-products'],
         },
+        signal: AbortSignal.timeout(3000), // 3 second timeout
       });
 
       if (!response.ok) {

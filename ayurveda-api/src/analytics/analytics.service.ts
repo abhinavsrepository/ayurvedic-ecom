@@ -21,7 +21,8 @@ export class AnalyticsService {
     private prisma: PrismaService,
     private configService: ConfigService,
   ) {
-    this.ipSalt = this.configService.get('IP_HASH_SALT') || 'default-salt-change-me';
+    this.ipSalt =
+      this.configService.get('IP_HASH_SALT') || 'default-salt-change-me';
   }
 
   /**
@@ -50,7 +51,10 @@ export class AnalyticsService {
       this.logger.log(`Location logged: ${location.id}`);
       return location;
     } catch (error) {
-      this.logger.error(`Failed to log location: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to log location: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -98,7 +102,10 @@ export class AnalyticsService {
 
       // Log location if provided
       if (createEventDto.location) {
-        const location = await this.logLocation(createEventDto.location, requestIp);
+        const location = await this.logLocation(
+          createEventDto.location,
+          requestIp,
+        );
         locationId = location.id;
       }
 
@@ -114,7 +121,9 @@ export class AnalyticsService {
           user_id: createEventDto.userId || null,
           session_id: createEventDto.sessionId || null,
           event_type: createEventDto.eventType,
-          event_data: createEventDto.eventData ? JSON.stringify(createEventDto.eventData) : null,
+          event_data: createEventDto.eventData
+            ? JSON.stringify(createEventDto.eventData)
+            : null,
           location_id: locationId,
           device_id: deviceId,
           page_url: createEventDto.pageUrl || null,
@@ -165,7 +174,10 @@ export class AnalyticsService {
         count: item._count.id,
       }));
     } catch (error) {
-      this.logger.error(`Failed to get event summary: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to get event summary: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -222,7 +234,10 @@ export class AnalyticsService {
         })),
       };
     } catch (error) {
-      this.logger.error(`Failed to get device summary: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to get device summary: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -279,7 +294,10 @@ export class AnalyticsService {
         })),
       };
     } catch (error) {
-      this.logger.error(`Failed to get location summary: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to get location summary: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }

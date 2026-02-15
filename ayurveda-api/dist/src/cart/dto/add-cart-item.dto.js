@@ -24,7 +24,12 @@ __decorate([
     __metadata("design:type", String)
 ], AddCartItemDto.prototype, "productId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Quantity to add', minimum: 1, maximum: 99, default: 1 }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Quantity to add',
+        minimum: 1,
+        maximum: 99,
+        default: 1,
+    }),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
     (0, class_validator_1.Max)(99),

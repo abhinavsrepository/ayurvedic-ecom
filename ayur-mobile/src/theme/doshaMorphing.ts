@@ -261,41 +261,94 @@ export const interpolateDoshaConfigs = (
 
   return {
     animation: {
-      damping: config1.animation.damping * primaryWeight + config2.animation.damping * secondaryWeight,
-      stiffness: config1.animation.stiffness * primaryWeight + config2.animation.stiffness * secondaryWeight,
+      damping:
+        config1.animation.damping * primaryWeight + config2.animation.damping * secondaryWeight,
+      stiffness:
+        config1.animation.stiffness * primaryWeight + config2.animation.stiffness * secondaryWeight,
       mass: config1.animation.mass * primaryWeight + config2.animation.mass * secondaryWeight,
-      duration: Math.round(config1.animation.duration * primaryWeight + config2.animation.duration * secondaryWeight),
+      duration: Math.round(
+        config1.animation.duration * primaryWeight + config2.animation.duration * secondaryWeight
+      ),
       easing: config1.animation.easing, // Use primary easing
-      gestureVelocityImpact: config1.animation.gestureVelocityImpact * primaryWeight + config2.animation.gestureVelocityImpact * secondaryWeight,
+      gestureVelocityImpact:
+        config1.animation.gestureVelocityImpact * primaryWeight +
+        config2.animation.gestureVelocityImpact * secondaryWeight,
     },
     layout: {
-      spacingMultiplier: config1.layout.spacingMultiplier * primaryWeight + config2.layout.spacingMultiplier * secondaryWeight,
+      spacingMultiplier:
+        config1.layout.spacingMultiplier * primaryWeight +
+        config2.layout.spacingMultiplier * secondaryWeight,
       borderRadius: {
-        sm: Math.round(config1.layout.borderRadius.sm * primaryWeight + config2.layout.borderRadius.sm * secondaryWeight),
-        md: Math.round(config1.layout.borderRadius.md * primaryWeight + config2.layout.borderRadius.md * secondaryWeight),
-        lg: Math.round(config1.layout.borderRadius.lg * primaryWeight + config2.layout.borderRadius.lg * secondaryWeight),
-        xl: Math.round(config1.layout.borderRadius.xl * primaryWeight + config2.layout.borderRadius.xl * secondaryWeight),
-        card: Math.round(config1.layout.borderRadius.card * primaryWeight + config2.layout.borderRadius.card * secondaryWeight),
-        button: Math.round(config1.layout.borderRadius.button * primaryWeight + config2.layout.borderRadius.button * secondaryWeight),
+        sm: Math.round(
+          config1.layout.borderRadius.sm * primaryWeight +
+            config2.layout.borderRadius.sm * secondaryWeight
+        ),
+        md: Math.round(
+          config1.layout.borderRadius.md * primaryWeight +
+            config2.layout.borderRadius.md * secondaryWeight
+        ),
+        lg: Math.round(
+          config1.layout.borderRadius.lg * primaryWeight +
+            config2.layout.borderRadius.lg * secondaryWeight
+        ),
+        xl: Math.round(
+          config1.layout.borderRadius.xl * primaryWeight +
+            config2.layout.borderRadius.xl * secondaryWeight
+        ),
+        card: Math.round(
+          config1.layout.borderRadius.card * primaryWeight +
+            config2.layout.borderRadius.card * secondaryWeight
+        ),
+        button: Math.round(
+          config1.layout.borderRadius.button * primaryWeight +
+            config2.layout.borderRadius.button * secondaryWeight
+        ),
       },
       gridType: config1.layout.gridType, // Use primary grid type
       gridColumns: config1.layout.gridColumns,
-      gridGap: Math.round(config1.layout.gridGap * primaryWeight + config2.layout.gridGap * secondaryWeight),
-      cardElevation: Math.round(config1.layout.cardElevation * primaryWeight + config2.layout.cardElevation * secondaryWeight),
-      componentScale: config1.layout.componentScale * primaryWeight + config2.layout.componentScale * secondaryWeight,
-      typographyScale: config1.layout.typographyScale * primaryWeight + config2.layout.typographyScale * secondaryWeight,
+      gridGap: Math.round(
+        config1.layout.gridGap * primaryWeight + config2.layout.gridGap * secondaryWeight
+      ),
+      cardElevation: Math.round(
+        config1.layout.cardElevation * primaryWeight +
+          config2.layout.cardElevation * secondaryWeight
+      ),
+      componentScale:
+        config1.layout.componentScale * primaryWeight +
+        config2.layout.componentScale * secondaryWeight,
+      typographyScale:
+        config1.layout.typographyScale * primaryWeight +
+        config2.layout.typographyScale * secondaryWeight,
     },
     visual: {
-      glassBlur: Math.round(config1.visual.glassBlur * primaryWeight + config2.visual.glassBlur * secondaryWeight),
-      glassOpacity: config1.visual.glassOpacity * primaryWeight + config2.visual.glassOpacity * secondaryWeight,
-      shadowIntensity: config1.visual.shadowIntensity * primaryWeight + config2.visual.shadowIntensity * secondaryWeight,
-      shadowSpread: Math.round(config1.visual.shadowSpread * primaryWeight + config2.visual.shadowSpread * secondaryWeight),
-      gradientAngle: Math.round(config1.visual.gradientAngle * primaryWeight + config2.visual.gradientAngle * secondaryWeight),
-      gradientStops: Math.round(config1.visual.gradientStops * primaryWeight + config2.visual.gradientStops * secondaryWeight),
-      parallaxIntensity: config1.visual.parallaxIntensity * primaryWeight + config2.visual.parallaxIntensity * secondaryWeight,
-      hoverScale: config1.visual.hoverScale * primaryWeight + config2.visual.hoverScale * secondaryWeight,
+      glassBlur: Math.round(
+        config1.visual.glassBlur * primaryWeight + config2.visual.glassBlur * secondaryWeight
+      ),
+      glassOpacity:
+        config1.visual.glassOpacity * primaryWeight + config2.visual.glassOpacity * secondaryWeight,
+      shadowIntensity:
+        config1.visual.shadowIntensity * primaryWeight +
+        config2.visual.shadowIntensity * secondaryWeight,
+      shadowSpread: Math.round(
+        config1.visual.shadowSpread * primaryWeight + config2.visual.shadowSpread * secondaryWeight
+      ),
+      gradientAngle: Math.round(
+        config1.visual.gradientAngle * primaryWeight +
+          config2.visual.gradientAngle * secondaryWeight
+      ),
+      gradientStops: Math.round(
+        config1.visual.gradientStops * primaryWeight +
+          config2.visual.gradientStops * secondaryWeight
+      ),
+      parallaxIntensity:
+        config1.visual.parallaxIntensity * primaryWeight +
+        config2.visual.parallaxIntensity * secondaryWeight,
+      hoverScale:
+        config1.visual.hoverScale * primaryWeight + config2.visual.hoverScale * secondaryWeight,
       patternType: config1.visual.patternType, // Use primary pattern
-      patternDensity: config1.visual.patternDensity * primaryWeight + config2.visual.patternDensity * secondaryWeight,
+      patternDensity:
+        config1.visual.patternDensity * primaryWeight +
+        config2.visual.patternDensity * secondaryWeight,
     },
   };
 };

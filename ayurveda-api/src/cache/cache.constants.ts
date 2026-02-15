@@ -53,7 +53,8 @@ export const CACHE_KEYS = {
   SEARCH_SUGGESTIONS: (query: string) => `search:suggestions:${query}`,
 
   // ML/Recommendations
-  ML_RECOMMENDATIONS_USER: (userId: string) => `ml:recommendations:user:${userId}`,
+  ML_RECOMMENDATIONS_USER: (userId: string) =>
+    `ml:recommendations:user:${userId}`,
   ML_RECOMMENDATIONS_PRODUCT: (productId: string) =>
     `ml:recommendations:product:${productId}`,
   ML_SIMILAR_PRODUCTS: (productId: string) => `ml:similar:${productId}`,
@@ -84,14 +85,19 @@ export const CACHE_KEYS = {
   REVIEWS_BY_USER: (userId: string) => `reviews:user:${userId}`,
 
   // Addresses
-  ADDRESSES_BY_CUSTOMER: (customerId: string) => `addresses:customer:${customerId}`,
+  ADDRESSES_BY_CUSTOMER: (customerId: string) =>
+    `addresses:customer:${customerId}`,
   ADDRESS_DEFAULT: (customerId: string) => `addresses:default:${customerId}`,
 
   // Orders
   ORDER_BY_ID: (id: string) => `order:id:${id}`,
   ORDER_BY_NUMBER: (orderNumber: string) => `order:number:${orderNumber}`,
-  ORDER_LIST: (customerId: string, page: number, size: number, filter: string = '') =>
-    `orders:customer:${customerId}:${page}:${size}:${filter}`,
+  ORDER_LIST: (
+    customerId: string,
+    page: number,
+    size: number,
+    filter: string = '',
+  ) => `orders:customer:${customerId}:${page}:${size}:${filter}`,
 
   // Customers
   CUSTOMER_BY_ID: (id: string) => `customer:id:${id}`,

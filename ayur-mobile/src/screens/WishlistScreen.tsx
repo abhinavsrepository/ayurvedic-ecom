@@ -44,9 +44,7 @@ export const WishlistScreen: React.FC = () => {
           <View style={styles.productWrapper}>
             <ProductCard
               product={item}
-              onPress={() =>
-                navigation.navigate('ProductDetails', { productId: item.id })
-              }
+              onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
             />
           </View>
         )}

@@ -270,9 +270,7 @@ export const deleteAddress = async (id: string): Promise<{ success: boolean }> =
  */
 export const setDefaultAddress = async (id: string): Promise<Address> => {
   try {
-    const response = await apiClient.put<ApiResponse<Address>>(
-      `/user/addresses/${id}/set-default`
-    );
+    const response = await apiClient.put<ApiResponse<Address>>(`/user/addresses/${id}/set-default`);
 
     if (response.data.success && response.data.data) {
       return response.data.data;
@@ -613,9 +611,9 @@ export const getDoshaQuizHistory = async (): Promise<
   Array<DoshaQuizResult & { takenAt: string }>
 > => {
   try {
-    const response = await apiClient.get<
-      ApiResponse<Array<DoshaQuizResult & { takenAt: string }>>
-    >('/user/dosha-quiz/history');
+    const response = await apiClient.get<ApiResponse<Array<DoshaQuizResult & { takenAt: string }>>>(
+      '/user/dosha-quiz/history'
+    );
 
     if (response.data.success && response.data.data) {
       return response.data.data;

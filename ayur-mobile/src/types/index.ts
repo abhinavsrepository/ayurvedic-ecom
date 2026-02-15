@@ -166,7 +166,10 @@ export interface ProductFilters {
 // ==================== Navigation Types ====================
 
 export type RootStackParamList = {
-  AuthStack: undefined;
+  // Auth screens (when not authenticated)
+  Login: undefined;
+  Signup: undefined;
+  // Main app screens (when authenticated)
   MainTabs: undefined;
   ProductDetails: { productId: string };
   Cart: undefined;

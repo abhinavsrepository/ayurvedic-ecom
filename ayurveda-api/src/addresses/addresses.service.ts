@@ -134,7 +134,9 @@ export class AddressesService {
     // Invalidate cache
     await this.invalidateAddressCaches(customerId);
 
-    this.logger.log(`Address created: ${address.id} for customer ${customerId}`);
+    this.logger.log(
+      `Address created: ${address.id} for customer ${customerId}`,
+    );
     return this.formatAddress(address);
   }
 

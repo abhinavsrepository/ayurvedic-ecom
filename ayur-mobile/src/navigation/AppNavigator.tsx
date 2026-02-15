@@ -4,55 +4,34 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../styles/theme';
 
-// Screens
-import {
-  LoginScreen,
-  SignupScreen,
-  HomeScreen,
-  ProductListingScreen,
-  ProductDetailsScreen,
-  CartScreen,
-  CheckoutScreen,
-  WishlistScreen,
-  ProfileScreen,
-  SearchScreen,
-} from '../screens';
+// Auth Screens
+import { LoginScreen } from '../screens/LoginScreen';
+import { SignupScreen } from '../screens/SignupScreen';
 
-// Types
-import { RootStackParamList, AuthStackParamList, MainTabsParamList } from '../types';
+// Main Screens
+import { HomeScreen } from '../screens/HomeScreen';
+import { ProductListingScreen } from '../screens/ProductListingScreen';
+import { ProductDetailsScreen } from '../screens/ProductDetailsScreen';
+import { CartScreen } from '../screens/CartScreen';
+import { CheckoutScreen } from '../screens/CheckoutScreen';
+import { WishlistScreen } from '../screens/WishlistScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
+import { SearchScreen } from '../screens/SearchScreen';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
-const AuthStack = createNativeStackNavigator<AuthStackParamList>();
-const Tab = createBottomTabNavigator<MainTabsParamList>();
+// Store
+import { useAuthStore } from '../store/authStore';
 
-/**
- * Auth Navigator
- * Handles authentication flow
- */
-const AuthNavigator = () => {
-  return (
-    <AuthStack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <AuthStack.Screen name="Login" component={LoginScreen} />
-      <AuthStack.Screen name="Signup" component={SignupScreen} />
-    </AuthStack.Navigator>
-  );
-};
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
-/**
- * Main Tabs Navigator
- * Bottom tab navigation for main app screens
- */
-const MainTabsNavigator = () => {
+// Bottom Tab Navigator
+function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'home';
+          let iconName: any = 'home';
 
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
@@ -72,14 +51,6 @@ const MainTabsNavigator = () => {
           paddingTop: 8,
           paddingBottom: 8,
           height: 60,
-          borderTopWidth: 1,
-          borderTopColor: theme.colors.border,
-          ...theme.shadows.lg,
-        },
-        tabBarLabelStyle: {
-          fontSize: theme.fonts.sizes.xs,
-          fontWeight: theme.fonts.weights.medium,
-          marginTop: -4,
         },
       })}
     >
@@ -89,30 +60,28 @@ const MainTabsNavigator = () => {
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
-};
+}
 
-/**
- * Root Navigator
- * Main app navigation with stack navigation
- */
-export const AppNavigator = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
+// Main App Navigator
+export function AppNavigator() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      {!isAuthenticated ? (
-        <Stack.Screen name="AuthStack" component={AuthNavigator} />
-      ) : (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {isAuthenticated ? (
         <>
-          <Stack.Screen name="MainTabs" component={MainTabsNavigator} />
+          <Stack.Screen name="MainTabs" component={MainTabs} />
           <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
           <Stack.Screen name="Cart" component={CartScreen} />
           <Stack.Screen name="Checkout" component={CheckoutScreen} />
           <Stack.Screen name="Search" component={SearchScreen} />
         </>
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+        </>
       )}
     </Stack.Navigator>
   );
-};
+}

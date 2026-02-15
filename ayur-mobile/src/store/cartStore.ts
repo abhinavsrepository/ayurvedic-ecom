@@ -1,13 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { MMKV } from 'react-native-mmkv';
+import { createPersistStorage } from './persistStorage';
 
 /**
- * MMKV storage instance for cart persistence
+ * Persistent storage for cart.
  */
-const mmkvStorage = new MMKV({
-  id: 'cart-storage',
-});
+const persistStorage = createPersistStorage('cart-storage');
 
 /**
  * Cart item interface
@@ -83,22 +81,6 @@ interface CartActions {
 export type CartStore = CartState & CartActions;
 
 /**
- * MMKV storage adapter for Zustand
- */
-const mmkvStorageAdapter = {
-  getItem: (name: string): string | null => {
-    const value = mmkvStorage.getString(name);
-    return value ?? null;
-  },
-  setItem: (name: string, value: string): void => {
-    mmkvStorage.set(name, value);
-  },
-  removeItem: (name: string): void => {
-    mmkvStorage.delete(name);
-  },
-};
-
-/**
  * Calculate totals helper function
  */
 const calculateTotals = (
@@ -108,10 +90,7 @@ const calculateTotals = (
   shippingRate: number
 ) => {
   // Calculate subtotal
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   // Calculate discount
   let discount = 0;
@@ -154,9 +133,7 @@ const calculateTotals = (
     shipping: Math.round(shipping * 100) / 100,
     total: Math.round(total * 100) / 100,
     itemCount,
-    coupon: appliedCoupon
-      ? { ...appliedCoupon, appliedDiscount: discount }
-      : null,
+    coupon: appliedCoupon ? { ...appliedCoupon, appliedDiscount: discount } : null,
   };
 };
 
@@ -209,9 +186,7 @@ export const useCartStore = create<CartStore>()(
       addItem: (item) => {
         const { items, coupon, taxRate, shippingRate } = get();
         const existingItemIndex = items.findIndex(
-          (i) =>
-            i.productId === item.productId &&
-            i.variant?.id === item.variant?.id
+          (i) => i.productId === item.productId && i.variant?.id === item.variant?.id
         );
 
         let newItems: CartItem[];
@@ -223,10 +198,7 @@ export const useCartStore = create<CartStore>()(
           const newQuantity = existingItem.quantity + (item.quantity || 1);
 
           // Check max quantity
-          if (
-            existingItem.maxQuantity &&
-            newQuantity > existingItem.maxQuantity
-          ) {
+          if (existingItem.maxQuantity && newQuantity > existingItem.maxQuantity) {
             console.warn('Maximum quantity reached');
             return;
           }
@@ -375,7 +347,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: 'cart-storage',
-      storage: createJSONStorage(() => mmkvStorageAdapter),
+      storage: createJSONStorage(() => persistStorage),
     }
   )
 );

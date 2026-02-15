@@ -24,7 +24,9 @@ __decorate([
     __metadata("design:type", String)
 ], ChangePasswordDto.prototype, "currentPassword", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'New password (min 8 chars, must include uppercase, lowercase, number)' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'New password (min 8 chars, must include uppercase, lowercase, number)',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(8),
     (0, class_validator_1.MaxLength)(100),

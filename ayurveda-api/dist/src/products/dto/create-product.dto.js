@@ -250,7 +250,11 @@ __decorate([
     __metadata("design:type", Array)
 ], CreateProductDto.prototype, "seoKeywords", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Product rating', minimum: 0, maximum: 5 }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Product rating',
+        minimum: 0,
+        maximum: 5,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.Min)(0),

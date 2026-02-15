@@ -53,7 +53,10 @@ __decorate([
     __metadata("design:type", String)
 ], QueryPostDto.prototype, "tag", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by status (admin only)', enum: create_post_dto_1.PostStatus }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Filter by status (admin only)',
+        enum: create_post_dto_1.PostStatus,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(create_post_dto_1.PostStatus),
     __metadata("design:type", String)

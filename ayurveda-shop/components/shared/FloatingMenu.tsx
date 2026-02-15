@@ -20,26 +20,6 @@ import {
     X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export default function FloatingMenu() {
-    const [mounted, setMounted] = useState(false);
-    const router = useRouter();
-    const {
-        setIsDoctorChatOpen,
-        setIsSpinWheelOpen,
-        setIsReferralOpen,
-        setIsScratchCardOpen
-    } = useUI();
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    // Prevent hydration mismatch
-    if (!mounted) {
-        return null;
-    }
-
 const actions = [
     {
         id: "consult",
@@ -72,14 +52,23 @@ const actions = [
 ];
 
 export default function FloatingMenu() {
+    const [mounted, setMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
     const {
         setIsDoctorChatOpen,
         setIsSpinWheelOpen,
-        setIsReferralOpen,
-        setIsScratchCardOpen
+        setIsReferralOpen
     } = useUI();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Prevent hydration mismatch
+    if (!mounted) {
+        return null;
+    }
 
     const handleAction = (action: typeof actions[0]) => {
         setIsOpen(false); // Close menu first

@@ -187,9 +187,7 @@ export const useAddToSyncQueue = () => {
  * });
  * ```
  */
-export const useOnSyncComplete = (
-  callback: (result: SyncResult) => void
-) => {
+export const useOnSyncComplete = (callback: (result: SyncResult) => void) => {
   const { syncResult, isSyncing } = useSyncStore();
   const prevIsSyncing = useRef(isSyncing);
 

@@ -43,7 +43,10 @@ export class CustomersController {
   @ApiOperation({ summary: 'Get all customers (Admin only)' })
   @ApiResponse({ status: 200, description: 'Customers retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   findAll(@Query() query: QueryCustomerDto) {
     return this.customersService.findAll(query);
   }
@@ -57,7 +60,10 @@ export class CustomersController {
   @ApiParam({ name: 'id', description: 'Customer ID' })
   @ApiResponse({ status: 200, description: 'Customer found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   @ApiResponse({ status: 404, description: 'Customer not found' })
   findOne(@Param('id') id: string) {
     return this.customersService.findOne(id);
@@ -72,10 +78,16 @@ export class CustomersController {
   @ApiParam({ name: 'id', description: 'Customer ID' })
   @ApiResponse({ status: 200, description: 'Customer updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   @ApiResponse({ status: 404, description: 'Customer not found' })
   @ApiResponse({ status: 409, description: 'Email already exists' })
-  update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCustomerDto: UpdateCustomerDto,
+  ) {
     return this.customersService.update(id, updateCustomerDto);
   }
 
@@ -86,9 +98,15 @@ export class CustomersController {
   @Roles('admin', 'manager')
   @ApiOperation({ summary: 'Get customer statistics (Admin only)' })
   @ApiParam({ name: 'id', description: 'Customer ID' })
-  @ApiResponse({ status: 200, description: 'Customer stats retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Customer stats retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   @ApiResponse({ status: 404, description: 'Customer not found' })
   getStats(@Param('id') id: string) {
     return this.customersService.getCustomerStats(id);
@@ -104,11 +122,11 @@ export class CustomersController {
   @ApiResponse({ status: 200, description: 'Customers found' })
   @ApiResponse({ status: 400, description: 'Invalid query parameter' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
-  async search(
-    @Query('q') query: string,
-    @Query() queryDto: QueryCustomerDto,
-  ) {
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
+  async search(@Query('q') query: string, @Query() queryDto: QueryCustomerDto) {
     return this.customersService.search(query, queryDto);
   }
 
@@ -122,7 +140,10 @@ export class CustomersController {
   @ApiOperation({ summary: 'Export customers to CSV (Admin only)' })
   @ApiResponse({ status: 200, description: 'Export initiated' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   async export(@Query() queryDto: QueryCustomerDto) {
     return this.customersService.export(queryDto);
   }

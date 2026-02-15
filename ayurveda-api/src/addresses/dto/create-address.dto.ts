@@ -18,7 +18,10 @@ export enum AddressType {
 }
 
 export class CreateAddressDto {
-  @ApiPropertyOptional({ description: 'Address label (e.g., Home, Office)', maxLength: 50 })
+  @ApiPropertyOptional({
+    description: 'Address label (e.g., Home, Office)',
+    maxLength: 50,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(50)
@@ -72,12 +75,19 @@ export class CreateAddressDto {
   @MaxLength(100)
   country?: string = 'India';
 
-  @ApiPropertyOptional({ description: 'Set as default address', default: false })
+  @ApiPropertyOptional({
+    description: 'Set as default address',
+    default: false,
+  })
   @IsOptional()
   @IsBoolean()
   isDefault?: boolean = false;
 
-  @ApiPropertyOptional({ description: 'Address type', enum: AddressType, default: AddressType.SHIPPING })
+  @ApiPropertyOptional({
+    description: 'Address type',
+    enum: AddressType,
+    default: AddressType.SHIPPING,
+  })
   @IsOptional()
   @IsEnum(AddressType)
   addressType?: AddressType = AddressType.SHIPPING;

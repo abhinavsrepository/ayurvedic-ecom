@@ -322,7 +322,7 @@ export const API_CONFIG = {
   retryDelay: 1000, // 1 second
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
   },
 } as const;
 

@@ -54,7 +54,10 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create a payment order' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Payment order created successfully' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Payment order created successfully',
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Order not found' }),

@@ -12,9 +12,10 @@ import { fadeInUp, staggerContainer, staggerItem } from "@/lib/motion-variants";
 type SortOption = "featured" | "price-low" | "price-high" | "rating" | "newest";
 
 export default function ShopPage() {
-  // Initialize with local data immediately for instant loading
-  const [products, setProducts] = useState<Product[]>(allProducts);
-  const [loading, setLoading] = useState(false);
+  // Use local data which has all filter fields (doshaType, benefits, etc.)
+  // API products don't have these fields needed for filtering
+  const [products] = useState<Product[]>(allProducts);
+  const [loading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [selectedDosha, setSelectedDosha] = useState<string>("all");
@@ -23,26 +24,6 @@ export default function ShopPage() {
   const [sortBy, setSortBy] = useState<SortOption>("featured");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showInStockOnly, setShowInStockOnly] = useState(false);
-
-  useEffect(() => {
-    // Try to fetch from API, but we already have local data as fallback
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('/api/products');
-        const data = await response.json();
-
-        if (data.success && data.products && data.products.length > 0) {
-          setProducts(data.products);
-        }
-        // If API returns empty or fails, we keep using allProducts (already set)
-      } catch (error: any) {
-        // Silently use local data when API is unavailable
-        // Keep using allProducts which is already set
-      }
-    };
-
-    fetchProducts();
-  }, []);
 
   // Filter products
   const filteredProducts = useMemo(() => {

@@ -10,14 +10,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  FlatList,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
 // FlashList removed in favor of FlatList for better TypeScript support
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
@@ -62,16 +55,13 @@ export const ModernProductListingScreen: React.FC = () => {
   });
 
   // Use search query when search is active
-  const { data: searchData, isLoading: searchLoading } = useSearchProducts(
-    searchQuery,
-    undefined,
-    { enabled: searchQuery.length >= 2 }
-  );
+  const { data: searchData, isLoading: searchLoading } = useSearchProducts(searchQuery, undefined, {
+    enabled: searchQuery.length >= 2,
+  });
 
   // Determine which products to show
-  const products: Product[] = searchQuery.length >= 2
-    ? (searchData?.data || [])
-    : (productsData?.data || []);
+  const products: Product[] =
+    searchQuery.length >= 2 ? searchData?.data || [] : productsData?.data || [];
   const loading = productsLoading || searchLoading;
 
   // Scroll animation
@@ -85,12 +75,7 @@ export const ModernProductListingScreen: React.FC = () => {
 
   // Animated header style
   const headerStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 50],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
+    const opacity = interpolate(scrollY.value, [0, 50], [0, 1], Extrapolation.CLAMP);
 
     return {
       opacity,
@@ -127,12 +112,7 @@ export const ModernProductListingScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Header
-        title={filters.category || 'All Products'}
-        showBack
-        showCart
-        showSearch={false}
-      />
+      <Header title={filters.category || 'All Products'} showBack showCart showSearch={false} />
 
       {/* Search and Filter Bar with Glassmorphism */}
       <Animated.View style={[styles.filterBar, headerStyle]}>
@@ -144,7 +124,7 @@ export const ModernProductListingScreen: React.FC = () => {
             {
               paddingHorizontal: theme.spacing.md,
               paddingVertical: theme.spacing.sm,
-            }
+            },
           ]}
         >
           <View style={styles.searchContainer}>
@@ -164,7 +144,7 @@ export const ModernProductListingScreen: React.FC = () => {
                 height: 48,
                 borderRadius: theme.borderRadius.md,
                 backgroundColor: theme.colors.primaryLight,
-              }
+              },
             ]}
             onPress={() => setShowFilterModal(true)}
           >
@@ -175,32 +155,38 @@ export const ModernProductListingScreen: React.FC = () => {
 
       {/* Active Filters */}
       {(filters.category || searchQuery) && (
-        <View style={[
-          styles.activeFiltersContainer,
-          {
-            paddingHorizontal: theme.spacing.md,
-            paddingVertical: theme.spacing.sm,
-          }
-        ]}>
+        <View
+          style={[
+            styles.activeFiltersContainer,
+            {
+              paddingHorizontal: theme.spacing.md,
+              paddingVertical: theme.spacing.sm,
+            },
+          ]}
+        >
           {filters.category && (
-            <View style={[
-              styles.filterChip,
-              {
-                backgroundColor: theme.colors.primaryLight,
-                paddingHorizontal: theme.spacing.sm,
-                paddingVertical: theme.spacing.xs,
-                borderRadius: theme.borderRadius.round,
-                marginRight: theme.spacing.sm,
-              }
-            ]}>
-              <Text style={[
-                styles.filterChipText,
+            <View
+              style={[
+                styles.filterChip,
                 {
-                  fontSize: 13,
-                  color: theme.colors.primary,
-                  marginRight: theme.spacing.xs,
-                }
-              ]}>
+                  backgroundColor: theme.colors.primaryLight,
+                  paddingHorizontal: theme.spacing.sm,
+                  paddingVertical: theme.spacing.xs,
+                  borderRadius: theme.borderRadius.round,
+                  marginRight: theme.spacing.sm,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  {
+                    fontSize: 13,
+                    color: theme.colors.primary,
+                    marginRight: theme.spacing.xs,
+                  },
+                ]}
+              >
                 {filters.category}
               </Text>
               <TouchableOpacity onPress={() => handleCategoryFilter(undefined)}>
@@ -209,24 +195,28 @@ export const ModernProductListingScreen: React.FC = () => {
             </View>
           )}
           {searchQuery && (
-            <View style={[
-              styles.filterChip,
-              {
-                backgroundColor: theme.colors.primaryLight,
-                paddingHorizontal: theme.spacing.sm,
-                paddingVertical: theme.spacing.xs,
-                borderRadius: theme.borderRadius.round,
-                marginRight: theme.spacing.sm,
-              }
-            ]}>
-              <Text style={[
-                styles.filterChipText,
+            <View
+              style={[
+                styles.filterChip,
                 {
-                  fontSize: 13,
-                  color: theme.colors.primary,
-                  marginRight: theme.spacing.xs,
-                }
-              ]}>
+                  backgroundColor: theme.colors.primaryLight,
+                  paddingHorizontal: theme.spacing.sm,
+                  paddingVertical: theme.spacing.xs,
+                  borderRadius: theme.borderRadius.round,
+                  marginRight: theme.spacing.sm,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  {
+                    fontSize: 13,
+                    color: theme.colors.primary,
+                    marginRight: theme.spacing.xs,
+                  },
+                ]}
+              >
                 "{searchQuery}"
               </Text>
               <TouchableOpacity onPress={() => setSearchQuery('')}>
@@ -235,13 +225,15 @@ export const ModernProductListingScreen: React.FC = () => {
             </View>
           )}
           <TouchableOpacity onPress={clearFilters}>
-            <Text style={[
-              styles.clearFilters,
-              {
-                fontSize: 13,
-                color: theme.colors.error,
-              }
-            ]}>
+            <Text
+              style={[
+                styles.clearFilters,
+                {
+                  fontSize: 13,
+                  color: theme.colors.error,
+                },
+              ]}
+            >
               Clear All
             </Text>
           </TouchableOpacity>
@@ -263,9 +255,7 @@ export const ModernProductListingScreen: React.FC = () => {
           renderItem={({ item }: { item: Product }) => (
             <ModernProductCard
               product={item}
-              onPress={() =>
-                (navigation as any).navigate('ProductDetails', { productId: item.id })
-              }
+              onPress={() => (navigation as any).navigate('ProductDetails', { productId: item.id })}
             />
           )}
           keyExtractor={(item: Product) => item.id}
@@ -303,19 +293,23 @@ export const ModernProductListingScreen: React.FC = () => {
             tint={theme.colors.mode === 'dark' ? 'dark' : 'light'}
             style={styles.modalContent}
           >
-            <View style={[
-              styles.modalHeader,
-              {
-                marginBottom: theme.spacing.lg,
-              }
-            ]}>
-              <Text style={[
-                styles.modalTitle,
+            <View
+              style={[
+                styles.modalHeader,
                 {
-                  fontSize: 20,
-                  color: theme.colors.text,
-                }
-              ]}>
+                  marginBottom: theme.spacing.lg,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.modalTitle,
+                  {
+                    fontSize: 20,
+                    color: theme.colors.text,
+                  },
+                ]}
+              >
                 Sort & Filter
               </Text>
               <TouchableOpacity onPress={() => setShowFilterModal(false)}>
@@ -324,20 +318,24 @@ export const ModernProductListingScreen: React.FC = () => {
             </View>
 
             {/* Sort Options */}
-            <View style={[
-              styles.filterSection,
-              {
-                marginBottom: theme.spacing.xl,
-              }
-            ]}>
-              <Text style={[
-                styles.filterSectionTitle,
+            <View
+              style={[
+                styles.filterSection,
                 {
-                  fontSize: 16,
-                  color: theme.colors.text,
-                  marginBottom: theme.spacing.md,
-                }
-              ]}>
+                  marginBottom: theme.spacing.xl,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.filterSectionTitle,
+                  {
+                    fontSize: 16,
+                    color: theme.colors.text,
+                    marginBottom: theme.spacing.md,
+                  },
+                ]}
+              >
                 Sort By
               </Text>
               {[
@@ -355,7 +353,7 @@ export const ModernProductListingScreen: React.FC = () => {
                       paddingVertical: theme.spacing.md,
                       borderBottomWidth: 1,
                       borderBottomColor: theme.colors.border,
-                    }
+                    },
                   ]}
                   onPress={() => handleSort(option.value as any)}
                 >
@@ -364,11 +362,12 @@ export const ModernProductListingScreen: React.FC = () => {
                       styles.filterOptionText,
                       {
                         fontSize: 15,
-                        color: filters.sortBy === option.value
-                          ? theme.colors.primary
-                          : theme.colors.text,
+                        color:
+                          filters.sortBy === option.value
+                            ? theme.colors.primary
+                            : theme.colors.text,
                         fontWeight: filters.sortBy === option.value ? '700' : '400',
-                      }
+                      },
                     ]}
                   >
                     {option.label}
@@ -380,11 +379,7 @@ export const ModernProductListingScreen: React.FC = () => {
               ))}
             </View>
 
-            <Button
-              title="Apply Filters"
-              onPress={() => setShowFilterModal(false)}
-              fullWidth
-            />
+            <Button title="Apply Filters" onPress={() => setShowFilterModal(false)} fullWidth />
           </BlurView>
         </View>
       </Modal>

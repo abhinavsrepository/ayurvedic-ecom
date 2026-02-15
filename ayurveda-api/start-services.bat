@@ -63,7 +63,7 @@ echo ==========================================
 echo Services Started Successfully!
 echo ==========================================
 echo.
-echo PostgreSQL: localhost:5433
+echo PostgreSQL: localhost:5434
 echo Redis:      localhost:6379
 echo.
 echo Now you can start the API server:

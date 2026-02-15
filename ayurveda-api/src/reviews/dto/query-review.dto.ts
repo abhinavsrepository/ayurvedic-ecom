@@ -37,7 +37,11 @@ export class QueryReviewDto {
   @Max(5)
   rating?: number;
 
-  @ApiPropertyOptional({ description: 'Sort by', enum: ReviewSortBy, default: ReviewSortBy.RECENT })
+  @ApiPropertyOptional({
+    description: 'Sort by',
+    enum: ReviewSortBy,
+    default: ReviewSortBy.RECENT,
+  })
   @IsOptional()
   @IsEnum(ReviewSortBy)
   sortBy?: ReviewSortBy = ReviewSortBy.RECENT;

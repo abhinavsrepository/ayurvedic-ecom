@@ -4,7 +4,12 @@
  * Business logic for payment processing with Razorpay and Stripe.
  */
 
-import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StripeService } from './stripe/stripe.service';
 import { RazorpayService } from './razorpay/razorpay.service';
@@ -41,9 +46,15 @@ export class PaymentsService {
 
     switch (provider) {
       case PaymentProvider.STRIPE:
-        return this.stripeService.createPaymentIntent(amount, currency, { orderId });
+        return this.stripeService.createPaymentIntent(amount, currency, {
+          orderId,
+        });
       case PaymentProvider.RAZORPAY:
-        const razorpayOrder = await this.razorpayService.createOrder(amount, currency, orderId);
+        const razorpayOrder = await this.razorpayService.createOrder(
+          amount,
+          currency,
+          orderId,
+        );
         return {
           ...razorpayOrder,
           orderId,
@@ -78,7 +89,10 @@ export class PaymentsService {
       // Update order payment status
       await this.updateOrderPaymentStatus(data.internalOrderId, 'PAID', {
         provider,
-        externalId: provider === PaymentProvider.RAZORPAY ? data.paymentId : data.paymentIntentId,
+        externalId:
+          provider === PaymentProvider.RAZORPAY
+            ? data.paymentId
+            : data.paymentIntentId,
         verifiedAt: new Date(),
       });
     }
@@ -139,7 +153,8 @@ export class PaymentsService {
     await this.prisma.order.update({
       where: { id: orderId },
       data: {
-        payment_status: amount >= Number(order.total) ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
+        payment_status:
+          amount >= Number(order.total) ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
         status: 'CANCELLED',
         cancelled_at: new Date(),
         cancelled_reason: reason,
@@ -163,7 +178,10 @@ export class PaymentsService {
    */
   async handleRazorpayWebhook(payload: any, signature: string) {
     // Verify webhook signature
-    const isValid = this.razorpayService.verifyWebhookSignature(payload, signature);
+    const isValid = this.razorpayService.verifyWebhookSignature(
+      payload,
+      signature,
+    );
 
     if (!isValid) {
       this.logger.warn('Invalid Razorpay webhook signature');
@@ -178,33 +196,45 @@ export class PaymentsService {
     switch (event) {
       case 'payment.captured':
         if (paymentEntity?.notes?.orderId) {
-          await this.updateOrderPaymentStatus(paymentEntity.notes.orderId, 'PAID', {
-            provider: PaymentProvider.RAZORPAY,
-            externalId: paymentEntity.id,
-            capturedAt: new Date(),
-          });
+          await this.updateOrderPaymentStatus(
+            paymentEntity.notes.orderId,
+            'PAID',
+            {
+              provider: PaymentProvider.RAZORPAY,
+              externalId: paymentEntity.id,
+              capturedAt: new Date(),
+            },
+          );
         }
         break;
 
       case 'payment.failed':
         if (paymentEntity?.notes?.orderId) {
-          await this.updateOrderPaymentStatus(paymentEntity.notes.orderId, 'FAILED', {
-            provider: PaymentProvider.RAZORPAY,
-            externalId: paymentEntity.id,
-            failedAt: new Date(),
-            error: paymentEntity.error_description,
-          });
+          await this.updateOrderPaymentStatus(
+            paymentEntity.notes.orderId,
+            'FAILED',
+            {
+              provider: PaymentProvider.RAZORPAY,
+              externalId: paymentEntity.id,
+              failedAt: new Date(),
+              error: paymentEntity.error_description,
+            },
+          );
         }
         break;
 
       case 'refund.processed':
         const refundEntity = payload.payload?.refund?.entity;
         if (refundEntity?.notes?.orderId) {
-          await this.updateOrderPaymentStatus(refundEntity.notes.orderId, 'REFUNDED', {
-            provider: PaymentProvider.RAZORPAY,
-            refundId: refundEntity.id,
-            refundedAt: new Date(),
-          });
+          await this.updateOrderPaymentStatus(
+            refundEntity.notes.orderId,
+            'REFUNDED',
+            {
+              provider: PaymentProvider.RAZORPAY,
+              refundId: refundEntity.id,
+              refundedAt: new Date(),
+            },
+          );
         }
         break;
 

@@ -79,11 +79,7 @@ export default function QuizScreen({ navigation }: any) {
         <Text style={styles.question}>{question.text}</Text>
 
         {question.options.map((option, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.option}
-            onPress={() => handleAnswer(index)}
-          >
+          <TouchableOpacity key={index} style={styles.option} onPress={() => handleAnswer(index)}>
             <Text style={styles.optionText}>{option}</Text>
           </TouchableOpacity>
         ))}

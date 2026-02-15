@@ -99,8 +99,7 @@ export type DoshaStore = DoshaStoreState & DoshaActions;
  * Default dosha descriptions
  */
 const DOSHA_DESCRIPTIONS: Record<DoshaType, string> = {
-  Vata:
-    'Vata dosha is composed of air and ether elements. People with dominant Vata are typically creative, enthusiastic, and energetic. They may experience dry skin, cold hands and feet, and irregular digestion.',
+  Vata: 'Vata dosha is composed of air and ether elements. People with dominant Vata are typically creative, enthusiastic, and energetic. They may experience dry skin, cold hands and feet, and irregular digestion.',
   Pitta:
     'Pitta dosha is composed of fire and water elements. People with dominant Pitta are typically intelligent, focused, and ambitious. They may experience heat sensitivity, strong appetite, and inflammatory conditions.',
   Kapha:
@@ -110,10 +109,7 @@ const DOSHA_DESCRIPTIONS: Record<DoshaType, string> = {
 /**
  * Default recommendations by dosha
  */
-const DOSHA_RECOMMENDATIONS: Record<
-  DoshaType,
-  DoshaResult['recommendations']
-> = {
+const DOSHA_RECOMMENDATIONS: Record<DoshaType, DoshaResult['recommendations']> = {
   Vata: {
     diet: [
       'Warm, cooked foods',
@@ -129,20 +125,8 @@ const DOSHA_RECOMMENDATIONS: Record<
       'Get adequate sleep',
       'Oil massage (Abhyanga)',
     ],
-    exercise: [
-      'Gentle yoga',
-      'Walking',
-      'Swimming',
-      'Tai chi',
-      'Avoid excessive cardio',
-    ],
-    products: [
-      'Ashwagandha',
-      'Sesame oil',
-      'Warming herbs',
-      'Digestive support',
-      'Nervine tonics',
-    ],
+    exercise: ['Gentle yoga', 'Walking', 'Swimming', 'Tai chi', 'Avoid excessive cardio'],
+    products: ['Ashwagandha', 'Sesame oil', 'Warming herbs', 'Digestive support', 'Nervine tonics'],
   },
   Pitta: {
     diet: [
@@ -189,13 +173,7 @@ const DOSHA_RECOMMENDATIONS: Record<
       'Dry brushing',
       'Regular detoxification',
     ],
-    exercise: [
-      'Vigorous exercise',
-      'Running',
-      'Dynamic yoga',
-      'Cycling',
-      'Regular cardio',
-    ],
+    exercise: ['Vigorous exercise', 'Running', 'Dynamic yoga', 'Cycling', 'Regular cardio'],
     products: [
       'Triphala',
       'Trikatu',
@@ -272,9 +250,7 @@ export const useDoshaStore = create<DoshaStore>((set, get) => ({
     const { answers, currentQuestionIndex, questions } = quiz;
 
     // Remove previous answer for this question if exists
-    const filteredAnswers = answers.filter(
-      (a) => a.questionId !== answer.questionId
-    );
+    const filteredAnswers = answers.filter((a) => a.questionId !== answer.questionId);
 
     const newAnswers = [...filteredAnswers, answer];
     const nextIndex = currentQuestionIndex + 1;
@@ -338,17 +314,15 @@ export const useDoshaStore = create<DoshaStore>((set, get) => ({
     };
 
     // Determine primary and secondary doshas
-    const sortedDoshas = (
-      Object.entries(scores) as [DoshaType, number][]
-    ).sort((a, b) => b[1] - a[1]);
+    const sortedDoshas = (Object.entries(scores) as [DoshaType, number][]).sort(
+      (a, b) => b[1] - a[1]
+    );
 
-    const primary =
-      (sortedDoshas[0][0].charAt(0).toUpperCase() +
-        sortedDoshas[0][0].slice(1)) as DoshaType;
+    const primary = (sortedDoshas[0][0].charAt(0).toUpperCase() +
+      sortedDoshas[0][0].slice(1)) as DoshaType;
     const secondary =
       sortedDoshas[1][1] > totalScore * 0.25
-        ? ((sortedDoshas[1][0].charAt(0).toUpperCase() +
-            sortedDoshas[1][0].slice(1)) as DoshaType)
+        ? ((sortedDoshas[1][0].charAt(0).toUpperCase() + sortedDoshas[1][0].slice(1)) as DoshaType)
         : undefined;
 
     const result: DoshaResult = {

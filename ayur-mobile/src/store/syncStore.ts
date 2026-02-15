@@ -1,13 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { MMKV } from 'react-native-mmkv';
+import { createPersistStorage } from './persistStorage';
 
 /**
- * MMKV storage instance for sync queue persistence
+ * Persistent storage for sync queue.
  */
-const mmkvStorage = new MMKV({
-  id: 'sync-storage',
-});
+const persistStorage = createPersistStorage('sync-storage');
 
 /**
  * Sync operation types
@@ -75,12 +73,7 @@ interface SyncState {
  * Sync store actions interface
  */
 interface SyncActions {
-  addToQueue: (
-    item: Omit<
-      SyncQueueItem,
-      'id' | 'status' | 'retryCount' | 'createdAt'
-    >
-  ) => string;
+  addToQueue: (item: Omit<SyncQueueItem, 'id' | 'status' | 'retryCount' | 'createdAt'>) => string;
   removeFromQueue: (id: string) => void;
   updateQueueItem: (id: string, updates: Partial<SyncQueueItem>) => void;
   clearQueue: () => void;
@@ -95,22 +88,6 @@ interface SyncActions {
  * Complete sync store type
  */
 export type SyncStore = SyncState & SyncActions;
-
-/**
- * MMKV storage adapter for Zustand
- */
-const mmkvStorageAdapter = {
-  getItem: (name: string): string | null => {
-    const value = mmkvStorage.getString(name);
-    return value ?? null;
-  },
-  setItem: (name: string, value: string): void => {
-    mmkvStorage.set(name, value);
-  },
-  removeItem: (name: string): void => {
-    mmkvStorage.delete(name);
-  },
-};
 
 /**
  * Execute sync request
@@ -214,9 +191,7 @@ export const useSyncStore = create<SyncStore>()(
       updateQueueItem: (id, updates) => {
         const { syncQueue } = get();
         set({
-          syncQueue: syncQueue.map((item) =>
-            item.id === id ? { ...item, ...updates } : item
-          ),
+          syncQueue: syncQueue.map((item) => (item.id === id ? { ...item, ...updates } : item)),
         });
       },
 
@@ -243,9 +218,7 @@ export const useSyncStore = create<SyncStore>()(
        */
       sync: async () => {
         const { syncQueue } = get();
-        const pendingItems = syncQueue.filter(
-          (item) => item.status === 'pending'
-        );
+        const pendingItems = syncQueue.filter((item) => item.status === 'pending');
 
         if (pendingItems.length === 0) {
           return {
@@ -303,8 +276,7 @@ export const useSyncStore = create<SyncStore>()(
             }
           } catch (error) {
             failed++;
-            const errorMessage =
-              error instanceof Error ? error.message : 'Unknown error';
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             const newRetryCount = item.retryCount + 1;
             const shouldRetry = newRetryCount < item.maxRetries;
 
@@ -396,7 +368,7 @@ export const useSyncStore = create<SyncStore>()(
     }),
     {
       name: 'sync-storage',
-      storage: createJSONStorage(() => mmkvStorageAdapter),
+      storage: createJSONStorage(() => persistStorage),
       // Persist queue and last sync time
       partialize: (state) => ({
         syncQueue: state.syncQueue,
@@ -413,7 +385,5 @@ export const useSyncQueue = () => useSyncStore((state) => state.syncQueue);
 export const useIsSyncing = () => useSyncStore((state) => state.isSyncing);
 export const useSyncProgress = () => useSyncStore((state) => state.syncProgress);
 export const useLastSyncTime = () => useSyncStore((state) => state.lastSyncTime);
-export const usePendingCount = () =>
-  useSyncStore((state) => state.getPendingCount());
-export const useFailedCount = () =>
-  useSyncStore((state) => state.getFailedCount());
+export const usePendingCount = () => useSyncStore((state) => state.getPendingCount());
+export const useFailedCount = () => useSyncStore((state) => state.getFailedCount());

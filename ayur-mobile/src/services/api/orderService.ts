@@ -270,7 +270,9 @@ export const confirmOrderReceipt = async (id: string): Promise<OrderDetails> => 
  * @param id - Original order ID
  * @returns New order details
  */
-export const reorder = async (id: string): Promise<{ order: OrderDetails; paymentIntent?: PaymentIntent }> => {
+export const reorder = async (
+  id: string
+): Promise<{ order: OrderDetails; paymentIntent?: PaymentIntent }> => {
   try {
     const response = await apiClient.post<
       ApiResponse<{ order: OrderDetails; paymentIntent?: PaymentIntent }>

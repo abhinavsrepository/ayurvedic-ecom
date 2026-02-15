@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Modal,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../styles/theme';
 import { Header, ProductCard, Input, Button, LoadingSpinner, EmptyState } from '../components';
@@ -47,9 +40,7 @@ export const ProductListingScreen: React.FC = () => {
     sortBy: filters.sortBy,
   });
 
-  const products = searchQuery.length >= 2
-    ? (searchResults?.data || [])
-    : (productsData?.data || []);
+  const products = searchQuery.length >= 2 ? searchResults?.data || [] : productsData?.data || [];
   const loading = searchQuery.length >= 2 ? searchLoading : productsLoading;
 
   const handleSort = (sortBy: ProductFilters['sortBy']) => {
@@ -85,10 +76,7 @@ export const ProductListingScreen: React.FC = () => {
             style={styles.searchInput}
           />
         </View>
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => setShowFilterModal(true)}
-        >
+        <TouchableOpacity style={styles.filterButton} onPress={() => setShowFilterModal(true)}>
           <Ionicons name="options-outline" size={24} color={theme.colors.primary} />
         </TouchableOpacity>
       </View>
@@ -134,9 +122,7 @@ export const ProductListingScreen: React.FC = () => {
             <View style={styles.productWrapper}>
               <ProductCard
                 product={item}
-                onPress={() =>
-                  navigation.navigate('ProductDetails', { productId: item.id })
-                }
+                onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
               />
             </View>
           )}
@@ -193,11 +179,7 @@ export const ProductListingScreen: React.FC = () => {
               ))}
             </View>
 
-            <Button
-              title="Apply Filters"
-              onPress={() => setShowFilterModal(false)}
-              fullWidth
-            />
+            <Button title="Apply Filters" onPress={() => setShowFilterModal(false)} fullWidth />
           </View>
         </View>
       </Modal>

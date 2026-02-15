@@ -16,7 +16,12 @@ export class QueryCustomerDto {
   @Min(0)
   page?: number = 0;
 
-  @ApiPropertyOptional({ description: 'Page size', minimum: 1, maximum: 100, default: 20 })
+  @ApiPropertyOptional({
+    description: 'Page size',
+    minimum: 1,
+    maximum: 100,
+    default: 20,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
@@ -33,7 +38,10 @@ export class QueryCustomerDto {
   @IsString()
   sortBy?: string = 'created_at';
 
-  @ApiPropertyOptional({ description: 'Sort order (asc or desc)', default: 'desc' })
+  @ApiPropertyOptional({
+    description: 'Sort order (asc or desc)',
+    default: 'desc',
+  })
   @IsOptional()
   @IsEnum(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc' = 'desc';

@@ -14,7 +14,10 @@ import {
 import { AddressType } from './create-address.dto';
 
 export class UpdateAddressDto {
-  @ApiPropertyOptional({ description: 'Address label (e.g., Home, Office)', maxLength: 50 })
+  @ApiPropertyOptional({
+    description: 'Address label (e.g., Home, Office)',
+    maxLength: 50,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(50)

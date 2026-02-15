@@ -37,7 +37,9 @@ export class CreateProductDto {
   @MaxLength(100)
   sku: string;
 
-  @ApiPropertyOptional({ example: 'Premium Ashwagandha extract capsules for stress relief' })
+  @ApiPropertyOptional({
+    example: 'Premium Ashwagandha extract capsules for stress relief',
+  })
   @IsOptional()
   @IsString()
   description?: string;
@@ -61,7 +63,7 @@ export class CreateProductDto {
   @Type(() => Number)
   compare_at_price?: number;
 
-  @ApiPropertyOptional({ example: 250.00 })
+  @ApiPropertyOptional({ example: 250.0 })
   @IsOptional()
   @IsNumber()
   @Min(0)
@@ -95,7 +97,9 @@ export class CreateProductDto {
   @IsBoolean()
   is_featured?: boolean;
 
-  @ApiPropertyOptional({ example: 'Best Ashwagandha Capsules for Stress Relief' })
+  @ApiPropertyOptional({
+    example: 'Best Ashwagandha Capsules for Stress Relief',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(200)
@@ -107,13 +111,19 @@ export class CreateProductDto {
   @MaxLength(500)
   seo_description?: string;
 
-  @ApiPropertyOptional({ type: [String], example: ['Ashwagandha', 'Neem', 'Turmeric'] })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['Ashwagandha', 'Neem', 'Turmeric'],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   ingredients?: string[];
 
-  @ApiPropertyOptional({ type: [String], example: ['Stress relief', 'Immunity boost'] })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['Stress relief', 'Immunity boost'],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -124,7 +134,10 @@ export class CreateProductDto {
   @IsString()
   usage?: string;
 
-  @ApiPropertyOptional({ type: [String], example: ['https://example.com/image.jpg'] })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['https://example.com/image.jpg'],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

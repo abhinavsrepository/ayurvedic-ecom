@@ -86,7 +86,9 @@ __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('event'),
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
-    (0, swagger_1.ApiOperation)({ summary: 'Log analytics event (combines location + device + event)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Log analytics event (combines location + device + event)',
+    }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Event logged successfully' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     __param(0, (0, common_1.Body)()),

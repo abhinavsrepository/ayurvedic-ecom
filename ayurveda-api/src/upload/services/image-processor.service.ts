@@ -54,7 +54,10 @@ export class ImageProcessorService {
         },
       };
     } catch (error) {
-      this.logger.error(`Failed to optimize image: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to optimize image: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -82,7 +85,10 @@ export class ImageProcessorService {
         },
       };
     } catch (error) {
-      this.logger.error(`Failed to generate thumbnail: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to generate thumbnail: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -101,7 +107,10 @@ export class ImageProcessorService {
         size: imageBuffer.length,
       };
     } catch (error) {
-      this.logger.error(`Failed to get image metadata: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to get image metadata: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }

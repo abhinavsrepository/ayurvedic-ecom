@@ -127,9 +127,7 @@ export const useIsOnline = () => {
  * });
  * ```
  */
-export const useNetworkStatusChange = (
-  callback: (status: NetworkStatus) => void
-) => {
+export const useNetworkStatusChange = (callback: (status: NetworkStatus) => void) => {
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state: NetInfoState) => {
       callback({

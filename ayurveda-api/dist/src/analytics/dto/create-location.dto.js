@@ -76,7 +76,11 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateLocationDto.prototype, "latitude", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Longitude', minimum: -180, maximum: 180 }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Longitude',
+        minimum: -180,
+        maximum: 180,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.Min)(-180),

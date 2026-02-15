@@ -67,7 +67,10 @@ let OrdersService = OrdersService_1 = class OrdersService {
         const taxAmount = subtotal.mul(0.1);
         const shippingAmount = new library_1.Decimal(10);
         const discountAmount = new library_1.Decimal(0);
-        const total = subtotal.add(taxAmount).add(shippingAmount).sub(discountAmount);
+        const total = subtotal
+            .add(taxAmount)
+            .add(shippingAmount)
+            .sub(discountAmount);
         let customer = await this.prisma.customer.findUnique({
             where: { email: userId },
         });
@@ -170,7 +173,9 @@ let OrdersService = OrdersService_1 = class OrdersService {
                     where,
                     skip: page * size,
                     take: size,
-                    orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
+                    orderBy: {
+                        [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder,
+                    },
                     include: {
                         order_items: {
                             select: {

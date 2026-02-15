@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DEV_USER_CONFIG } from '../config/dev.config';
 
 /**
  * User interface representing authenticated user data
@@ -52,6 +53,7 @@ interface AuthActions {
   disableBiometric: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   updateUser: (updates: Partial<User>) => void;
+  devBypassLogin: () => Promise<void>;
 }
 
 /**
@@ -60,40 +62,10 @@ interface AuthActions {
 export type AuthStore = AuthState & AuthActions;
 
 /**
- * Secure storage implementation for encrypted persistence
- * Uses expo-secure-store for sensitive authentication data
- */
-const secureStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    try {
-      const value = await SecureStore.getItemAsync(name);
-      return value;
-    } catch (error) {
-      console.error('Error reading from secure storage:', error);
-      return null;
-    }
-  },
-  setItem: async (name: string, value: string): Promise<void> => {
-    try {
-      await SecureStore.setItemAsync(name, value);
-    } catch (error) {
-      console.error('Error writing to secure storage:', error);
-    }
-  },
-  removeItem: async (name: string): Promise<void> => {
-    try {
-      await SecureStore.deleteItemAsync(name);
-    } catch (error) {
-      console.error('Error removing from secure storage:', error);
-    }
-  },
-};
-
-/**
  * Authentication Store
  *
  * Manages user authentication state, tokens, and biometric settings.
- * All data is persisted to encrypted secure storage for security.
+ * Uses AsyncStorage for persistence (works on both web and native).
  *
  * @example
  * ```tsx
@@ -152,13 +124,6 @@ export const useAuthStore = create<AuthStore>()(
           accessToken: null,
           refreshToken: null,
         });
-
-        // Clear secure storage
-        try {
-          await SecureStore.deleteItemAsync('auth-storage');
-        } catch (error) {
-          console.error('Error clearing secure storage:', error);
-        }
       },
 
       /**
@@ -199,10 +164,41 @@ export const useAuthStore = create<AuthStore>()(
           });
         }
       },
+
+      /**
+       * Dev bypass login - auto-login with mock dev user
+       * Only works in development mode (__DEV__)
+       */
+      devBypassLogin: async () => {
+        if (typeof __DEV__ === 'undefined' || !__DEV__) {
+          console.warn('Dev bypass login is only available in development mode');
+          return;
+        }
+
+        const now = new Date().toISOString();
+        const devUser: User = {
+          ...DEV_USER_CONFIG,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        const devAccessToken = 'dev_access_token_' + Date.now();
+        const devRefreshToken = 'dev_refresh_token_' + Date.now();
+
+        set({
+          user: devUser,
+          isAuthenticated: true,
+          isLoading: false,
+          accessToken: devAccessToken,
+          refreshToken: devRefreshToken,
+        });
+
+        console.log('[DEV] Bypass login successful');
+      },
     }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => secureStorage),
+      storage: createJSONStorage(() => AsyncStorage),
       // Only persist essential data
       partialize: (state) => ({
         user: state.user,

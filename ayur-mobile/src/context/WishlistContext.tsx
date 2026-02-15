@@ -57,9 +57,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
   };
 
   const removeFromWishlist = (productId: string) => {
-    setWishlist((prevWishlist) =>
-      prevWishlist.filter((item) => item.id !== productId)
-    );
+    setWishlist((prevWishlist) => prevWishlist.filter((item) => item.id !== productId));
   };
 
   const isInWishlist = (productId: string): boolean => {

@@ -9,9 +9,19 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto, LoginResponseDto, RegisterDto, VerifyTwoFaDto } from './dto/login.dto';
+import {
+  LoginDto,
+  LoginResponseDto,
+  RegisterDto,
+  VerifyTwoFaDto,
+} from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -25,7 +35,11 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login with optional 2FA' })
-  @ApiResponse({ status: 200, description: 'Login successful', type: LoginResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful',
+    type: LoginResponseDto,
+  })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(loginDto);
@@ -35,7 +49,11 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Register a new admin user' })
-  @ApiResponse({ status: 201, description: 'Registration successful', type: LoginResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Registration successful',
+    type: LoginResponseDto,
+  })
   @ApiResponse({ status: 409, description: 'Username or email already exists' })
   async register(@Body() registerDto: RegisterDto): Promise<LoginResponseDto> {
     return this.authService.register(registerDto);
@@ -45,7 +63,11 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
-  @ApiResponse({ status: 200, description: 'Token refreshed', type: LoginResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Token refreshed',
+    type: LoginResponseDto,
+  })
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   async refreshToken(
     @Headers('x-refresh-token') refreshToken: string,
@@ -83,7 +105,10 @@ export class AuthController {
     @Body() verifyDto: VerifyTwoFaDto,
   ) {
     const isValid = await this.authService.verify2FA(userId, verifyDto.code);
-    return { success: isValid, message: isValid ? '2FA enabled' : 'Invalid code' };
+    return {
+      success: isValid,
+      message: isValid ? '2FA enabled' : 'Invalid code',
+    };
   }
 
   @UseGuards(JwtAuthGuard)

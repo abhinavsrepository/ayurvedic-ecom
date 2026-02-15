@@ -304,7 +304,9 @@ export const enable2FA = async (): Promise<TwoFactorAuthData> => {
  * @param code - 6-digit 2FA code
  * @returns Success status
  */
-export const verify2FA = async (code: string): Promise<{ success: boolean; backupCodes?: string[] }> => {
+export const verify2FA = async (
+  code: string
+): Promise<{ success: boolean; backupCodes?: string[] }> => {
   try {
     const response = await apiClient.post<ApiResponse<{ backupCodes?: string[] }>>(
       '/auth/2fa/verify',
@@ -348,7 +350,9 @@ export const disable2FA = async (code: string): Promise<{ success: boolean }> =>
  * @param email - User's email address
  * @returns Success status
  */
-export const forgotPassword = async (email: string): Promise<{ success: boolean; message: string }> => {
+export const forgotPassword = async (
+  email: string
+): Promise<{ success: boolean; message: string }> => {
   try {
     const response = await apiClient.post<ApiResponse>('/auth/forgot-password', { email });
 
@@ -428,7 +432,9 @@ export const changePassword = async (
  * @param token - Email verification token
  * @returns Success status
  */
-export const verifyEmail = async (token: string): Promise<{ success: boolean; message: string }> => {
+export const verifyEmail = async (
+  token: string
+): Promise<{ success: boolean; message: string }> => {
   try {
     const response = await apiClient.post<ApiResponse>('/auth/verify-email', { token });
 
@@ -473,10 +479,9 @@ export const resendVerificationEmail = async (): Promise<{ success: boolean; mes
  */
 export const checkEmailAvailability = async (email: string): Promise<boolean> => {
   try {
-    const response = await apiClient.get<ApiResponse<{ available: boolean }>>(
-      '/auth/check-email',
-      { params: { email } }
-    );
+    const response = await apiClient.get<ApiResponse<{ available: boolean }>>('/auth/check-email', {
+      params: { email },
+    });
 
     return response.data.data?.available ?? false;
   } catch (error: any) {

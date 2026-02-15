@@ -36,7 +36,7 @@ import { IpHasher } from './utils/ip-hasher.util';
 @ApiTags('Analytics')
 @Controller('analytics')
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) { }
+  constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Public()
   @Post('location')
@@ -65,7 +65,9 @@ export class AnalyticsController {
   @Public()
   @Post('event')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Log analytics event (combines location + device + event)' })
+  @ApiOperation({
+    summary: 'Log analytics event (combines location + device + event)',
+  })
   @ApiResponse({ status: 201, description: 'Event logged successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async logEvent(

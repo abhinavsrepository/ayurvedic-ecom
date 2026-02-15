@@ -47,7 +47,12 @@ __decorate([
     __metadata("design:type", Number)
 ], QueryOrderDto.prototype, "page", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Page size', minimum: 1, maximum: 100, default: 20 }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Page size',
+        minimum: 1,
+        maximum: 100,
+        default: 20,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
@@ -61,7 +66,10 @@ __decorate([
     __metadata("design:type", String)
 ], QueryOrderDto.prototype, "status", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by payment status', enum: PaymentStatus }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Filter by payment status',
+        enum: PaymentStatus,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(PaymentStatus),
     __metadata("design:type", String)
@@ -73,7 +81,10 @@ __decorate([
     __metadata("design:type", String)
 ], QueryOrderDto.prototype, "sortBy", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Sort order (asc or desc)', default: 'desc' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Sort order (asc or desc)',
+        default: 'desc',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(['asc', 'desc']),
     __metadata("design:type", String)

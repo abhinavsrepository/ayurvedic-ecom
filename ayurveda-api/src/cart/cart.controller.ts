@@ -43,7 +43,11 @@ export class CartController {
   @Public()
   @Get()
   @ApiOperation({ summary: 'Get current cart' })
-  @ApiHeader({ name: 'x-session-id', required: false, description: 'Session ID for guest cart' })
+  @ApiHeader({
+    name: 'x-session-id',
+    required: false,
+    description: 'Session ID for guest cart',
+  })
   @ApiResponse({ status: 200, description: 'Cart retrieved successfully' })
   async getCart(
     @CurrentUser('sub') userId: string | undefined,
@@ -55,9 +59,16 @@ export class CartController {
   @Public()
   @Post('items')
   @ApiOperation({ summary: 'Add item to cart' })
-  @ApiHeader({ name: 'x-session-id', required: false, description: 'Session ID for guest cart' })
+  @ApiHeader({
+    name: 'x-session-id',
+    required: false,
+    description: 'Session ID for guest cart',
+  })
   @ApiResponse({ status: 201, description: 'Item added successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid request or insufficient stock' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request or insufficient stock',
+  })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async addItem(
     @Body() dto: AddCartItemDto,
@@ -71,7 +82,11 @@ export class CartController {
   @Patch('items/:itemId')
   @ApiOperation({ summary: 'Update cart item quantity' })
   @ApiParam({ name: 'itemId', description: 'Cart item ID' })
-  @ApiHeader({ name: 'x-session-id', required: false, description: 'Session ID for guest cart' })
+  @ApiHeader({
+    name: 'x-session-id',
+    required: false,
+    description: 'Session ID for guest cart',
+  })
   @ApiResponse({ status: 200, description: 'Item updated successfully' })
   @ApiResponse({ status: 400, description: 'Insufficient stock' })
   @ApiResponse({ status: 404, description: 'Cart or item not found' })
@@ -88,7 +103,11 @@ export class CartController {
   @Delete('items/:itemId')
   @ApiOperation({ summary: 'Remove item from cart' })
   @ApiParam({ name: 'itemId', description: 'Cart item ID' })
-  @ApiHeader({ name: 'x-session-id', required: false, description: 'Session ID for guest cart' })
+  @ApiHeader({
+    name: 'x-session-id',
+    required: false,
+    description: 'Session ID for guest cart',
+  })
   @ApiResponse({ status: 200, description: 'Item removed successfully' })
   @ApiResponse({ status: 404, description: 'Cart or item not found' })
   async removeItem(
@@ -103,7 +122,11 @@ export class CartController {
   @Delete()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Clear entire cart' })
-  @ApiHeader({ name: 'x-session-id', required: false, description: 'Session ID for guest cart' })
+  @ApiHeader({
+    name: 'x-session-id',
+    required: false,
+    description: 'Session ID for guest cart',
+  })
   @ApiResponse({ status: 200, description: 'Cart cleared successfully' })
   async clearCart(
     @CurrentUser('sub') userId: string | undefined,
@@ -128,7 +151,11 @@ export class CartController {
   @Public()
   @Get('summary')
   @ApiOperation({ summary: 'Get cart summary with totals' })
-  @ApiHeader({ name: 'x-session-id', required: false, description: 'Session ID for guest cart' })
+  @ApiHeader({
+    name: 'x-session-id',
+    required: false,
+    description: 'Session ID for guest cart',
+  })
   @ApiResponse({ status: 200, description: 'Cart summary retrieved' })
   async getCartSummary(
     @CurrentUser('sub') userId: string | undefined,

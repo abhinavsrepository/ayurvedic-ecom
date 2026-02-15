@@ -63,7 +63,9 @@ __decorate([
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "sku", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'Premium Ashwagandha extract capsules for stress relief' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: 'Premium Ashwagandha extract capsules for stress relief',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
@@ -91,7 +93,7 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateProductDto.prototype, "compare_at_price", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 250.00 }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 250.0 }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.Min)(0),
@@ -131,7 +133,9 @@ __decorate([
     __metadata("design:type", Boolean)
 ], CreateProductDto.prototype, "is_featured", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'Best Ashwagandha Capsules for Stress Relief' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: 'Best Ashwagandha Capsules for Stress Relief',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MaxLength)(200),
@@ -145,14 +149,20 @@ __decorate([
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "seo_description", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ type: [String], example: ['Ashwagandha', 'Neem', 'Turmeric'] }),
+    (0, swagger_1.ApiPropertyOptional)({
+        type: [String],
+        example: ['Ashwagandha', 'Neem', 'Turmeric'],
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),
     __metadata("design:type", Array)
 ], CreateProductDto.prototype, "ingredients", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ type: [String], example: ['Stress relief', 'Immunity boost'] }),
+    (0, swagger_1.ApiPropertyOptional)({
+        type: [String],
+        example: ['Stress relief', 'Immunity boost'],
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),
@@ -165,7 +175,10 @@ __decorate([
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "usage", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ type: [String], example: ['https://example.com/image.jpg'] }),
+    (0, swagger_1.ApiPropertyOptional)({
+        type: [String],
+        example: ['https://example.com/image.jpg'],
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),

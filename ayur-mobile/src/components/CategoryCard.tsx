@@ -1,4 +1,4 @@
- import React from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,11 +9,7 @@ import { CategoryCardProps } from '../types';
  * Category Card Component
  * Displays category with icon in a beautiful gradient card
  */
-export const CategoryCard: React.FC<CategoryCardProps> = ({
-  category,
-  icon,
-  onPress,
-}) => {
+export const CategoryCard: React.FC<CategoryCardProps> = ({ category, icon, onPress }) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
       <LinearGradient

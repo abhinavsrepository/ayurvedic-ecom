@@ -10,7 +10,12 @@ export class AddCartItemDto {
   @IsUUID()
   productId: string;
 
-  @ApiProperty({ description: 'Quantity to add', minimum: 1, maximum: 99, default: 1 })
+  @ApiProperty({
+    description: 'Quantity to add',
+    minimum: 1,
+    maximum: 99,
+    default: 1,
+  })
   @IsInt()
   @Min(1)
   @Max(99)

@@ -10,14 +10,7 @@
  */
 
 import React, { useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   FadeInDown,
@@ -51,13 +44,16 @@ const CATEGORIES: { name: CategoryType; icon: string }[] = [
 /**
  * Dosha-specific hero configurations
  */
-const DOSHA_HERO_CONFIG: Record<'Vata' | 'Pitta' | 'Kapha', {
-  title: string;
-  subtitle: string;
-  emoji: string;
-  gradient: readonly [string, string];
-  cta: string;
-}> = {
+const DOSHA_HERO_CONFIG: Record<
+  'Vata' | 'Pitta' | 'Kapha',
+  {
+    title: string;
+    subtitle: string;
+    emoji: string;
+    gradient: readonly [string, string];
+    cta: string;
+  }
+> = {
   Vata: {
     title: 'Balance Your Vata',
     subtitle: 'Grounding warmth for air & ether',
@@ -159,7 +155,7 @@ export const ModernHomeScreen: React.FC = () => {
               styles.heroGradient,
               {
                 padding: theme.spacing.xl * theme.layout.componentScale,
-              }
+              },
             ]}
           >
             <View style={styles.heroContent}>
@@ -170,7 +166,7 @@ export const ModernHomeScreen: React.FC = () => {
                   {
                     fontSize: 26 * theme.layout.typographyScale,
                     marginBottom: theme.spacing.sm,
-                  }
+                  },
                 ]}
               >
                 {heroConfig.title}
@@ -182,7 +178,7 @@ export const ModernHomeScreen: React.FC = () => {
                   {
                     fontSize: 15,
                     marginBottom: theme.spacing.lg,
-                  }
+                  },
                 ]}
               >
                 {heroConfig.subtitle}
@@ -198,24 +194,24 @@ export const ModernHomeScreen: React.FC = () => {
                         paddingHorizontal: theme.spacing.lg,
                         paddingVertical: theme.spacing.md,
                         borderRadius: theme.borderRadius.button,
-                      }
+                      },
                     ]}
-                    onPress={() => (navigation as any).navigate('Products', {
-                      dosha: doshaResult.primary
-                    })}
+                    onPress={() =>
+                      (navigation as any).navigate('Products', {
+                        dosha: doshaResult.primary,
+                      })
+                    }
                     activeOpacity={0.8}
                   >
-                    <BlurView
-                      intensity={20}
-                      tint="light"
-                      style={styles.heroCTABlur}
-                    >
-                      <Text style={[
-                        styles.heroCTAText,
-                        {
-                          fontSize: 14,
-                        }
-                      ]}>
+                    <BlurView intensity={20} tint="light" style={styles.heroCTABlur}>
+                      <Text
+                        style={[
+                          styles.heroCTAText,
+                          {
+                            fontSize: 14,
+                          },
+                        ]}
+                      >
                         {heroConfig.cta}
                       </Text>
                       <Ionicons
@@ -239,7 +235,7 @@ export const ModernHomeScreen: React.FC = () => {
                         paddingHorizontal: theme.spacing.lg,
                         paddingVertical: theme.spacing.md,
                         borderRadius: theme.borderRadius.button,
-                      }
+                      },
                     ]}
                     onPress={() => {
                       // Navigate to quiz screen
@@ -247,17 +243,15 @@ export const ModernHomeScreen: React.FC = () => {
                     }}
                     activeOpacity={0.8}
                   >
-                    <BlurView
-                      intensity={20}
-                      tint="light"
-                      style={styles.heroCTABlur}
-                    >
-                      <Text style={[
-                        styles.heroCTAText,
-                        {
-                          fontSize: 14,
-                        }
-                      ]}>
+                    <BlurView intensity={20} tint="light" style={styles.heroCTABlur}>
+                      <Text
+                        style={[
+                          styles.heroCTAText,
+                          {
+                            fontSize: 14,
+                          },
+                        ]}
+                      >
                         Discover Your Dosha
                       </Text>
                       <Ionicons
@@ -274,12 +268,14 @@ export const ModernHomeScreen: React.FC = () => {
 
             {/* Dosha Emoji */}
             <View style={styles.heroImageContainer}>
-              <Text style={[
-                styles.heroEmoji,
-                {
-                  fontSize: 80 * theme.layout.componentScale,
-                }
-              ]}>
+              <Text
+                style={[
+                  styles.heroEmoji,
+                  {
+                    fontSize: 80 * theme.layout.componentScale,
+                  },
+                ]}
+              >
                 {heroConfig.emoji}
               </Text>
             </View>
@@ -293,33 +289,39 @@ export const ModernHomeScreen: React.FC = () => {
             styles.section,
             {
               marginTop: theme.spacing.lg,
-            }
+            },
           ]}
         >
-          <View style={[
-            styles.sectionHeader,
-            {
-              paddingHorizontal: theme.spacing.md,
-              marginBottom: theme.spacing.md,
-            }
-          ]}>
-            <Text style={[
-              styles.sectionTitle,
+          <View
+            style={[
+              styles.sectionHeader,
               {
-                fontSize: 20 * theme.layout.typographyScale,
-                color: theme.colors.text,
-              }
-            ]}>
+                paddingHorizontal: theme.spacing.md,
+                marginBottom: theme.spacing.md,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                {
+                  fontSize: 20 * theme.layout.typographyScale,
+                  color: theme.colors.text,
+                },
+              ]}
+            >
               Shop by Category
             </Text>
             <TouchableOpacity onPress={() => (navigation as any).navigate('Products')}>
-              <Text style={[
-                styles.seeAll,
-                {
-                  fontSize: 14,
-                  color: theme.colors.primary,
-                }
-              ]}>
+              <Text
+                style={[
+                  styles.seeAll,
+                  {
+                    fontSize: 14,
+                    color: theme.colors.primary,
+                  },
+                ]}
+              >
                 See All
               </Text>
             </TouchableOpacity>
@@ -352,33 +354,39 @@ export const ModernHomeScreen: React.FC = () => {
             styles.section,
             {
               marginTop: theme.spacing.lg,
-            }
+            },
           ]}
         >
-          <View style={[
-            styles.sectionHeader,
-            {
-              paddingHorizontal: theme.spacing.md,
-              marginBottom: theme.spacing.md,
-            }
-          ]}>
-            <Text style={[
-              styles.sectionTitle,
+          <View
+            style={[
+              styles.sectionHeader,
               {
-                fontSize: 20 * theme.layout.typographyScale,
-                color: theme.colors.text,
-              }
-            ]}>
+                paddingHorizontal: theme.spacing.md,
+                marginBottom: theme.spacing.md,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                {
+                  fontSize: 20 * theme.layout.typographyScale,
+                  color: theme.colors.text,
+                },
+              ]}
+            >
               Featured Products
             </Text>
             <TouchableOpacity onPress={() => (navigation as any).navigate('Products')}>
-              <Text style={[
-                styles.seeAll,
-                {
-                  fontSize: 14,
-                  color: theme.colors.primary,
-                }
-              ]}>
+              <Text
+                style={[
+                  styles.seeAll,
+                  {
+                    fontSize: 14,
+                    color: theme.colors.primary,
+                  },
+                ]}
+              >
                 See All
               </Text>
             </TouchableOpacity>
@@ -410,16 +418,18 @@ export const ModernHomeScreen: React.FC = () => {
             styles.section,
             {
               marginTop: theme.spacing.lg,
-            }
+            },
           ]}
         >
-          <View style={[
-            styles.sectionHeader,
-            {
-              paddingHorizontal: theme.spacing.md,
-              marginBottom: theme.spacing.md,
-            }
-          ]}>
+          <View
+            style={[
+              styles.sectionHeader,
+              {
+                paddingHorizontal: theme.spacing.md,
+                marginBottom: theme.spacing.md,
+              },
+            ]}
+          >
             <View style={styles.sectionTitleContainer}>
               <Ionicons
                 name="flame"
@@ -427,24 +437,28 @@ export const ModernHomeScreen: React.FC = () => {
                 color={theme.colors.error}
                 style={{ marginRight: theme.spacing.xs }}
               />
-              <Text style={[
-                styles.sectionTitle,
-                {
-                  fontSize: 20 * theme.layout.typographyScale,
-                  color: theme.colors.text,
-                }
-              ]}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  {
+                    fontSize: 20 * theme.layout.typographyScale,
+                    color: theme.colors.text,
+                  },
+                ]}
+              >
                 Best Sellers
               </Text>
             </View>
             <TouchableOpacity onPress={() => (navigation as any).navigate('Products')}>
-              <Text style={[
-                styles.seeAll,
-                {
-                  fontSize: 14,
-                  color: theme.colors.primary,
-                }
-              ]}>
+              <Text
+                style={[
+                  styles.seeAll,
+                  {
+                    fontSize: 14,
+                    color: theme.colors.primary,
+                  },
+                ]}
+              >
                 See All
               </Text>
             </TouchableOpacity>
@@ -478,107 +492,125 @@ export const ModernHomeScreen: React.FC = () => {
               paddingHorizontal: theme.spacing.md,
               paddingVertical: theme.spacing.xl,
               marginTop: theme.spacing.lg,
-            }
+            },
           ]}
         >
           <View style={styles.benefitItem}>
-            <View style={[
-              styles.benefitIcon,
-              {
-                width: 60,
-                height: 60,
-                borderRadius: 30,
-                marginBottom: theme.spacing.sm,
-              },
-              shadow,
-            ]}>
+            <View
+              style={[
+                styles.benefitIcon,
+                {
+                  width: 60,
+                  height: 60,
+                  borderRadius: 30,
+                  marginBottom: theme.spacing.sm,
+                },
+                shadow,
+              ]}
+            >
               <Ionicons name="leaf-outline" size={32} color={theme.colors.primary} />
             </View>
-            <Text style={[
-              styles.benefitTitle,
-              {
-                fontSize: 13,
-                color: theme.colors.text,
-                marginBottom: theme.spacing.xs / 2,
-              }
-            ]}>
+            <Text
+              style={[
+                styles.benefitTitle,
+                {
+                  fontSize: 13,
+                  color: theme.colors.text,
+                  marginBottom: theme.spacing.xs / 2,
+                },
+              ]}
+            >
               100% Natural
             </Text>
-            <Text style={[
-              styles.benefitText,
-              {
-                fontSize: 11,
-                color: theme.colors.textSecondary,
-              }
-            ]}>
+            <Text
+              style={[
+                styles.benefitText,
+                {
+                  fontSize: 11,
+                  color: theme.colors.textSecondary,
+                },
+              ]}
+            >
               Pure herbal ingredients
             </Text>
           </View>
 
           <View style={styles.benefitItem}>
-            <View style={[
-              styles.benefitIcon,
-              {
-                width: 60,
-                height: 60,
-                borderRadius: 30,
-                marginBottom: theme.spacing.sm,
-              },
-              shadow,
-            ]}>
+            <View
+              style={[
+                styles.benefitIcon,
+                {
+                  width: 60,
+                  height: 60,
+                  borderRadius: 30,
+                  marginBottom: theme.spacing.sm,
+                },
+                shadow,
+              ]}
+            >
               <Ionicons name="shield-checkmark-outline" size={32} color={theme.colors.primary} />
             </View>
-            <Text style={[
-              styles.benefitTitle,
-              {
-                fontSize: 13,
-                color: theme.colors.text,
-                marginBottom: theme.spacing.xs / 2,
-              }
-            ]}>
+            <Text
+              style={[
+                styles.benefitTitle,
+                {
+                  fontSize: 13,
+                  color: theme.colors.text,
+                  marginBottom: theme.spacing.xs / 2,
+                },
+              ]}
+            >
               Certified
             </Text>
-            <Text style={[
-              styles.benefitText,
-              {
-                fontSize: 11,
-                color: theme.colors.textSecondary,
-              }
-            ]}>
+            <Text
+              style={[
+                styles.benefitText,
+                {
+                  fontSize: 11,
+                  color: theme.colors.textSecondary,
+                },
+              ]}
+            >
               Ayurvedic approved
             </Text>
           </View>
 
           <View style={styles.benefitItem}>
-            <View style={[
-              styles.benefitIcon,
-              {
-                width: 60,
-                height: 60,
-                borderRadius: 30,
-                marginBottom: theme.spacing.sm,
-              },
-              shadow,
-            ]}>
+            <View
+              style={[
+                styles.benefitIcon,
+                {
+                  width: 60,
+                  height: 60,
+                  borderRadius: 30,
+                  marginBottom: theme.spacing.sm,
+                },
+                shadow,
+              ]}
+            >
               <Ionicons name="rocket-outline" size={32} color={theme.colors.primary} />
             </View>
-            <Text style={[
-              styles.benefitTitle,
-              {
-                fontSize: 13,
-                color: theme.colors.text,
-                marginBottom: theme.spacing.xs / 2,
-              }
-            ]}>
+            <Text
+              style={[
+                styles.benefitTitle,
+                {
+                  fontSize: 13,
+                  color: theme.colors.text,
+                  marginBottom: theme.spacing.xs / 2,
+                },
+              ]}
+            >
               Fast Delivery
             </Text>
-            <Text style={[
-              styles.benefitText,
-              {
-                fontSize: 11,
-                color: theme.colors.textSecondary,
-              }
-            ]}>
+            <Text
+              style={[
+                styles.benefitText,
+                {
+                  fontSize: 11,
+                  color: theme.colors.textSecondary,
+                },
+              ]}
+            >
               Free over $50
             </Text>
           </View>

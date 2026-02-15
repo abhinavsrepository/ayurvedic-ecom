@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../styles/theme';
 import { Header, Input, ProductCard, EmptyState } from '../components';
@@ -30,11 +24,9 @@ export const SearchScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState(RECENT_SEARCHES);
 
-  const { data: searchResults, isLoading: loading } = useSearchProducts(
-    searchQuery,
-    undefined,
-    { enabled: searchQuery.length >= 2 }
-  );
+  const { data: searchResults, isLoading: loading } = useSearchProducts(searchQuery, undefined, {
+    enabled: searchQuery.length >= 2,
+  });
   const products = searchResults?.data || [];
 
   const handleSearch = (query: string) => {
@@ -78,9 +70,7 @@ export const SearchScreen: React.FC = () => {
               <View style={styles.productWrapper}>
                 <ProductCard
                   product={item}
-                  onPress={() =>
-                    navigation.navigate('ProductDetails', { productId: item.id })
-                  }
+                  onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
                 />
               </View>
             )}
@@ -126,11 +116,7 @@ export const SearchScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>Suggested Searches</Text>
             <View style={styles.suggestedTags}>
               {SUGGESTED_SEARCHES.map((item, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.tag}
-                  onPress={() => handleSearch(item)}
-                >
+                <TouchableOpacity key={index} style={styles.tag} onPress={() => handleSearch(item)}>
                   <Text style={styles.tagText}>{item}</Text>
                 </TouchableOpacity>
               ))}

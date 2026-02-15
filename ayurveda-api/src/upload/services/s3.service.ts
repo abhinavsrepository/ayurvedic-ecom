@@ -52,7 +52,9 @@ export class S3Service {
     const ext = path.extname(originalName);
     const hash = crypto.randomBytes(16).toString('hex');
     const timestamp = Date.now();
-    const baseName = path.basename(originalName, ext).replace(/[^a-zA-Z0-9]/g, '-');
+    const baseName = path
+      .basename(originalName, ext)
+      .replace(/[^a-zA-Z0-9]/g, '-');
 
     if (prefix) {
       return `${prefix}/${timestamp}-${hash}-${baseName}${ext}`;
@@ -97,7 +99,10 @@ export class S3Service {
         bucket: this.bucket,
       };
     } catch (error) {
-      this.logger.error(`Failed to upload to S3: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to upload to S3: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -115,7 +120,10 @@ export class S3Service {
       await this.s3Client.send(command);
       this.logger.log(`File deleted from S3: ${key}`);
     } catch (error) {
-      this.logger.error(`Failed to delete from S3: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete from S3: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -133,7 +141,10 @@ export class S3Service {
       const url = await getSignedUrl(this.s3Client, command, { expiresIn });
       return url;
     } catch (error) {
-      this.logger.error(`Failed to generate signed URL: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to generate signed URL: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }

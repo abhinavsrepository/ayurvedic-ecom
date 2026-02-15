@@ -33,7 +33,9 @@ let CartService = CartService_1 = class CartService {
                 data: {
                     user_id: userId || null,
                     session_id: sessionId || null,
-                    expires_at: userId ? null : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                    expires_at: userId
+                        ? null
+                        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
                 },
                 include: {
                     cart_items: {
@@ -160,7 +162,9 @@ let CartService = CartService_1 = class CartService {
             where: { id: item.product_id },
             include: { stock: true },
         });
-        if (!product || !product.stock[0] || product.stock[0].quantity < dto.quantity) {
+        if (!product ||
+            !product.stock[0] ||
+            product.stock[0].quantity < dto.quantity) {
             throw new common_1.BadRequestException('Insufficient stock');
         }
         await this.prisma.cartItem.update({
@@ -298,7 +302,9 @@ let CartService = CartService_1 = class CartService {
                 data: {
                     user_id: userId || null,
                     session_id: sessionId || null,
-                    expires_at: userId ? null : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                    expires_at: userId
+                        ? null
+                        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
                 },
             });
         }

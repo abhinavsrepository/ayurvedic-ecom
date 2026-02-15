@@ -4,11 +4,7 @@
  * Data Transfer Object for creating an analytics event.
  */
 
-import {
-  IsString,
-  IsOptional,
-  IsObject,
-} from 'class-validator';
+import { IsString, IsOptional, IsObject } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CreateLocationDto } from './create-location.dto';
 import { CreateDeviceDto } from './create-device.dto';

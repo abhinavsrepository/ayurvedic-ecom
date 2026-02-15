@@ -44,7 +44,7 @@ const apiClient: AxiosInstance = axios.create({
   timeout: Config.API_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
     'X-App-Version': Config.APP_VERSION,
     'X-Platform': 'mobile',
   },

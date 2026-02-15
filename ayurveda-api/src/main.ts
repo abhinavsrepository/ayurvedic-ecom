@@ -31,7 +31,7 @@ async function bootstrap() {
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Refresh-Token'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Refresh-Token', 'X-Session-Id'],
   });
 
   // Global validation
@@ -45,10 +45,7 @@ async function bootstrap() {
   );
 
   // Global filters
-  app.useGlobalFilters(
-    new AllExceptionsFilter(),
-    new PrismaExceptionFilter(),
-  );
+  app.useGlobalFilters(new AllExceptionsFilter(), new PrismaExceptionFilter());
 
   // Global interceptors
   app.useGlobalInterceptors(new LoggingInterceptor());
@@ -60,10 +57,15 @@ async function bootstrap() {
   // Swagger
   const config = new DocumentBuilder()
     .setTitle('Ayurveda E-Commerce API')
-    .setDescription('Complete enterprise backend with Auth, Products, Orders, Payments, ML')
+    .setDescription(
+      'Complete enterprise backend with Auth, Products, Orders, Payments, ML',
+    )
     .setVersion('1.0')
     .addBearerAuth()
-    .addApiKey({ type: 'apiKey', name: 'X-Refresh-Token', in: 'header' }, 'refresh-token')
+    .addApiKey(
+      { type: 'apiKey', name: 'X-Refresh-Token', in: 'header' },
+      'refresh-token',
+    )
     .addTag('Authentication')
     .addTag('Products')
     .addTag('Orders')
@@ -99,5 +101,3 @@ async function bootstrap() {
 }
 
 bootstrap();
-
-

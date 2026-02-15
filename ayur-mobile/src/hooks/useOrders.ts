@@ -131,13 +131,8 @@ export const useCancelOrder = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      orderId,
-      reason,
-    }: {
-      orderId: string;
-      reason?: string;
-    }) => orderService.cancelOrder(orderId, reason),
+    mutationFn: ({ orderId, reason }: { orderId: string; reason?: string }) =>
+      orderService.cancelOrder(orderId, reason),
     onSuccess: (data, variables) => {
       // Update order in cache
       queryClient.setQueryData(orderKeys.detail(variables.orderId), data);
@@ -297,13 +292,8 @@ export const useUpdateOrderPayment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      orderId,
-      paymentMethod,
-    }: {
-      orderId: string;
-      paymentMethod: any;
-    }) => orderService.updateOrderPayment(orderId, paymentMethod),
+    mutationFn: ({ orderId, paymentMethod }: { orderId: string; paymentMethod: any }) =>
+      orderService.updateOrderPayment(orderId, paymentMethod),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: orderKeys.detail(variables.orderId),
@@ -332,13 +322,8 @@ export const useConfirmPayment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      orderId,
-      paymentDetails,
-    }: {
-      orderId: string;
-      paymentDetails: any;
-    }) => orderService.confirmPayment(orderId, paymentDetails),
+    mutationFn: ({ orderId, paymentDetails }: { orderId: string; paymentDetails: any }) =>
+      orderService.confirmPayment(orderId, paymentDetails),
     onSuccess: (data, variables) => {
       queryClient.setQueryData(orderKeys.detail(variables.orderId), data);
       queryClient.invalidateQueries({ queryKey: orderKeys.lists() });

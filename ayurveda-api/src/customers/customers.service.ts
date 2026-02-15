@@ -39,7 +39,13 @@ export class CustomersService {
     return this.cacheService.wrap(
       cacheKey,
       async () => {
-        const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = query;
+        const {
+          page = 0,
+          size = 20,
+          sortBy = 'created_at',
+          sortOrder = 'desc',
+          ...filters
+        } = query;
 
         const where: any = {
           deleted_at: null,
@@ -150,7 +156,9 @@ export class CustomersService {
       });
 
       if (existing) {
-        throw new ConflictException(`Customer with email '${updateCustomerDto.email}' already exists`);
+        throw new ConflictException(
+          `Customer with email '${updateCustomerDto.email}' already exists`,
+        );
       }
     }
 
@@ -226,7 +234,12 @@ export class CustomersService {
    * @param queryDto - Query parameters
    */
   async search(query: string, queryDto: QueryCustomerDto) {
-    const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc' } = queryDto;
+    const {
+      page = 0,
+      size = 20,
+      sortBy = 'created_at',
+      sortOrder = 'desc',
+    } = queryDto;
 
     const where: any = {
       deleted_at: null,
@@ -274,7 +287,13 @@ export class CustomersService {
    * @param queryDto - Query parameters for filtering
    */
   async export(queryDto: QueryCustomerDto) {
-    const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = queryDto;
+    const {
+      page = 0,
+      size = 20,
+      sortBy = 'created_at',
+      sortOrder = 'desc',
+      ...filters
+    } = queryDto;
 
     const where: any = {
       deleted_at: null,

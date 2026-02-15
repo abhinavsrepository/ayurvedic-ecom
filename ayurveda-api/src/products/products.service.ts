@@ -4,7 +4,12 @@
  * Business logic for product operations with Redis caching and Prisma ORM.
  */
 
-import { Injectable, NotFoundException, Logger, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Logger,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CacheService } from '../cache/cache.service';
 import { CACHE_KEYS, CACHE_TTL } from '../cache/cache.constants';
@@ -19,7 +24,7 @@ export class ProductsService {
   constructor(
     private prisma: PrismaService,
     private cacheService: CacheService,
-  ) { }
+  ) {}
 
   /**
    * Create a new product
@@ -31,7 +36,9 @@ export class ProductsService {
     });
 
     if (existing) {
-      throw new ConflictException(`Product with slug '${createProductDto.slug}' already exists`);
+      throw new ConflictException(
+        `Product with slug '${createProductDto.slug}' already exists`,
+      );
     }
 
     const product = await this.prisma.product.create({
@@ -96,7 +103,13 @@ export class ProductsService {
     return this.cacheService.wrap(
       cacheKey,
       async () => {
-        const { page = 0, size = 20, sortBy = 'createdAt', sortOrder = 'desc', ...filters } = query;
+        const {
+          page = 0,
+          size = 20,
+          sortBy = 'createdAt',
+          sortOrder = 'desc',
+          ...filters
+        } = query;
 
         const where: any = {};
 
@@ -143,7 +156,9 @@ export class ProductsService {
             where,
             skip: page * size,
             take: size,
-            orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
+            orderBy: {
+              [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder,
+            },
           }),
           this.prisma.product.count({ where }),
         ]);
@@ -223,7 +238,9 @@ export class ProductsService {
       });
 
       if (existing) {
-        throw new ConflictException(`Product with slug '${updateProductDto.slug}' already exists`);
+        throw new ConflictException(
+          `Product with slug '${updateProductDto.slug}' already exists`,
+        );
       }
     }
 
@@ -284,7 +301,12 @@ export class ProductsService {
    * Search products by query
    */
   async search(query: string, queryDto: QueryProductDto) {
-    const { page = 0, size = 20, sortBy = 'createdAt', sortOrder = 'desc' } = queryDto;
+    const {
+      page = 0,
+      size = 20,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = queryDto;
 
     const where: any = {};
 
@@ -300,7 +322,9 @@ export class ProductsService {
         where,
         skip: page * size,
         take: size,
-        orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
+        orderBy: {
+          [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder,
+        },
       }),
       this.prisma.product.count({ where }),
     ]);

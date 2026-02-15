@@ -9,46 +9,31 @@ export default function HomeScreen({ navigation }: any) {
       </View>
 
       <View style={styles.grid}>
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Products')}
-        >
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Products')}>
           <Text style={styles.cardIcon}>🛒</Text>
           <Text style={styles.cardTitle}>Shop Products</Text>
           <Text style={styles.cardDesc}>Browse Ayurvedic products</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Quiz')}
-        >
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Quiz')}>
           <Text style={styles.cardIcon}>🧘</Text>
           <Text style={styles.cardTitle}>Dosha Quiz</Text>
           <Text style={styles.cardDesc}>Discover your dosha type</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Consult')}
-        >
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Consult')}>
           <Text style={styles.cardIcon}>👨‍⚕️</Text>
           <Text style={styles.cardTitle}>Consult Doctor</Text>
           <Text style={styles.cardDesc}>Expert advice</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Blog')}
-        >
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Blog')}>
           <Text style={styles.cardIcon}>📚</Text>
           <Text style={styles.cardTitle}>Wellness Blog</Text>
           <Text style={styles.cardDesc}>Learn Ayurveda</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Cart')}
-        >
+        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Cart')}>
           <Text style={styles.cardIcon}>🛍️</Text>
           <Text style={styles.cardTitle}>Cart</Text>
           <Text style={styles.cardDesc}>View your items</Text>

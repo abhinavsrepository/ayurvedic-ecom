@@ -330,12 +330,7 @@ export const {
 /**
  * Type Exports
  */
-export type {
-  ColorShade,
-  ColorPalette,
-  BrandColor,
-  DoshaType,
-} from './colors';
+export type { ColorShade, ColorPalette, BrandColor, DoshaType } from './colors';
 
 export type {
   Spacing,

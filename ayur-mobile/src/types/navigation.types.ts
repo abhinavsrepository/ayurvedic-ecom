@@ -181,100 +181,91 @@ export type ProfileStackParamList = {
  */
 
 // Root Stack Screen Props
-export type RootStackScreenProps<T extends keyof RootStackParamList> =
-  NativeStackScreenProps<RootStackParamList, T>;
+export type RootStackScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
+  RootStackParamList,
+  T
+>;
 
 // Auth Stack Screen Props
-export type AuthStackScreenProps<T extends keyof AuthStackParamList> =
-  CompositeScreenProps<
-    NativeStackScreenProps<AuthStackParamList, T>,
-    RootStackScreenProps<keyof RootStackParamList>
-  >;
+export type AuthStackScreenProps<T extends keyof AuthStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<AuthStackParamList, T>,
+  RootStackScreenProps<keyof RootStackParamList>
+>;
 
 // Main Tab Screen Props
-export type MainTabScreenProps<T extends keyof MainTabParamList> =
-  CompositeScreenProps<
-    BottomTabScreenProps<MainTabParamList, T>,
-    RootStackScreenProps<keyof RootStackParamList>
-  >;
+export type MainTabScreenProps<T extends keyof MainTabParamList> = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, T>,
+  RootStackScreenProps<keyof RootStackParamList>
+>;
 
 // Home Stack Screen Props
-export type HomeStackScreenProps<T extends keyof HomeStackParamList> =
+export type HomeStackScreenProps<T extends keyof HomeStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<HomeStackParamList, T>,
   CompositeScreenProps<
-    NativeStackScreenProps<HomeStackParamList, T>,
-    CompositeScreenProps<
-      MainTabScreenProps<'HomeTab'>,
-      RootStackScreenProps<keyof RootStackParamList>
-    >
-  >;
+    MainTabScreenProps<'HomeTab'>,
+    RootStackScreenProps<keyof RootStackParamList>
+  >
+>;
 
 // Shop Stack Screen Props
-export type ShopStackScreenProps<T extends keyof ShopStackParamList> =
+export type ShopStackScreenProps<T extends keyof ShopStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<ShopStackParamList, T>,
   CompositeScreenProps<
-    NativeStackScreenProps<ShopStackParamList, T>,
-    CompositeScreenProps<
-      MainTabScreenProps<'ShopTab'>,
-      RootStackScreenProps<keyof RootStackParamList>
-    >
-  >;
+    MainTabScreenProps<'ShopTab'>,
+    RootStackScreenProps<keyof RootStackParamList>
+  >
+>;
 
 // Consultation Stack Screen Props
-export type ConsultStackScreenProps<T extends keyof ConsultStackParamList> =
+export type ConsultStackScreenProps<T extends keyof ConsultStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<ConsultStackParamList, T>,
   CompositeScreenProps<
-    NativeStackScreenProps<ConsultStackParamList, T>,
-    CompositeScreenProps<
-      MainTabScreenProps<'ConsultTab'>,
-      RootStackScreenProps<keyof RootStackParamList>
-    >
-  >;
+    MainTabScreenProps<'ConsultTab'>,
+    RootStackScreenProps<keyof RootStackParamList>
+  >
+>;
 
 // Blog Stack Screen Props
-export type BlogStackScreenProps<T extends keyof BlogStackParamList> =
+export type BlogStackScreenProps<T extends keyof BlogStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<BlogStackParamList, T>,
   CompositeScreenProps<
-    NativeStackScreenProps<BlogStackParamList, T>,
-    CompositeScreenProps<
-      MainTabScreenProps<'BlogTab'>,
-      RootStackScreenProps<keyof RootStackParamList>
-    >
-  >;
+    MainTabScreenProps<'BlogTab'>,
+    RootStackScreenProps<keyof RootStackParamList>
+  >
+>;
 
 // Profile Stack Screen Props
-export type ProfileStackScreenProps<T extends keyof ProfileStackParamList> =
+export type ProfileStackScreenProps<T extends keyof ProfileStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<ProfileStackParamList, T>,
   CompositeScreenProps<
-    NativeStackScreenProps<ProfileStackParamList, T>,
-    CompositeScreenProps<
-      MainTabScreenProps<'ProfileTab'>,
-      RootStackScreenProps<keyof RootStackParamList>
-    >
-  >;
+    MainTabScreenProps<'ProfileTab'>,
+    RootStackScreenProps<keyof RootStackParamList>
+  >
+>;
 
 /**
  * Navigation Prop Types
  * For use with useNavigation hook
  */
-export type RootStackNavigationProp =
-  RootStackScreenProps<keyof RootStackParamList>['navigation'];
+export type RootStackNavigationProp = RootStackScreenProps<keyof RootStackParamList>['navigation'];
 
-export type AuthStackNavigationProp =
-  AuthStackScreenProps<keyof AuthStackParamList>['navigation'];
+export type AuthStackNavigationProp = AuthStackScreenProps<keyof AuthStackParamList>['navigation'];
 
-export type MainTabNavigationProp =
-  MainTabScreenProps<keyof MainTabParamList>['navigation'];
+export type MainTabNavigationProp = MainTabScreenProps<keyof MainTabParamList>['navigation'];
 
-export type HomeStackNavigationProp =
-  HomeStackScreenProps<keyof HomeStackParamList>['navigation'];
+export type HomeStackNavigationProp = HomeStackScreenProps<keyof HomeStackParamList>['navigation'];
 
-export type ShopStackNavigationProp =
-  ShopStackScreenProps<keyof ShopStackParamList>['navigation'];
+export type ShopStackNavigationProp = ShopStackScreenProps<keyof ShopStackParamList>['navigation'];
 
-export type ConsultStackNavigationProp =
-  ConsultStackScreenProps<keyof ConsultStackParamList>['navigation'];
+export type ConsultStackNavigationProp = ConsultStackScreenProps<
+  keyof ConsultStackParamList
+>['navigation'];
 
-export type BlogStackNavigationProp =
-  BlogStackScreenProps<keyof BlogStackParamList>['navigation'];
+export type BlogStackNavigationProp = BlogStackScreenProps<keyof BlogStackParamList>['navigation'];
 
-export type ProfileStackNavigationProp =
-  ProfileStackScreenProps<keyof ProfileStackParamList>['navigation'];
+export type ProfileStackNavigationProp = ProfileStackScreenProps<
+  keyof ProfileStackParamList
+>['navigation'];
 
 /**
  * Route Prop Types
@@ -286,8 +277,7 @@ export type RootStackRouteProp<T extends keyof RootStackParamList> =
 export type AuthStackRouteProp<T extends keyof AuthStackParamList> =
   AuthStackScreenProps<T>['route'];
 
-export type MainTabRouteProp<T extends keyof MainTabParamList> =
-  MainTabScreenProps<T>['route'];
+export type MainTabRouteProp<T extends keyof MainTabParamList> = MainTabScreenProps<T>['route'];
 
 export type HomeStackRouteProp<T extends keyof HomeStackParamList> =
   HomeStackScreenProps<T>['route'];

@@ -48,7 +48,7 @@ export const analyzeBiometrics = async (
   scanType: 'tongue' | 'face'
 ): Promise<BiometricAnalysis> => {
   // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await new Promise<void>((resolve) => setTimeout(resolve, 2000));
 
   // Mock analysis based on scan type
   // In production, this would analyze actual image features
@@ -148,8 +148,8 @@ export const analyzeBiometrics = async (
     scores.vata > scores.pitta && scores.vata > scores.kapha
       ? 'Vata'
       : scores.pitta > scores.kapha
-      ? 'Pitta'
-      : 'Kapha';
+        ? 'Pitta'
+        : 'Kapha';
 
   // Calculate confidence (mock)
   const maxScore = Math.max(scores.vata, scores.pitta, scores.kapha);
@@ -230,7 +230,7 @@ export const biometricsToQuizResult = (
 
   const secondary =
     analysis.percentages[sortedDoshas[1] as keyof typeof analysis.percentages] > 25
-      ? (sortedDoshas[1].charAt(0).toUpperCase() + sortedDoshas[1].slice(1) as DoshaType)
+      ? ((sortedDoshas[1].charAt(0).toUpperCase() + sortedDoshas[1].slice(1)) as DoshaType)
       : undefined;
 
   return {

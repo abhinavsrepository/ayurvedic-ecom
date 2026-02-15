@@ -168,7 +168,7 @@ let CustomersService = CustomersService_1 = class CustomersService {
         };
     }
     async search(query, queryDto) {
-        const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc' } = queryDto;
+        const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', } = queryDto;
         const where = {
             deleted_at: null,
             OR: [

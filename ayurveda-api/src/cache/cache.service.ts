@@ -77,7 +77,9 @@ export class CacheService {
     try {
       // Cache manager doesn't have a built-in reset method
       // You would need to track keys or use Redis FLUSHDB directly
-      this.logger.warn('Cache RESET: Not implemented - would need Redis client access');
+      this.logger.warn(
+        'Cache RESET: Not implemented - would need Redis client access',
+      );
     } catch (error) {
       this.logger.error('Cache RESET error:', error);
     }
@@ -86,11 +88,7 @@ export class CacheService {
   /**
    * Wrap a function with caching
    */
-  async wrap<T>(
-    key: string,
-    fn: () => Promise<T>,
-    ttl?: number,
-  ): Promise<T> {
+  async wrap<T>(key: string, fn: () => Promise<T>, ttl?: number): Promise<T> {
     try {
       const cached = await this.get<T>(key);
       if (cached !== undefined) {

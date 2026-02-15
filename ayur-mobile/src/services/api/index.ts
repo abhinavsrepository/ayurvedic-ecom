@@ -11,7 +11,12 @@ import orderServiceDefault from './orderService';
 import userServiceDefault from './userService';
 
 // Export API client and utilities
-export { default as apiClient, handleApiError, setDefaultHeader, removeDefaultHeader } from './apiClient';
+export {
+  default as apiClient,
+  handleApiError,
+  setDefaultHeader,
+  removeDefaultHeader,
+} from './apiClient';
 export type { ApiResponse, ApiError } from './apiClient';
 
 // Export auth service

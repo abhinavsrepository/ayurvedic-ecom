@@ -12,7 +12,9 @@ const common_1 = require("@nestjs/common");
 let PrismaExceptionFilter = PrismaExceptionFilter_1 = class PrismaExceptionFilter {
     logger = new common_1.Logger(PrismaExceptionFilter_1.name);
     catch(exception, host) {
-        if (!exception?.code || typeof exception.code !== 'string' || !exception.code.startsWith('P')) {
+        if (!exception?.code ||
+            typeof exception.code !== 'string' ||
+            !exception.code.startsWith('P')) {
             throw exception;
         }
         const prismaException = exception;

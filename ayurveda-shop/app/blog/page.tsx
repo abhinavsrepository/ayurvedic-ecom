@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Clock, Search, Filter, Calendar } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, ArrowLeft, Clock, Search, Filter, Calendar } from "lucide-react";
 import {
   scrollReveal,
   staggerContainer,
@@ -26,6 +27,7 @@ const defaultCategories = [
 ];
 
 export default function BlogPage() {
+  const router = useRouter();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -45,7 +47,7 @@ export default function BlogPage() {
   const loadPosts = async () => {
     try {
       setIsLoading(true);
-      const response = await blogApi.getPosts({ page: 0, size: 100 });
+      const response = await blogApi.getPosts({ page: 0, size: 50 });
       const publishedPosts = response.content.filter(
         (p) => p.status === "PUBLISHED",
       );
@@ -150,6 +152,18 @@ export default function BlogPage() {
         </div>
 
         <div className="container mx-auto px-4 lg:px-8 relative z-10">
+          {/* Back Button */}
+          <motion.button
+            onClick={() => router.back()}
+            className="absolute top-0 left-4 lg:left-8 flex items-center gap-2 text-text-secondary hover:text-primary transition-colors duration-300 group"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
+            <span className="font-medium">Back</span>
+          </motion.button>
+
           <motion.div
             className="text-center max-w-4xl mx-auto"
             variants={scrollReveal}

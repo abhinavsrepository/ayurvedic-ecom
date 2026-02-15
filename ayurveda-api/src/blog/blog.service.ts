@@ -221,7 +221,9 @@ export class BlogService {
     });
 
     if (existing) {
-      throw new ConflictException(`Post with slug '${dto.slug}' already exists`);
+      throw new ConflictException(
+        `Post with slug '${dto.slug}' already exists`,
+      );
     }
 
     const post = await this.prisma.blogPost.create({
@@ -234,8 +236,7 @@ export class BlogService {
         author_id: authorId,
         category: dto.category,
         status: dto.status || PostStatus.DRAFT,
-        published_at:
-          dto.status === PostStatus.PUBLISHED ? new Date() : null,
+        published_at: dto.status === PostStatus.PUBLISHED ? new Date() : null,
         seo_title: dto.seoTitle,
         seo_description: dto.seoDescription,
         tags: dto.tags?.length
@@ -282,7 +283,9 @@ export class BlogService {
       });
 
       if (slugExists) {
-        throw new ConflictException(`Post with slug '${dto.slug}' already exists`);
+        throw new ConflictException(
+          `Post with slug '${dto.slug}' already exists`,
+        );
       }
     }
 

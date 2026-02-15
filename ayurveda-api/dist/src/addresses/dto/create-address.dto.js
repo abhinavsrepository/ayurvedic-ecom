@@ -33,7 +33,10 @@ class CreateAddressDto {
 }
 exports.CreateAddressDto = CreateAddressDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Address label (e.g., Home, Office)', maxLength: 50 }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Address label (e.g., Home, Office)',
+        maxLength: 50,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MaxLength)(50),
@@ -97,13 +100,20 @@ __decorate([
     __metadata("design:type", String)
 ], CreateAddressDto.prototype, "country", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Set as default address', default: false }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Set as default address',
+        default: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateAddressDto.prototype, "isDefault", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Address type', enum: AddressType, default: AddressType.SHIPPING }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Address type',
+        enum: AddressType,
+        default: AddressType.SHIPPING,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(AddressType),
     __metadata("design:type", String)

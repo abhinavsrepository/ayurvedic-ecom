@@ -68,9 +68,15 @@ export class OrdersController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new order' })
   @ApiResponse({ status: 201, description: 'Order created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid order data or insufficient stock' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid order data or insufficient stock',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  create(@CurrentUser('email') userId: string, @Body() createOrderDto: CreateOrderDto) {
+  create(
+    @CurrentUser('email') userId: string,
+    @Body() createOrderDto: CreateOrderDto,
+  ) {
     return this.ordersService.createOrder(userId, createOrderDto);
   }
 
@@ -81,7 +87,10 @@ export class OrdersController {
   @ApiOperation({ summary: 'Cancel an order' })
   @ApiParam({ name: 'id', description: 'Order ID' })
   @ApiResponse({ status: 200, description: 'Order cancelled successfully' })
-  @ApiResponse({ status: 400, description: 'Cannot cancel order in current status' })
+  @ApiResponse({
+    status: 400,
+    description: 'Cannot cancel order in current status',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - not your order' })
   @ApiResponse({ status: 404, description: 'Order not found' })
@@ -99,7 +108,10 @@ export class OrdersController {
   @Get(':id/track')
   @ApiOperation({ summary: 'Get order tracking information' })
   @ApiParam({ name: 'id', description: 'Order ID' })
-  @ApiResponse({ status: 200, description: 'Tracking info retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tracking info retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - not your order' })
   @ApiResponse({ status: 404, description: 'Order not found' })

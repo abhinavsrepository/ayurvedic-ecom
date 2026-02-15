@@ -38,7 +38,7 @@ import { UploadResponseDto } from './dto/upload-response.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class UploadController {
-  constructor(private readonly uploadService: UploadService) { }
+  constructor(private readonly uploadService: UploadService) {}
 
   @Post('image')
   @Roles('admin', 'manager')
@@ -56,7 +56,11 @@ export class UploadController {
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'Image uploaded successfully', type: UploadResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Image uploaded successfully',
+    type: UploadResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
@@ -87,7 +91,11 @@ export class UploadController {
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'Images uploaded successfully', type: [UploadResponseDto] })
+  @ApiResponse({
+    status: 201,
+    description: 'Images uploaded successfully',
+    type: [UploadResponseDto],
+  })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })

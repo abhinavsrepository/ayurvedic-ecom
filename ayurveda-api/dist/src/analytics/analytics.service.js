@@ -23,7 +23,8 @@ let AnalyticsService = AnalyticsService_1 = class AnalyticsService {
     constructor(prisma, configService) {
         this.prisma = prisma;
         this.configService = configService;
-        this.ipSalt = this.configService.get('IP_HASH_SALT') || 'default-salt-change-me';
+        this.ipSalt =
+            this.configService.get('IP_HASH_SALT') || 'default-salt-change-me';
     }
     async logLocation(createLocationDto, requestIp) {
         try {
@@ -97,7 +98,9 @@ let AnalyticsService = AnalyticsService_1 = class AnalyticsService {
                     user_id: createEventDto.userId || null,
                     session_id: createEventDto.sessionId || null,
                     event_type: createEventDto.eventType,
-                    event_data: createEventDto.eventData ? JSON.stringify(createEventDto.eventData) : null,
+                    event_data: createEventDto.eventData
+                        ? JSON.stringify(createEventDto.eventData)
+                        : null,
                     location_id: locationId,
                     device_id: deviceId,
                     page_url: createEventDto.pageUrl || null,

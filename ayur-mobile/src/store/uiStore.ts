@@ -1,13 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { MMKV } from 'react-native-mmkv';
+import { createPersistStorage } from './persistStorage';
 
 /**
- * MMKV storage instance for UI preferences persistence
+ * Persistent storage for UI preferences.
  */
-const mmkvStorage = new MMKV({
-  id: 'ui-storage',
-});
+const persistStorage = createPersistStorage('ui-storage');
 
 /**
  * Theme types
@@ -93,22 +91,6 @@ interface UIActions {
  * Complete UI store type
  */
 export type UIStore = UIState & UIActions;
-
-/**
- * MMKV storage adapter for Zustand
- */
-const mmkvStorageAdapter = {
-  getItem: (name: string): string | null => {
-    const value = mmkvStorage.getString(name);
-    return value ?? null;
-  },
-  setItem: (name: string, value: string): void => {
-    mmkvStorage.set(name, value);
-  },
-  removeItem: (name: string): void => {
-    mmkvStorage.delete(name);
-  },
-};
 
 /**
  * Currency symbols mapping
@@ -296,7 +278,7 @@ export const useUIStore = create<UIStore>()(
     }),
     {
       name: 'ui-storage',
-      storage: createJSONStorage(() => mmkvStorageAdapter),
+      storage: createJSONStorage(() => persistStorage),
       // Only persist user preferences, not transient UI state
       partialize: (state) => ({
         theme: state.theme,

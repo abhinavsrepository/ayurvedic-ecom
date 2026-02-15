@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
+import { View, Text, StyleSheet } from 'react-native';
 
 // Navigation
 import { AppNavigator } from './src/navigation/AppNavigator';
@@ -16,40 +17,79 @@ import { useAuthStore } from './src/store/authStore';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       retry: 2,
     },
   },
 });
 
-// Keep splash screen visible while we fetch resources
+// Keep splash screen visible
 SplashScreen.preventAutoHideAsync();
 
 /**
  * App Root Component
- * Now using Zustand stores only - no Context providers!
  */
 function AppContent() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [appIsReady, setAppIsReady] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
     async function prepare() {
       try {
-        // Pre-load fonts, make any API calls you need to do here
-        // Simulate loading
-        await new Promise<void>((resolve) => setTimeout(resolve, 1000));
-      } catch (e) {
-        console.warn(e);
+        console.log('[App] Starting initialization...');
+        
+        // Small delay to ensure everything is loaded
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        console.log('[App] Initialization complete');
+      } catch (e: any) {
+        console.error('[App] Initialization error:', e);
+        setInitError(e?.message || 'Unknown error');
       } finally {
         setAppIsReady(true);
-        await SplashScreen.hideAsync();
       }
     }
 
     prepare();
   }, []);
 
+  // Handle splash screen
+  useEffect(() => {
+    if (appIsReady) {
+      SplashScreen.hideAsync().catch(err => {
+        console.log('[App] SplashScreen hide error:', err);
+      });
+    }
+  }, [appIsReady]);
+
+  // Dev bypass effect - runs after app is ready
+  useEffect(() => {
+    if (appIsReady && typeof __DEV__ !== 'undefined' && __DEV__) {
+      const authStore = useAuthStore.getState();
+      console.log('[DEV] Current auth state:', authStore.isAuthenticated);
+      
+      if (!authStore.isAuthenticated) {
+        console.log('[DEV] Triggering dev bypass login...');
+        authStore.devBypassLogin().then(() => {
+          console.log('[DEV] Dev bypass complete');
+        }).catch(err => {
+          console.error('[DEV] Dev bypass failed:', err);
+        });
+      }
+    }
+  }, [appIsReady]);
+
+  // Show error if initialization failed
+  if (initError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorTitle}>Initialization Error</Text>
+        <Text style={styles.errorText}>{initError}</Text>
+      </View>
+    );
+  }
+
+  // Don't render anything until ready
   if (!appIsReady) {
     return null;
   }
@@ -57,17 +97,13 @@ function AppContent() {
   return (
     <NavigationContainer>
       <StatusBar style="light" />
-      <AppNavigator isAuthenticated={isAuthenticated} />
+      <AppNavigator />
     </NavigationContainer>
   );
 }
 
 /**
  * Main App Component
- * Clean architecture with Zustand stores only
- * ✅ Removed duplicate Context providers
- * ✅ All state management via Zustand + MMKV
- * ✅ Better performance, simpler code
  */
 export default function App() {
   return (
@@ -80,3 +116,24 @@ export default function App() {
     </QueryClientProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'red',
+    marginBottom: 10,
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#333',
+    textAlign: 'center',
+  },
+});

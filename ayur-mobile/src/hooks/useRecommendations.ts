@@ -71,10 +71,7 @@ export const useSimilarProducts = (productId: string, limit: number = 6) => {
  * const { data: doshaProducts } = useDoshaRecommendations('Vata', 10);
  * ```
  */
-export const useDoshaRecommendations = (
-  doshaType: DoshaType,
-  limit: number = 10
-) => {
+export const useDoshaRecommendations = (doshaType: DoshaType, limit: number = 10) => {
   return useQuery({
     queryKey: recommendationKeys.doshaBased(doshaType),
     queryFn: () =>

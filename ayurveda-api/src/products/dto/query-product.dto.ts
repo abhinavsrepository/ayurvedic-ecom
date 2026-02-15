@@ -4,7 +4,14 @@
  * Data Transfer Object for querying/filtering products.
  */
 
-import { IsOptional, IsString, IsNumber, IsEnum, Min, IsBoolean } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsEnum,
+  Min,
+  IsBoolean,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ProductStatus } from './create-product.dto';
@@ -17,7 +24,12 @@ export class QueryProductDto {
   @Min(0)
   page?: number = 0;
 
-  @ApiPropertyOptional({ description: 'Page size', minimum: 1, maximum: 100, default: 20 })
+  @ApiPropertyOptional({
+    description: 'Page size',
+    minimum: 1,
+    maximum: 100,
+    default: 20,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
@@ -75,7 +87,10 @@ export class QueryProductDto {
   @IsString()
   sortBy?: string = 'createdAt';
 
-  @ApiPropertyOptional({ description: 'Sort order (asc or desc)', default: 'desc' })
+  @ApiPropertyOptional({
+    description: 'Sort order (asc or desc)',
+    default: 'desc',
+  })
   @IsOptional()
   @IsEnum(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc' = 'desc';

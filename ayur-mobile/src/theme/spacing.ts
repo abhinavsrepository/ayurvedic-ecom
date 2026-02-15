@@ -399,7 +399,7 @@ export const spacingSystem = {
  */
 export type Spacing = typeof spacing;
 export type SpacingKey = keyof typeof spacing;
-export type SpacingValue = typeof spacing[SpacingKey];
+export type SpacingValue = (typeof spacing)[SpacingKey];
 export type BorderRadius = typeof borderRadius;
 export type IconSize = typeof iconSize;
 export type ComponentSize = typeof componentSize;

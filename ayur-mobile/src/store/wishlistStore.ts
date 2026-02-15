@@ -1,13 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { MMKV } from 'react-native-mmkv';
+import { createPersistStorage } from './persistStorage';
 
 /**
- * MMKV storage instance for wishlist persistence
+ * Persistent storage for wishlist.
  */
-const mmkvStorage = new MMKV({
-  id: 'wishlist-storage',
-});
+const persistStorage = createPersistStorage('wishlist-storage');
 
 /**
  * Wishlist item interface
@@ -51,22 +49,6 @@ interface WishlistActions {
  * Complete wishlist store type
  */
 export type WishlistStore = WishlistState & WishlistActions;
-
-/**
- * MMKV storage adapter for Zustand
- */
-const mmkvStorageAdapter = {
-  getItem: (name: string): string | null => {
-    const value = mmkvStorage.getString(name);
-    return value ?? null;
-  },
-  setItem: (name: string, value: string): void => {
-    mmkvStorage.set(name, value);
-  },
-  removeItem: (name: string): void => {
-    mmkvStorage.delete(name);
-  },
-};
 
 /**
  * Wishlist Store
@@ -171,9 +153,7 @@ export const useWishlistStore = create<WishlistStore>()(
        */
       updateItem: (itemId, updates) => {
         const { items } = get();
-        const newItems = items.map((item) =>
-          item.id === itemId ? { ...item, ...updates } : item
-        );
+        const newItems = items.map((item) => (item.id === itemId ? { ...item, ...updates } : item));
         set({ items: newItems });
       },
 
@@ -192,7 +172,7 @@ export const useWishlistStore = create<WishlistStore>()(
     }),
     {
       name: 'wishlist-storage',
-      storage: createJSONStorage(() => mmkvStorageAdapter),
+      storage: createJSONStorage(() => persistStorage),
     }
   )
 );
@@ -201,7 +181,6 @@ export const useWishlistStore = create<WishlistStore>()(
  * Selector hooks for optimized re-renders
  */
 export const useWishlistItems = () => useWishlistStore((state) => state.items);
-export const useWishlistItemCount = () =>
-  useWishlistStore((state) => state.itemCount);
+export const useWishlistItemCount = () => useWishlistStore((state) => state.itemCount);
 export const useIsInWishlist = (itemId: string) =>
   useWishlistStore((state) => state.isInWishlist(itemId));

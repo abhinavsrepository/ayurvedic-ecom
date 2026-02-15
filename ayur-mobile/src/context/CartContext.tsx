@@ -63,18 +63,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCart((prevCart) => {
-      const existingItemIndex = prevCart.items.findIndex(
-        (item) => item.product.id === product.id
-      );
+      const existingItemIndex = prevCart.items.findIndex((item) => item.product.id === product.id);
 
       let updatedItems: CartItem[];
 
       if (existingItemIndex > -1) {
         // Update quantity if item exists
         updatedItems = prevCart.items.map((item, index) =>
-          index === existingItemIndex
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
+          index === existingItemIndex ? { ...item, quantity: item.quantity + quantity } : item
         );
       } else {
         // Add new item
@@ -92,9 +88,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const removeFromCart = (productId: string) => {
     setCart((prevCart) => {
-      const updatedItems = prevCart.items.filter(
-        (item) => item.product.id !== productId
-      );
+      const updatedItems = prevCart.items.filter((item) => item.product.id !== productId);
       const totals = calculateCartTotals(updatedItems);
 
       return {

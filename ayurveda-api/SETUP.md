@@ -151,7 +151,7 @@ docker exec -it ayurveda-redis redis-cli
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DATABASE_URL` | postgresql://postgres:postgres@localhost:5433/ayurveda_admin | PostgreSQL connection |
+| `DATABASE_URL` | postgresql://postgres:postgres@localhost:5434/ayurveda_admin | PostgreSQL connection |
 | `JWT_SECRET` | (required) | JWT signing key |
 | `JWT_REFRESH_SECRET` | (required) | JWT refresh token key |
 | `PORT` | 3333 | API server port |

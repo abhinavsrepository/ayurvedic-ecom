@@ -71,9 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <Ionicons name="cart-outline" size={24} color="#FFF" />
                   {itemCount > 0 && (
                     <View style={styles.badge}>
-                      <Text style={styles.badgeText}>
-                        {itemCount > 9 ? '9+' : itemCount}
-                      </Text>
+                      <Text style={styles.badgeText}>{itemCount > 9 ? '9+' : itemCount}</Text>
                     </View>
                   )}
                 </TouchableOpacity>

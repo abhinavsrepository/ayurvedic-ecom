@@ -148,10 +148,7 @@ export class ProductsController {
   @ApiOperation({ summary: 'Search products by query' })
   @ApiResponse({ status: 200, description: 'Products found' })
   @ApiResponse({ status: 400, description: 'Invalid query parameter' })
-  async search(
-    @Query('q') query: string,
-    @Query() queryDto: QueryProductDto,
-  ) {
+  async search(@Query('q') query: string, @Query() queryDto: QueryProductDto) {
     return this.productsService.search(query, queryDto);
   }
 

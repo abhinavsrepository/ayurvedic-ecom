@@ -29,7 +29,10 @@ class UpdateAddressDto {
 }
 exports.UpdateAddressDto = UpdateAddressDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Address label (e.g., Home, Office)', maxLength: 50 }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Address label (e.g., Home, Office)',
+        maxLength: 50,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MaxLength)(50),

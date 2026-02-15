@@ -54,7 +54,11 @@ __decorate([
     __metadata("design:type", Number)
 ], QueryReviewDto.prototype, "rating", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Sort by', enum: ReviewSortBy, default: ReviewSortBy.RECENT }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Sort by',
+        enum: ReviewSortBy,
+        default: ReviewSortBy.RECENT,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(ReviewSortBy),
     __metadata("design:type", String)

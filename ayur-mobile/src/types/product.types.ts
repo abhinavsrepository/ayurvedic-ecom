@@ -459,7 +459,12 @@ export const isProduct = (obj: any): obj is Product => {
 };
 
 export const isProductCategory = (obj: any): obj is ProductCategory => {
-  return obj && typeof obj.id === 'string' && typeof obj.name === 'string' && typeof obj.level === 'number';
+  return (
+    obj &&
+    typeof obj.id === 'string' &&
+    typeof obj.name === 'string' &&
+    typeof obj.level === 'number'
+  );
 };
 
 /**

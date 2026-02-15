@@ -59,7 +59,9 @@ export class UploadService {
       const optimized = await this.imageProcessor.optimize(file.buffer);
 
       // Generate thumbnail
-      const thumbnail = await this.imageProcessor.generateThumbnail(file.buffer);
+      const thumbnail = await this.imageProcessor.generateThumbnail(
+        file.buffer,
+      );
 
       // Upload optimized image to S3
       const uploadResult = await this.s3Service.upload(
@@ -128,7 +130,10 @@ export class UploadService {
       this.logger.log(`Uploaded ${uploads.length} images`);
       return uploads;
     } catch (error) {
-      this.logger.error(`Multiple upload failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Multiple upload failed: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }

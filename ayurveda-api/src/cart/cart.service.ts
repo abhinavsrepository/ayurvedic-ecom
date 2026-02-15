@@ -43,7 +43,9 @@ export class CartService {
         data: {
           user_id: userId || null,
           session_id: sessionId || null,
-          expires_at: userId ? null : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days for guest
+          expires_at: userId
+            ? null
+            : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days for guest
         },
         include: {
           cart_items: {
@@ -60,7 +62,9 @@ export class CartService {
           },
         },
       });
-      this.logger.log(`Created new cart: ${cart.id} for ${userId ? `user ${userId}` : `session ${sessionId}`}`);
+      this.logger.log(
+        `Created new cart: ${cart.id} for ${userId ? `user ${userId}` : `session ${sessionId}`}`,
+      );
     }
 
     return this.formatCartResponse(cart);
@@ -159,7 +163,9 @@ export class CartService {
       // Update quantity
       const newQuantity = existingItem.quantity + dto.quantity;
       if (stock.quantity < newQuantity) {
-        throw new BadRequestException('Insufficient stock for requested quantity');
+        throw new BadRequestException(
+          'Insufficient stock for requested quantity',
+        );
       }
 
       await this.prisma.cartItem.update({
@@ -219,7 +225,11 @@ export class CartService {
       include: { stock: true },
     });
 
-    if (!product || !product.stock[0] || product.stock[0].quantity < dto.quantity) {
+    if (
+      !product ||
+      !product.stock[0] ||
+      product.stock[0].quantity < dto.quantity
+    ) {
       throw new BadRequestException('Insufficient stock');
     }
 
@@ -341,7 +351,10 @@ export class CartService {
           include: { stock: true },
         });
         const maxQty = product?.stock[0]?.quantity || 99;
-        const newQty = Math.min(existingItem.quantity + guestItem.quantity, maxQty);
+        const newQty = Math.min(
+          existingItem.quantity + guestItem.quantity,
+          maxQty,
+        );
 
         await this.prisma.cartItem.update({
           where: { id: existingItem.id },
@@ -369,7 +382,9 @@ export class CartService {
     await this.invalidateCartCache(userId, undefined);
     await this.invalidateCartCache(undefined, dto.sessionId);
 
-    this.logger.log(`Merged guest cart ${guestCart.id} into user cart ${userCart.id}`);
+    this.logger.log(
+      `Merged guest cart ${guestCart.id} into user cart ${userCart.id}`,
+    );
     return this.getCart(userId, undefined);
   }
 
@@ -407,7 +422,9 @@ export class CartService {
         data: {
           user_id: userId || null,
           session_id: sessionId || null,
-          expires_at: userId ? null : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          expires_at: userId
+            ? null
+            : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
       });
     }
@@ -462,7 +479,9 @@ export class CartService {
       promises.push(this.cacheService.del(CACHE_KEYS.CART_BY_USER(userId)));
     }
     if (sessionId) {
-      promises.push(this.cacheService.del(CACHE_KEYS.CART_BY_SESSION(sessionId)));
+      promises.push(
+        this.cacheService.del(CACHE_KEYS.CART_BY_SESSION(sessionId)),
+      );
     }
 
     await Promise.all(promises);

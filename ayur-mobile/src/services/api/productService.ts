@@ -270,12 +270,14 @@ export const getProductsByDosha = async (
  * @param limit - Maximum number of products to return
  * @returns List of related products
  */
-export const getRelatedProducts = async (productId: string, limit: number = 6): Promise<Product[]> => {
+export const getRelatedProducts = async (
+  productId: string,
+  limit: number = 6
+): Promise<Product[]> => {
   try {
-    const response = await apiClient.get<ApiResponse<Product[]>>(
-      `/products/${productId}/related`,
-      { params: { limit } }
-    );
+    const response = await apiClient.get<ApiResponse<Product[]>>(`/products/${productId}/related`, {
+      params: { limit },
+    });
 
     if (response.data.success && response.data.data) {
       return response.data.data;
@@ -292,9 +294,7 @@ export const getRelatedProducts = async (productId: string, limit: number = 6): 
  * @param params - Recommendation parameters
  * @returns List of recommended products
  */
-export const getRecommendedProducts = async (
-  params?: RecommendationParams
-): Promise<Product[]> => {
+export const getRecommendedProducts = async (params?: RecommendationParams): Promise<Product[]> => {
   try {
     const response = await apiClient.get<ApiResponse<Product[]>>('/products/recommendations', {
       params,

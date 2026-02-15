@@ -58,7 +58,11 @@ export class CreateLocationDto {
   @Max(90)
   latitude?: number;
 
-  @ApiPropertyOptional({ description: 'Longitude', minimum: -180, maximum: 180 })
+  @ApiPropertyOptional({
+    description: 'Longitude',
+    minimum: -180,
+    maximum: 180,
+  })
   @IsOptional()
   @IsNumber()
   @Min(-180)

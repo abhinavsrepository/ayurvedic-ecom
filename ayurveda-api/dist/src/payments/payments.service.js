@@ -39,7 +39,9 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
         }
         switch (provider) {
             case create_payment_dto_1.PaymentProvider.STRIPE:
-                return this.stripeService.createPaymentIntent(amount, currency, { orderId });
+                return this.stripeService.createPaymentIntent(amount, currency, {
+                    orderId,
+                });
             case create_payment_dto_1.PaymentProvider.RAZORPAY:
                 const razorpayOrder = await this.razorpayService.createOrder(amount, currency, orderId);
                 return {
@@ -65,7 +67,9 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
         if (isValid && data.internalOrderId) {
             await this.updateOrderPaymentStatus(data.internalOrderId, 'PAID', {
                 provider,
-                externalId: provider === create_payment_dto_1.PaymentProvider.RAZORPAY ? data.paymentId : data.paymentIntentId,
+                externalId: provider === create_payment_dto_1.PaymentProvider.RAZORPAY
+                    ? data.paymentId
+                    : data.paymentIntentId,
                 verifiedAt: new Date(),
             });
         }

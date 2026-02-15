@@ -20,9 +20,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
     const now = Date.now();
 
-    this.logger.log(
-      `Incoming Request: ${method} ${url} - ${userAgent} ${ip}`,
-    );
+    this.logger.log(`Incoming Request: ${method} ${url} - ${userAgent} ${ip}`);
 
     return next.handle().pipe(
       tap({

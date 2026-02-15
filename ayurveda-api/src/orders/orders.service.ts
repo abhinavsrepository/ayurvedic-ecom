@@ -25,7 +25,7 @@ export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private cacheService: CacheService,
-  ) { }
+  ) {}
 
   /**
    * Create a new order
@@ -47,7 +47,9 @@ export class OrdersService {
     });
 
     if (products.length !== productIds.length) {
-      throw new BadRequestException('One or more products not found or not available');
+      throw new BadRequestException(
+        'One or more products not found or not available',
+      );
     }
 
     // Validate stock availability
@@ -69,7 +71,9 @@ export class OrdersService {
     let subtotal = new Decimal(0);
     const orderItems = createOrderDto.items.map((item) => {
       const product = products.find((p) => p.id === item.productId)!;
-      const lineTotal = new Decimal(product.price.toString()).mul(item.quantity);
+      const lineTotal = new Decimal(product.price.toString()).mul(
+        item.quantity,
+      );
       subtotal = subtotal.add(lineTotal);
 
       return {
@@ -87,7 +91,10 @@ export class OrdersService {
     const taxAmount = subtotal.mul(0.1); // 10% tax
     const shippingAmount = new Decimal(10); // Flat $10 shipping
     const discountAmount = new Decimal(0); // Apply coupon logic here
-    const total = subtotal.add(taxAmount).add(shippingAmount).sub(discountAmount);
+    const total = subtotal
+      .add(taxAmount)
+      .add(shippingAmount)
+      .sub(discountAmount);
 
     // Get or create customer
     let customer = await this.prisma.customer.findUnique({
@@ -213,7 +220,13 @@ export class OrdersService {
     return this.cacheService.wrap(
       cacheKey,
       async () => {
-        const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = query;
+        const {
+          page = 0,
+          size = 20,
+          sortBy = 'created_at',
+          sortOrder = 'desc',
+          ...filters
+        } = query;
 
         const where: any = {
           customer_id: customer.id,
@@ -232,7 +245,9 @@ export class OrdersService {
             where,
             skip: page * size,
             take: size,
-            orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
+            orderBy: {
+              [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder,
+            },
             include: {
               order_items: {
                 select: {
@@ -434,7 +449,13 @@ export class OrdersService {
    * @param queryDto - Query parameters for filtering
    */
   async export(queryDto: QueryOrderDto) {
-    const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = queryDto;
+    const {
+      page = 0,
+      size = 20,
+      sortBy = 'created_at',
+      sortOrder = 'desc',
+      ...filters
+    } = queryDto;
 
     const where: any = {};
 
@@ -499,7 +520,9 @@ export class OrdersService {
 
     if (customerId) {
       // In production, use cache tags or patterns to invalidate all customer order lists
-      promises.push(this.cacheService.del(CACHE_KEYS.CUSTOMER_BY_ID(customerId)));
+      promises.push(
+        this.cacheService.del(CACHE_KEYS.CUSTOMER_BY_ID(customerId)),
+      );
     }
 
     await Promise.all(promises);

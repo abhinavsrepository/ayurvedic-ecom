@@ -1,8 +1,18 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, AuthContextType } from '../types';
+import { isDevBypassEnabled, DEV_USER_CONFIG } from '../config/dev.config';
 
 const AUTH_STORAGE_KEY = '@ayurveda_user';
+
+/**
+ * Mock dev user for bypass login
+ */
+const DEV_USER: User = {
+  ...DEV_USER_CONFIG,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -25,6 +35,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const loadUser = async () => {
     try {
+      // Check for dev bypass first (only in development)
+      if (isDevBypassEnabled()) {
+        console.log('[DEV] Auto-login with dev user enabled');
+        setUser(DEV_USER);
+        await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(DEV_USER));
+        setIsLoading(false);
+        return;
+      }
+
       const userData = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
       if (userData) {
         setUser(JSON.parse(userData));

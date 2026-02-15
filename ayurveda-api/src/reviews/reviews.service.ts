@@ -211,7 +211,9 @@ export class ReviewsService {
     // Invalidate caches
     await this.invalidateProductReviewCaches(dto.productId);
 
-    this.logger.log(`Review created: ${review.id} for product ${dto.productId}`);
+    this.logger.log(
+      `Review created: ${review.id} for product ${dto.productId}`,
+    );
     return this.formatReview(review);
   }
 

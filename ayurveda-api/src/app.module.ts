@@ -23,10 +23,12 @@ import { RolesGuard } from './common/guards/roles.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100,  // General rate limit
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100, // General rate limit
+      },
+    ]),
     PrismaModule,
     CacheModule,
     AuthModule,
@@ -54,4 +56,4 @@ import { RolesGuard } from './common/guards/roles.guard';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

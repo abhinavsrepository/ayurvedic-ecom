@@ -162,7 +162,8 @@ export const useDoshaMorphingTheme = (): DoshaMorphingTheme => {
 
     if (doshaResult.secondary) {
       // Interpolate between primary and secondary
-      const primaryPercentage = doshaResult.percentages[doshaResult.primary.toLowerCase() as 'vata' | 'pitta' | 'kapha'];
+      const primaryPercentage =
+        doshaResult.percentages[doshaResult.primary.toLowerCase() as 'vata' | 'pitta' | 'kapha'];
       const weight = primaryPercentage / 100;
       return interpolateDoshaConfigs(doshaResult.primary, doshaResult.secondary, weight);
     }
@@ -185,48 +186,60 @@ export const useDoshaMorphingTheme = (): DoshaMorphingTheme => {
   }, [doshaConfig.layout.spacingMultiplier]);
 
   // Get dynamic border radius
-  const borderRadius = useMemo<DynamicBorderRadius>(() => ({
-    sm: doshaConfig.layout.borderRadius.sm,
-    md: doshaConfig.layout.borderRadius.md,
-    lg: doshaConfig.layout.borderRadius.lg,
-    xl: doshaConfig.layout.borderRadius.xl,
-    card: doshaConfig.layout.borderRadius.card,
-    button: doshaConfig.layout.borderRadius.button,
-    round: 999,
-  }), [doshaConfig.layout.borderRadius]);
+  const borderRadius = useMemo<DynamicBorderRadius>(
+    () => ({
+      sm: doshaConfig.layout.borderRadius.sm,
+      md: doshaConfig.layout.borderRadius.md,
+      lg: doshaConfig.layout.borderRadius.lg,
+      xl: doshaConfig.layout.borderRadius.xl,
+      card: doshaConfig.layout.borderRadius.card,
+      button: doshaConfig.layout.borderRadius.button,
+      round: 999,
+    }),
+    [doshaConfig.layout.borderRadius]
+  );
 
   // Animation helpers
-  const animation = useMemo<AnimationHelpers>(() => ({
-    config: doshaConfig.animation,
-    springConfig: {
-      damping: doshaConfig.animation.damping,
-      stiffness: doshaConfig.animation.stiffness,
-      mass: doshaConfig.animation.mass,
-    },
-    timingConfig: {
-      duration: doshaConfig.animation.duration,
-    },
-  }), [doshaConfig.animation]);
+  const animation = useMemo<AnimationHelpers>(
+    () => ({
+      config: doshaConfig.animation,
+      springConfig: {
+        damping: doshaConfig.animation.damping,
+        stiffness: doshaConfig.animation.stiffness,
+        mass: doshaConfig.animation.mass,
+      },
+      timingConfig: {
+        duration: doshaConfig.animation.duration,
+      },
+    }),
+    [doshaConfig.animation]
+  );
 
   // Layout helpers
-  const layout = useMemo<LayoutHelpers>(() => ({
-    gridType: doshaConfig.layout.gridType,
-    gridColumns: doshaConfig.layout.gridColumns,
-    gridGap: doshaConfig.layout.gridGap,
-    cardElevation: doshaConfig.layout.cardElevation,
-    componentScale: doshaConfig.layout.componentScale,
-    typographyScale: doshaConfig.layout.typographyScale,
-  }), [doshaConfig.layout]);
+  const layout = useMemo<LayoutHelpers>(
+    () => ({
+      gridType: doshaConfig.layout.gridType,
+      gridColumns: doshaConfig.layout.gridColumns,
+      gridGap: doshaConfig.layout.gridGap,
+      cardElevation: doshaConfig.layout.cardElevation,
+      componentScale: doshaConfig.layout.componentScale,
+      typographyScale: doshaConfig.layout.typographyScale,
+    }),
+    [doshaConfig.layout]
+  );
 
   // Visual helpers
-  const visual = useMemo<VisualHelpers>(() => ({
-    glassBlur: doshaConfig.visual.glassBlur,
-    glassOpacity: doshaConfig.visual.glassOpacity,
-    shadowIntensity: doshaConfig.visual.shadowIntensity,
-    shadowSpread: doshaConfig.visual.shadowSpread,
-    gradientAngle: doshaConfig.visual.gradientAngle,
-    hoverScale: doshaConfig.visual.hoverScale,
-  }), [doshaConfig.visual]);
+  const visual = useMemo<VisualHelpers>(
+    () => ({
+      glassBlur: doshaConfig.visual.glassBlur,
+      glassOpacity: doshaConfig.visual.glassOpacity,
+      shadowIntensity: doshaConfig.visual.shadowIntensity,
+      shadowSpread: doshaConfig.visual.shadowSpread,
+      gradientAngle: doshaConfig.visual.gradientAngle,
+      hoverScale: doshaConfig.visual.hoverScale,
+    }),
+    [doshaConfig.visual]
+  );
 
   // Extended colors with mode and textMuted alias
   const extendedColors: ExtendedColors = {

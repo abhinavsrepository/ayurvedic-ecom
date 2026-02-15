@@ -435,14 +435,7 @@ export interface PaymentMethod {
 export interface Notification {
   id: string;
   userId: string;
-  type:
-    | 'order'
-    | 'promotion'
-    | 'product'
-    | 'review'
-    | 'consultation'
-    | 'account'
-    | 'system';
+  type: 'order' | 'promotion' | 'product' | 'review' | 'consultation' | 'account' | 'system';
   title: string;
   message: string;
   data?: Record<string, any>;
@@ -604,9 +597,7 @@ export const calculateAge = (dateOfBirth: string): number => {
   return age;
 };
 
-export const getLoyaltyTierColor = (
-  tier?: 'bronze' | 'silver' | 'gold' | 'platinum'
-): string => {
+export const getLoyaltyTierColor = (tier?: 'bronze' | 'silver' | 'gold' | 'platinum'): string => {
   const tierColors = {
     bronze: '#CD7F32',
     silver: '#C0C0C0',

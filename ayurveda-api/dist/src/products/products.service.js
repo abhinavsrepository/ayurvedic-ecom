@@ -116,7 +116,9 @@ let ProductsService = ProductsService_1 = class ProductsService {
                     where,
                     skip: page * size,
                     take: size,
-                    orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
+                    orderBy: {
+                        [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder,
+                    },
                 }),
                 this.prisma.product.count({ where }),
             ]);
@@ -208,7 +210,7 @@ let ProductsService = ProductsService_1 = class ProductsService {
         return { message: 'Product deleted successfully' };
     }
     async search(query, queryDto) {
-        const { page = 0, size = 20, sortBy = 'createdAt', sortOrder = 'desc' } = queryDto;
+        const { page = 0, size = 20, sortBy = 'createdAt', sortOrder = 'desc', } = queryDto;
         const where = {};
         where.OR = [
             { name: { contains: query, mode: 'insensitive' } },
@@ -220,7 +222,9 @@ let ProductsService = ProductsService_1 = class ProductsService {
                 where,
                 skip: page * size,
                 take: size,
-                orderBy: { [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder },
+                orderBy: {
+                    [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder,
+                },
             }),
             this.prisma.product.count({ where }),
         ]);

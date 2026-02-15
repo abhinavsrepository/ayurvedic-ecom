@@ -19,7 +19,11 @@ class UpdateReviewDto {
 }
 exports.UpdateReviewDto = UpdateReviewDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Rating from 1 to 5', minimum: 1, maximum: 5 }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Rating from 1 to 5',
+        minimum: 1,
+        maximum: 5,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),

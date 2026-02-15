@@ -128,9 +128,7 @@ export const HomeScreen: React.FC = () => {
                 key={index}
                 category={category.name}
                 icon={category.icon}
-                onPress={() =>
-                  navigation.navigate('Products', { category: category.name })
-                }
+                onPress={() => navigation.navigate('Products', { category: category.name })}
               />
             ))}
           </ScrollView>
@@ -150,9 +148,7 @@ export const HomeScreen: React.FC = () => {
               <ProductCard
                 key={product.id}
                 product={product}
-                onPress={() =>
-                  navigation.navigate('ProductDetails', { productId: product.id })
-                }
+                onPress={() => navigation.navigate('ProductDetails', { productId: product.id })}
               />
             ))}
           </View>
@@ -175,9 +171,7 @@ export const HomeScreen: React.FC = () => {
               <ProductCard
                 key={product.id}
                 product={product}
-                onPress={() =>
-                  navigation.navigate('ProductDetails', { productId: product.id })
-                }
+                onPress={() => navigation.navigate('ProductDetails', { productId: product.id })}
               />
             ))}
           </View>

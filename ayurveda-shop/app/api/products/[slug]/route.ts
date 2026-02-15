@@ -8,6 +8,54 @@ interface RouteParams {
   }>;
 }
 
+// Transform backend product to frontend format
+function transformProduct(backendProduct: any) {
+  // Parse ingredients - backend stores as comma-separated string
+  let ingredients: string[] = [];
+  if (backendProduct.ingredients) {
+    ingredients = typeof backendProduct.ingredients === 'string' 
+      ? backendProduct.ingredients.split(',').map((i: string) => i.trim()).filter(Boolean)
+      : backendProduct.ingredients;
+  }
+  
+  // Parse benefits - backend stores as comma-separated string
+  let benefits: string[] = [];
+  if (backendProduct.benefits) {
+    benefits = typeof backendProduct.benefits === 'string'
+      ? backendProduct.benefits.split(',').map((b: string) => b.trim()).filter(Boolean)
+      : backendProduct.benefits;
+  }
+  
+  return {
+    id: backendProduct.id,
+    name: backendProduct.name,
+    slug: backendProduct.slug,
+    description: backendProduct.short_description || backendProduct.description || '',
+    longDescription: backendProduct.description || '',
+    price: Number(backendProduct.price),
+    compare_at_price: backendProduct.compare_at_price ? Number(backendProduct.compare_at_price) : null,
+    originalPrice: backendProduct.compare_at_price ? Number(backendProduct.compare_at_price) : undefined,
+    image: backendProduct.image || backendProduct.product_images?.[0]?.url || 'https://via.placeholder.com/400?text=Product',
+    images: backendProduct.product_images?.map((img: any) => img.url) || [],
+    category: backendProduct.category || 'Uncategorized',
+    inStock: backendProduct.status === 'ACTIVE',
+    rating: backendProduct.rating || 4.5,
+    reviewCount: backendProduct.review_count || 0,
+    status: backendProduct.status,
+    sku: backendProduct.sku,
+    brand: backendProduct.brand,
+    weight_grams: backendProduct.weight_grams,
+    ingredients,
+    benefits,
+    howToUse: backendProduct.usage_instructions ? [backendProduct.usage_instructions] : [''],
+    dosage: backendProduct.dosage || '',
+    warnings: backendProduct.warnings || [''],
+    certifications: ['100% Natural', 'Ayurvedic', 'GMP Certified'],
+    created_at: backendProduct.created_at,
+    updated_at: backendProduct.updated_at,
+  };
+}
+
 // GET product by slug - Proxy to backend
 export async function GET(
   request: NextRequest,
@@ -33,7 +81,8 @@ export async function GET(
       throw new Error(`Backend returned ${response.status}`);
     }
 
-    const product = await response.json();
+    const backendProduct = await response.json();
+    const product = transformProduct(backendProduct);
     return NextResponse.json({ success: true, product });
   } catch (error: any) {
     console.error('Error fetching product:', error);

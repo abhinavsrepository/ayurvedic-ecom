@@ -17,6 +17,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.pravatar.cc",
       },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+      },
       // AWS S3 bucket - Update with your bucket name
       {
         protocol: "https",

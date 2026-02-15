@@ -209,7 +209,7 @@ export default function ProductsPage() {
               {/* Product Image */}
               <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
                 <Image
-                  src={product.image}
+                  src={product.image || 'https://via.placeholder.com/400?text=Product'}
                   alt={product.name}
                   fill
                   className="object-cover"

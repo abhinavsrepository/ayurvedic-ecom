@@ -74,7 +74,9 @@ let S3Service = S3Service_1 = class S3Service {
         const ext = path.extname(originalName);
         const hash = crypto.randomBytes(16).toString('hex');
         const timestamp = Date.now();
-        const baseName = path.basename(originalName, ext).replace(/[^a-zA-Z0-9]/g, '-');
+        const baseName = path
+            .basename(originalName, ext)
+            .replace(/[^a-zA-Z0-9]/g, '-');
         if (prefix) {
             return `${prefix}/${timestamp}-${hash}-${baseName}${ext}`;
         }
