@@ -97,4 +97,5 @@ export declare class ReviewsController {
             image: string;
         };
     }[]>;
+    private isValidUUID;
 }

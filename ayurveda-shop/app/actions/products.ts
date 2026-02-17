@@ -163,6 +163,11 @@ export const getProductBySlug = unstable_cache(
 
       if (!response.ok) {
         if (response.status === 404) {
+          // Check mock data as fallback when backend returns 404
+          const mockProduct = mockProducts.find(p => p.slug === slug);
+          if (mockProduct) {
+            return transformMockProduct(mockProduct);
+          }
           return null;
         }
         throw new Error(`Backend returned ${response.status}`);

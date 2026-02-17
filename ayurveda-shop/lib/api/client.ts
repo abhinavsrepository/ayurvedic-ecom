@@ -180,6 +180,8 @@ class ApiClient {
       // Skip logging for expected errors
       if (axiosError.response?.status === 401) return;
       if (axiosError.response?.status === 404) return;
+      if (axiosError.response?.status === 400) return;
+      if (axiosError.response?.status === 409) return;
       if (!axiosError.response) return; // Network error - already handled
 
       console.error('API Error:', {

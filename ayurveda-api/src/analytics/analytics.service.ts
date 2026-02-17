@@ -301,4 +301,148 @@ export class AnalyticsService {
       throw error;
     }
   }
+
+  /**
+   * Get traffic sources summary from referrers and UTM data
+   */
+  async getTrafficSources(startDate?: Date, endDate?: Date) {
+    try {
+      const eventWhere: any = {};
+      const orderWhere: any = {};
+
+      if (startDate || endDate) {
+        eventWhere.createdAt = {};
+        orderWhere.createdAt = {};
+        if (startDate) {
+          eventWhere.createdAt.gte = startDate;
+          orderWhere.createdAt.gte = startDate;
+        }
+        if (endDate) {
+          eventWhere.createdAt.lte = endDate;
+          orderWhere.createdAt.lte = endDate;
+        }
+      }
+
+      // Get events with referrers
+      const eventsWithReferrer = await this.prisma.analyticsEvent.findMany({
+        where: {
+          ...eventWhere,
+          referrer: { not: null },
+        },
+        select: {
+          referrer: true,
+          event_type: true,
+        },
+      });
+
+      // Get orders with UTM data
+      const ordersWithUtm = await this.prisma.order.findMany({
+        where: {
+          ...orderWhere,
+          OR: [
+            { utm_source: { not: null } },
+            { utm_medium: { not: null } },
+            { utm_campaign: { not: null } },
+          ],
+        },
+        select: {
+          utm_source: true,
+          utm_medium: true,
+          utm_campaign: true,
+          total: true,
+        },
+      });
+
+      // Categorize traffic sources
+      const sources: Record<string, { visits: number; conversions: number; revenue: number }> = {
+        'Organic Search': { visits: 0, conversions: 0, revenue: 0 },
+        'Direct': { visits: 0, conversions: 0, revenue: 0 },
+        'Social Media': { visits: 0, conversions: 0, revenue: 0 },
+        'Referral': { visits: 0, conversions: 0, revenue: 0 },
+        'Email': { visits: 0, conversions: 0, revenue: 0 },
+        'Paid Ads': { visits: 0, conversions: 0, revenue: 0 },
+        'Other': { visits: 0, conversions: 0, revenue: 0 },
+      };
+
+      // Process referrer data
+      eventsWithReferrer.forEach((event) => {
+        if (!event.referrer) return;
+        
+        const referrer = event.referrer.toLowerCase();
+        let source = 'Other';
+
+        if (referrer.includes('google') || referrer.includes('bing') || referrer.includes('yahoo') || referrer.includes('duckduckgo')) {
+          source = 'Organic Search';
+        } else if (referrer.includes('facebook') || referrer.includes('instagram') || referrer.includes('twitter') || referrer.includes('x.com') || referrer.includes('linkedin') || referrer.includes('pinterest') || referrer.includes('tiktok')) {
+          source = 'Social Media';
+        } else if (referrer.includes('mail') || referrer.includes('newsletter')) {
+          source = 'Email';
+        } else if (referrer === '' || referrer === 'direct' || !referrer.startsWith('http')) {
+          source = 'Direct';
+        } else if (referrer.includes('localhost') || referrer.includes('127.0.0.1')) {
+          source = 'Direct';
+        } else {
+          source = 'Referral';
+        }
+
+        sources[source].visits++;
+      });
+
+      // Process UTM data from orders
+      ordersWithUtm.forEach((order) => {
+        const utmSource = order.utm_source?.toLowerCase() || '';
+        let source = 'Other';
+
+        if (utmSource.includes('google') || utmSource.includes('organic') || utmSource.includes('seo')) {
+          source = 'Organic Search';
+        } else if (utmSource.includes('direct')) {
+          source = 'Direct';
+        } else if (utmSource.includes('facebook') || utmSource.includes('instagram') || utmSource.includes('social') || utmSource.includes('twitter') || utmSource.includes('linkedin')) {
+          source = 'Social Media';
+        } else if (utmSource.includes('email') || utmSource.includes('newsletter') || utmSource.includes('mail')) {
+          source = 'Email';
+        } else if (utmSource.includes('referral') || utmSource.includes('affiliate') || utmSource.includes('partner')) {
+          source = 'Referral';
+        } else if (utmSource.includes('paid') || utmSource.includes('ads') || utmSource.includes('ppc') || utmSource.includes('cpc')) {
+          source = 'Paid Ads';
+        }
+
+        sources[source].conversions++;
+        sources[source].revenue += Number(order.total) || 0;
+      });
+
+      // Convert to array format
+      const trafficSources = Object.entries(sources)
+        .map(([name, data]) => ({
+          name,
+          visits: data.visits,
+          conversions: data.conversions,
+          revenue: data.revenue,
+          conversionRate: data.visits > 0 ? ((data.conversions / data.visits) * 100).toFixed(2) : '0.00',
+        }))
+        .filter((s) => s.visits > 0 || s.conversions > 0)
+        .sort((a, b) => b.visits - a.visits);
+
+      // Calculate totals
+      const totalVisits = trafficSources.reduce((sum, s) => sum + s.visits, 0);
+      const totalConversions = trafficSources.reduce((sum, s) => sum + s.conversions, 0);
+      const totalRevenue = trafficSources.reduce((sum, s) => sum + s.revenue, 0);
+
+      return {
+        sources: trafficSources,
+        summary: {
+          totalVisits,
+          totalConversions,
+          totalRevenue,
+          avgConversionRate: totalVisits > 0 ? ((totalConversions / totalVisits) * 100).toFixed(2) : '0.00',
+        },
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to get traffic sources: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
 }

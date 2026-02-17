@@ -26,6 +26,7 @@ const reviews_module_1 = require("./reviews/reviews.module");
 const blog_module_1 = require("./blog/blog.module");
 const addresses_module_1 = require("./addresses/addresses.module");
 const users_module_1 = require("./users/users.module");
+const analytics_module_1 = require("./analytics/analytics.module");
 const jwt_auth_guard_1 = require("./auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("./common/guards/roles.guard");
 let AppModule = class AppModule {
@@ -54,6 +55,7 @@ exports.AppModule = AppModule = __decorate([
             blog_module_1.BlogModule,
             addresses_module_1.AddressesModule,
             users_module_1.UsersModule,
+            analytics_module_1.AnalyticsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

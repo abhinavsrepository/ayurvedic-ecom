@@ -86,4 +86,19 @@ export declare class AnalyticsService {
             count: number;
         }[];
     }>;
+    getTrafficSources(startDate?: Date, endDate?: Date): Promise<{
+        sources: {
+            name: string;
+            visits: number;
+            conversions: number;
+            revenue: number;
+            conversionRate: string;
+        }[];
+        summary: {
+            totalVisits: number;
+            totalConversions: number;
+            totalRevenue: number;
+            avgConversionRate: string;
+        };
+    }>;
 }

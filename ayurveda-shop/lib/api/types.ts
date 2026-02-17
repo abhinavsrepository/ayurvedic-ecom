@@ -104,41 +104,85 @@ export interface ProductResponse {
 
 // Order types
 export interface Order {
-  id: number;
+  id: string;
   orderNumber: string;
-  customerId: number;
+  customerId: string;
   customerName: string;
   customerEmail: string;
   status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  fulfillmentStatus: FulfillmentStatus;
   items: OrderItem[];
   subtotal: number;
-  tax: number;
-  shipping: number;
+  taxAmount: number;
+  shippingAmount: number;
+  discountAmount: number;
   total: number;
   shippingAddress: ShippingAddress;
-  paymentMethod: string;
+  paymentMethod?: string;
   trackingNumber?: string;
+  carrier?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  cancelledAt?: string;
+  cancelledReason?: string;
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  PAID = 'PAID',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+  PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
+}
+
+export enum FulfillmentStatus {
+  UNFULFILLED = 'UNFULFILLED',
+  PARTIALLY_FULFILLED = 'PARTIALLY_FULFILLED',
+  FULFILLED = 'FULFILLED',
 }
 
 export interface OrderItem {
-  id: number;
-  productId: number;
+  id: string;
+  productId: string;
   productName: string;
-  productImage: string;
+  productImage?: string;
+  sku?: string;
   quantity: number;
-  price: number;
-  subtotal: number;
+  unitPrice: number;
+  lineTotal: number;
+  discountAmount?: number;
 }
 
 export interface ShippingAddress {
-  street: string;
+  line1: string;
+  line2?: string;
   city: string;
   state: string;
-  pincode: string;
+  postalCode: string;
   country: string;
+}
+
+// Create Order DTO
+export interface CreateOrderItemDto {
+  productId: string;
+  quantity: number;
+}
+
+export interface CreateOrderDto {
+  items: CreateOrderItemDto[];
+  couponCode?: string;
+  shippingAddressLine1: string;
+  shippingAddressLine2?: string;
+  shippingCity: string;
+  shippingState: string;
+  shippingPostalCode: string;
+  shippingCountry: string;
+  notes?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
 }
 
 export enum OrderStatus {
@@ -175,16 +219,24 @@ export interface OrderRefundRequest {
 
 // Customer types
 export interface Customer {
-  id: number;
-  name: string;
+  id: string;
   email: string;
-  phone: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string | null;
   totalOrders: number;
   totalSpent: number;
   averageOrderValue: number;
-  lastOrderDate?: string;
-  status: 'active' | 'inactive';
+  lifetimeValue: number;
+  lastOrderAt: string | null;
+  acceptsMarketing: boolean;
   createdAt: string;
+  updatedAt: string;
+  // UI helpers
+  name?: string;
+  status?: 'active' | 'inactive';
+  phone?: string;
+  lastOrderDate?: string;
 }
 
 // Pagination
@@ -222,4 +274,60 @@ export interface RevenueData {
   date: string;
   revenue: number;
   orders: number;
+}
+
+// Payment types
+export enum PaymentProvider {
+  STRIPE = 'STRIPE',
+  RAZORPAY = 'RAZORPAY',
+}
+
+export interface CreatePaymentDto {
+  orderId: string;
+  amount: number;
+  currency: string;
+  provider: PaymentProvider;
+  paymentMethodId?: string;
+}
+
+export interface PaymentResponse {
+  id: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  status: string;
+  checkoutUrl?: string;
+  clientSecret?: string;
+}
+
+export interface RazorpayPaymentData {
+  orderId: string;
+  paymentId: string;
+  signature: string;
+  internalOrderId: string;
+}
+
+export interface StripePaymentData {
+  paymentIntentId: string;
+  internalOrderId: string;
+}
+
+export interface PaymentStatusResponse {
+  orderId: string;
+  orderNumber: string;
+  paymentStatus: PaymentStatus;
+  orderStatus: OrderStatus;
+  total: number;
+}
+
+export interface OrderTrackingInfo {
+  orderNumber: string;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  fulfillmentStatus: FulfillmentStatus;
+  trackingNumber?: string;
+  carrier?: string;
+  shippingAddress: ShippingAddress;
+  createdAt: string;
+  updatedAt: string;
 }

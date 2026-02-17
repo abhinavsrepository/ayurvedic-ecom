@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide browser extension injected elements */
+.supplier-app-container,
+.supplier-app-mini,
+[class*="react-draggable"],
+[class*="supplier-app"],
+div[style*="z-index: 999999"][style*="position: fixed"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* Ayurvedic Brand Color Palette - CSS Variables */
 @layer base {
   :root {

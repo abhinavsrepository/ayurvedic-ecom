@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -68,7 +68,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    // Initialize theme
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'dark') {
@@ -97,7 +96,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Get user initials for avatar
   const getUserInitials = () => {
     if (!user) return 'AD';
     const names = user.fullName.split(' ');
@@ -107,29 +105,29 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     return user.fullName.substring(0, 2).toUpperCase();
   };
 
-  // Filter navigation based on user roles
   const filteredNav = navigation.filter(item => {
     if (!user) return false;
     return item.roles.some(role => user.roles.includes(role));
   });
 
-  // Prevent hydration mismatch
   if (!mounted) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Toaster position="top-right" richColors />
 
-      {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
             <Link href="/admin" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
@@ -142,7 +140,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             </button>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
             {filteredNav.map((item) => {
               const isActive = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href));
@@ -164,7 +161,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          {/* User info */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
@@ -190,9 +186,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="lg:pl-64">
-        {/* Top bar */}
         <header className="sticky top-0 z-40 flex items-center justify-between h-16 px-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sm:px-6 lg:px-8">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -204,7 +198,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           <div className="flex-1" />
 
           <div className="flex items-center space-x-4">
-            {/* Dark mode toggle */}
             <button
               onClick={toggleDarkMode}
               className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -212,7 +205,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {/* Notifications */}
             <button className="relative p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
               <Bell className="w-5 h-5" />
               {notifications > 0 && (
@@ -222,13 +214,11 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>
 
-      {/* Sidebar overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"

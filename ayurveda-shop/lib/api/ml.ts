@@ -15,11 +15,7 @@ mlClient.interceptors.response.use(
   (response) => response,
   (error) => {
     // Silently handle network errors (ML service not running)
-    if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
-      console.warn('ML Service is offline');
-    } else {
-      console.error('ML API Error:', error.message);
-    }
+    // Don't log to console - this is expected behavior when ML service is not running
     return Promise.reject(error);
   }
 );

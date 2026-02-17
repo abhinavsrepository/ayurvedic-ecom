@@ -28,9 +28,15 @@ let ReviewsController = class ReviewsController {
         this.reviewsService = reviewsService;
     }
     async getProductReviews(productId, query) {
+        if (!this.isValidUUID(productId)) {
+            throw new common_1.BadRequestException('Product ID must be a valid UUID');
+        }
         return this.reviewsService.getProductReviews(productId, query);
     }
     async getProductRatingStats(productId) {
+        if (!this.isValidUUID(productId)) {
+            throw new common_1.BadRequestException('Product ID must be a valid UUID');
+        }
         return this.reviewsService.getProductRatingStats(productId);
     }
     async create(dto, customerId) {
@@ -48,14 +54,19 @@ let ReviewsController = class ReviewsController {
     async getUserReviews(customerId) {
         return this.reviewsService.getUserReviews(customerId);
     }
+    isValidUUID(value) {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        return uuidRegex.test(value);
+    }
 };
 exports.ReviewsController = ReviewsController;
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Get)('product/:productId'),
     (0, swagger_1.ApiOperation)({ summary: 'Get reviews for a product' }),
-    (0, swagger_1.ApiParam)({ name: 'productId', description: 'Product ID' }),
+    (0, swagger_1.ApiParam)({ name: 'productId', description: 'Product ID (UUID)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Reviews retrieved successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid product ID format' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Product not found' }),
     __param(0, (0, common_1.Param)('productId')),
     __param(1, (0, common_1.Query)()),
@@ -67,8 +78,9 @@ __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Get)('product/:productId/stats'),
     (0, swagger_1.ApiOperation)({ summary: 'Get rating statistics for a product' }),
-    (0, swagger_1.ApiParam)({ name: 'productId', description: 'Product ID' }),
+    (0, swagger_1.ApiParam)({ name: 'productId', description: 'Product ID (UUID)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Rating stats retrieved' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid product ID format' }),
     __param(0, (0, common_1.Param)('productId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -100,7 +112,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 403, description: 'Cannot edit others review' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Review not found' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, current_user_decorator_1.CurrentUser)('customerId')),
     __metadata("design:type", Function),
@@ -118,7 +130,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 403, description: 'Cannot delete others review' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Review not found' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __param(1, (0, current_user_decorator_1.CurrentUser)('customerId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
@@ -133,7 +145,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Helpful status toggled' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Review not found' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __param(1, (0, current_user_decorator_1.CurrentUser)('sub')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),

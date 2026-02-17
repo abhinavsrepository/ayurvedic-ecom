@@ -83,4 +83,19 @@ export declare class AnalyticsController {
             count: number;
         }[];
     }>;
+    getTrafficSources(startDate?: string, endDate?: string): Promise<{
+        sources: {
+            name: string;
+            visits: number;
+            conversions: number;
+            revenue: number;
+            conversionRate: string;
+        }[];
+        summary: {
+            totalVisits: number;
+            totalConversions: number;
+            totalRevenue: number;
+            avgConversionRate: string;
+        };
+    }>;
 }

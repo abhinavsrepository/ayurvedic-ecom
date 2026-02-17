@@ -82,17 +82,17 @@ export default function ContactPage() {
     {
       icon: <MapPin className="w-5 h-5 sm:w-6 sm:h-6" />,
       title: "Visit Us",
-      details: ["123 Ayurveda Street", "Wellness District, Mumbai 400001", "Maharashtra, India"],
+      details: ["Gomti Nagar", "Lucknow 226021", "Uttar Pradesh, India"],
     },
     {
       icon: <Phone className="w-5 h-5 sm:w-6 sm:h-6" />,
       title: "Call Us",
-      details: ["+91 98765 43210", "+91 98765 43211", "Mon-Sat: 9AM - 6PM"],
+      details: [ "+91  84000 28000", "Mon-Sat: 10:30AM - 6PM"],
     },
     {
       icon: <Mail className="w-5 h-5 sm:w-6 sm:h-6" />,
       title: "Email Us",
-      details: ["hello@kosmicowellness.com", "support@kosmicowellness.com"],
+      details: [ "support@kosmicowellness.com"],
     },
     {
       icon: <Clock className="w-5 h-5 sm:w-6 sm:h-6" />,

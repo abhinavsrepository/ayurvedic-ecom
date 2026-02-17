@@ -43,6 +43,13 @@ export interface AddCartItemRequest {
   variantId?: string;
 }
 
+// Helper to check if productId is a valid UUID format
+// Backend requires UUID, but mock products use simple numeric IDs
+export const isValidUUID = (id: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+};
+
 export interface UpdateCartItemRequest {
   quantity: number;
 }

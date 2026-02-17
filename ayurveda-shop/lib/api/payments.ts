@@ -1,151 +1,110 @@
-/**
- * Payments API Module
- *
- * API methods for payment processing with Razorpay.
- */
-
 import { apiClient } from './client';
-
-export type PaymentProvider = 'STRIPE' | 'RAZORPAY';
-
-export interface CreatePaymentRequest {
-  orderId: string;
-  amount: number;
-  currency: string;
-  provider: PaymentProvider;
-  paymentMethodId?: string;
-}
-
-export interface RazorpayOrder {
-  id: string;
-  entity: string;
-  amount: number;
-  amount_paid: number;
-  amount_due: number;
-  currency: string;
-  receipt: string;
-  status: string;
-  orderId: string;
-}
-
-export interface VerifyRazorpayRequest {
-  orderId: string;
-  paymentId: string;
-  signature: string;
-  internalOrderId: string;
-}
-
-export interface PaymentStatus {
-  orderId: string;
-  orderNumber: string;
-  paymentStatus: string;
-  orderStatus: string;
-  total: number;
-}
-
-export interface RefundRequest {
-  orderId: string;
-  amount: number;
-  reason: string;
-}
-
-export interface RefundResponse {
-  success: boolean;
-  message: string;
-  orderId: string;
-  refundAmount: number;
-}
+import {
+  CreatePaymentDto,
+  PaymentResponse,
+  RazorpayPaymentData,
+  StripePaymentData,
+  PaymentStatusResponse,
+  PaymentProvider,
+} from './types';
 
 export const paymentsApi = {
-  /**
-   * Create a payment order
-   */
-  createPayment: async (data: CreatePaymentRequest): Promise<RazorpayOrder> => {
-    return apiClient.post<RazorpayOrder>('/api/payments/create', data);
+  // Create a payment order/intent
+  create: async (data: CreatePaymentDto): Promise<PaymentResponse> => {
+    return apiClient.post<PaymentResponse>('/api/payments/create', data);
   },
 
-  /**
-   * Verify Razorpay payment
-   */
-  verifyRazorpay: async (
-    data: VerifyRazorpayRequest,
-  ): Promise<{ success: boolean }> => {
-    return apiClient.post('/api/payments/verify/razorpay', data);
+  // Verify Razorpay payment
+  verifyRazorpay: async (data: RazorpayPaymentData): Promise<{ success: boolean }> => {
+    return apiClient.post<{ success: boolean }>('/api/payments/verify/razorpay', data);
   },
 
-  /**
-   * Get payment status for an order
-   */
-  getStatus: async (orderId: string): Promise<PaymentStatus> => {
-    return apiClient.get<PaymentStatus>(`/api/payments/status/${orderId}`);
+  // Verify Stripe payment
+  verifyStripe: async (data: StripePaymentData): Promise<{ success: boolean }> => {
+    return apiClient.post<{ success: boolean }>('/api/payments/verify/stripe', data);
   },
 
-  /**
-   * Process refund (Admin only)
-   */
-  processRefund: async (data: RefundRequest): Promise<RefundResponse> => {
-    return apiClient.post<RefundResponse>('/api/payments/refund', data);
+  // Get payment status for an order
+  getStatus: async (orderId: string): Promise<PaymentStatusResponse> => {
+    return apiClient.get<PaymentStatusResponse>(`/api/payments/status/${orderId}`);
+  },
+
+  // Process refund (Admin only)
+  processRefund: async (orderId: string, amount: number, reason: string): Promise<{ success: boolean; message: string }> => {
+    return apiClient.post<{ success: boolean; message: string }>('/api/payments/refund', {
+      orderId,
+      amount,
+      reason,
+    });
   },
 };
 
-// Helper to initialize Razorpay checkout
-export const initRazorpayCheckout = async (
-  razorpayOrder: RazorpayOrder,
-  options: {
+// Razorpay checkout helper
+export const initializeRazorpay = (
+  orderDetails: {
+    key: string;
+    amount: number;
+    currency: string;
+    orderId: string;
     name: string;
     description: string;
-    prefill?: {
-      name?: string;
-      email?: string;
-      contact?: string;
+    prefill: {
+      name: string;
+      email: string;
+      contact: string;
     };
     theme?: {
-      color?: string;
+      color: string;
     };
-    onSuccess: (response: {
-      razorpay_payment_id: string;
-      razorpay_order_id: string;
-      razorpay_signature: string;
-    }) => void;
-    onError?: (error: any) => void;
-    onClose?: () => void;
   },
+  onSuccess: (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => void,
+  onError: (error: any) => void
 ) => {
-  const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-
-  if (!razorpayKeyId) {
-    throw new Error('Razorpay key ID not configured');
+  if (typeof window === 'undefined' || !(window as any).Razorpay) {
+    onError(new Error('Razorpay SDK not loaded'));
+    return null;
   }
 
-  // Load Razorpay script if not already loaded
-  if (typeof window !== 'undefined' && !(window as any).Razorpay) {
-    await new Promise<void>((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Razorpay SDK'));
-      document.body.appendChild(script);
-    });
-  }
-
-  const razorpayOptions = {
-    key: razorpayKeyId,
-    amount: razorpayOrder.amount,
-    currency: razorpayOrder.currency,
-    name: options.name,
-    description: options.description,
-    order_id: razorpayOrder.id,
-    prefill: options.prefill || {},
-    theme: options.theme || { color: '#22c55e' },
-    handler: options.onSuccess,
+  const options = {
+    key: orderDetails.key,
+    amount: orderDetails.amount,
+    currency: orderDetails.currency,
+    order_id: orderDetails.orderId,
+    name: orderDetails.name,
+    description: orderDetails.description,
+    handler: onSuccess,
+    prefill: orderDetails.prefill,
+    theme: orderDetails.theme || { color: '#2E7D32' },
     modal: {
-      ondismiss: options.onClose,
+      ondismiss: () => {
+        console.log('Payment modal closed');
+      },
     },
   };
 
-  const razorpay = new (window as any).Razorpay(razorpayOptions);
-  razorpay.on('payment.failed', options.onError);
-  razorpay.open();
+  const rzp = new (window as any).Razorpay(options);
+  rzp.on('payment.failed', onError);
+  return rzp;
 };
 
-export default paymentsApi;
+// Load Razorpay script
+export const loadRazorpayScript = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve(false);
+      return;
+    }
+
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};

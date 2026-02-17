@@ -17,6 +17,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { BlogModule } from './blog/blog.module';
 import { AddressesModule } from './addresses/addresses.module';
 import { UsersModule } from './users/users.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -42,6 +43,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     BlogModule,
     AddressesModule,
     UsersModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [

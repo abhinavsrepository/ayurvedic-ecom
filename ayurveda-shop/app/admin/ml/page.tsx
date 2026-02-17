@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Brain, TrendingUp, AlertCircle, Zap, Target, Play, Activity } from 'lucide-react';
+import { Brain, TrendingUp, AlertCircle, Zap, Target, Play, Activity, Loader2 } from 'lucide-react';
 import mlApi from '@/lib/api/ml';
 import { toast } from 'sonner';
+import { CardSkeleton } from '@/components/shared/Spinner';
 
 export default function MLPage() {
   const [activeTab, setActiveTab] = useState<'recommendations' | 'forecast' | 'anomalies' | 'playground' | 'models'>('recommendations');
   const [loading, setLoading] = useState(false);
   const [mlServiceHealth, setMlServiceHealth] = useState<boolean | null>(null);
+  const [checkingHealth, setCheckingHealth] = useState(true);
 
   // Data states
   const [recommendations, setRecommendations] = useState<any[]>([]);
@@ -28,10 +30,10 @@ export default function MLPage() {
 
   useEffect(() => {
     checkMLServiceHealth();
-    loadModelsInfo();
   }, []);
 
   const checkMLServiceHealth = async () => {
+    setCheckingHealth(true);
     try {
       const health = await mlApi.healthCheck();
       setMlServiceHealth(health.status === 'healthy');
@@ -39,10 +41,13 @@ export default function MLPage() {
         toast.success('ML Service Connected', {
           description: `Version: ${health.version}`
         });
+        loadModelsInfo();
       }
     } catch (error) {
       setMlServiceHealth(false);
-      console.error('ML service health check failed:', error);
+      // Silently fail - this is expected if ML service is not running
+    } finally {
+      setCheckingHealth(false);
     }
   };
 
@@ -51,7 +56,7 @@ export default function MLPage() {
       const info = await mlApi.getModelsInfo();
       setModelsInfo(info);
     } catch (error) {
-      console.error('Failed to load models info:', error);
+      // Silently fail
     }
   };
 
@@ -119,6 +124,15 @@ export default function MLPage() {
   };
 
   const renderContent = () => {
+    if (checkingHealth) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="w-12 h-12 animate-spin text-purple-600 mb-4" />
+          <p className="text-gray-600">Checking ML service status...</p>
+        </div>
+      );
+    }
+
     if (mlServiceHealth === false) {
       return (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
@@ -134,16 +148,15 @@ export default function MLPage() {
           <div className="bg-white dark:bg-gray-800 rounded p-4 font-mono text-sm">
             <p className="text-gray-700 dark:text-gray-300 mb-2">To start the ML service:</p>
             <code className="block text-green-600 dark:text-green-400">
-              start-ml-service.bat
+              cd ml-service && python app.py
             </code>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 text-xs">
-              OR: cd ml-service && python app.py
-            </p>
           </div>
           <button
             onClick={checkMLServiceHealth}
-            className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+            disabled={checkingHealth}
+            className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 flex items-center gap-2"
           >
+            {checkingHealth && <Loader2 className="w-4 h-4 animate-spin" />}
             Retry Connection
           </button>
         </div>
@@ -161,9 +174,10 @@ export default function MLPage() {
               <button
                 onClick={fetchRecommendations}
                 disabled={loading}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
               >
-                {loading ? 'Loading...' : 'Generate Recommendations'}
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Generate Recommendations
               </button>
             </div>
 
@@ -202,9 +216,10 @@ export default function MLPage() {
               <button
                 onClick={fetchForecast}
                 disabled={loading}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
               >
-                {loading ? 'Generating...' : 'Generate Forecast'}
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Generate Forecast
               </button>
             </div>
 
@@ -295,9 +310,10 @@ export default function MLPage() {
               <button
                 onClick={fetchAnomalies}
                 disabled={loading}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
               >
-                {loading ? 'Detecting...' : 'Detect Anomalies'}
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Detect Anomalies
               </button>
             </div>
 
@@ -344,13 +360,13 @@ export default function MLPage() {
                           <div>
                             <p className="text-xs text-gray-500">Expected</p>
                             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                              ₹{anomaly.expected.toLocaleString('en-IN')}
+                              Rs.{anomaly.expected.toLocaleString('en-IN')}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-gray-500">Actual</p>
                             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                              ₹{anomaly.actual.toLocaleString('en-IN')}
+                              Rs.{anomaly.actual.toLocaleString('en-IN')}
                             </p>
                           </div>
                           <div>
@@ -398,7 +414,7 @@ export default function MLPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Total Spent (₹)
+                      Total Spent (Rs.)
                     </label>
                     <input
                       type="number"
@@ -427,7 +443,7 @@ export default function MLPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Average Order Value (₹)
+                      Average Order Value (Rs.)
                     </label>
                     <input
                       type="number"
@@ -443,8 +459,9 @@ export default function MLPage() {
                     disabled={loading}
                     className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
                   >
+                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                     <Play className="w-4 h-4" />
-                    {loading ? 'Running...' : 'Run Prediction'}
+                    Run Prediction
                   </button>
                 </div>
               </div>
@@ -505,7 +522,7 @@ export default function MLPage() {
                             Predicted CLV
                           </span>
                           <span className="text-lg font-bold text-green-600">
-                            ₹
+                            Rs.
                             {playgroundOutput.predictions.lifetime_value.predicted_clv.toLocaleString(
                               'en-IN'
                             )}
@@ -542,9 +559,9 @@ export default function MLPage() {
             </h2>
 
             {!modelsInfo ? (
-              <div className="text-center py-12">
-                <Activity className="w-16 h-16 mx-auto text-gray-400 mb-4 animate-pulse" />
-                <p className="text-gray-600 dark:text-gray-400">Loading models...</p>
+              <div className="flex flex-col items-center justify-center py-12">
+                <Loader2 className="w-12 h-12 animate-spin text-purple-600 mb-4" />
+                <p className="text-gray-600">Loading models...</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -608,7 +625,7 @@ export default function MLPage() {
           <p className="text-gray-600 dark:text-gray-400">
             Leverage machine learning for predictions, recommendations, and anomaly detection
           </p>
-          {mlServiceHealth !== null && (
+          {!checkingHealth && mlServiceHealth !== null && (
             <span
               className={`px-2 py-1 text-xs font-semibold rounded ${
                 mlServiceHealth
@@ -637,7 +654,8 @@ export default function MLPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                disabled={checkingHealth}
+                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap disabled:opacity-50 ${
                   activeTab === tab.id
                     ? 'border-purple-500 text-purple-600 dark:text-purple-400'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'

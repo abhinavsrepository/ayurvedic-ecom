@@ -12,6 +12,8 @@ export default function ExtensionCleanup() {
 
     // Mark body to prevent extensions from injecting
     document.body.setAttribute('data-react-hydrated', 'true');
+    document.body.setAttribute('data-extension-cleaned', 'true');
+    document.documentElement.setAttribute('data-extension-cleaned', 'true');
 
     const removeExtensionElements = () => {
       // Common extension selectors
@@ -24,7 +26,6 @@ export default function ExtensionCleanup() {
         '[class*="supplier"]',
         '[id*="extension"]',
         '[id*="supplier"]',
-        'div[hidden]:not(script)',
         'div[style*="z-index: 999999"]',
         'div[style*="position: fixed"][style*="display: none"]',
       ];
@@ -41,6 +42,9 @@ export default function ExtensionCleanup() {
                 el.closest('#__next')) {
               return;
             }
+            // Hide first, then remove
+            (el as HTMLElement).style.display = 'none';
+            (el as HTMLElement).style.visibility = 'hidden';
             el.remove();
             removed = true;
           });
@@ -52,11 +56,11 @@ export default function ExtensionCleanup() {
       return removed;
     };
 
-    // Run multiple times
+    // Run immediately and multiple times
     removeExtensionElements();
-    setTimeout(removeExtensionElements, 0);
-    setTimeout(removeExtensionElements, 100);
-    setTimeout(removeExtensionElements, 500);
+    const timeouts = [0, 10, 50, 100, 500, 1000].map(delay => 
+      setTimeout(removeExtensionElements, delay)
+    );
 
     // Also observe for late injections
     const observer = new MutationObserver((mutations) => {
@@ -65,10 +69,12 @@ export default function ExtensionCleanup() {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === 1) {
             const el = node as Element;
-            if (el.className && (
-              String(el.className).includes('supplier') ||
-              String(el.className).includes('react-draggable')
-            )) {
+            const className = String(el.className || '');
+            const id = String(el.id || '');
+            if (className.includes('supplier') ||
+                className.includes('react-draggable') ||
+                className.includes('draggable') ||
+                id.includes('supplier')) {
               shouldCleanup = true;
             }
           }
@@ -81,7 +87,13 @@ export default function ExtensionCleanup() {
 
     observer.observe(document.body, { childList: true, subtree: true });
 
-    return () => observer.disconnect();
+    // Also observe head for extensions injecting there
+    observer.observe(document.head, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      timeouts.forEach(clearTimeout);
+    };
   }, []);
 
   return null;

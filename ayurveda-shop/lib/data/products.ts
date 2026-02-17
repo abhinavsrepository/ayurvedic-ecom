@@ -8,7 +8,7 @@ import { Product } from "@/components/product/ProductCard";
 export const featuredProducts: Product[] = [
   // HERO PRODUCT - Hair Oil
   {
-    id: "1",
+    id: "550e8400-e29b-41d4-a716-446655440001",
     name: "Ayurvedic Hair Oil",
     slug: "ayurvedic-hair-oil",
     description: "Premium Ayurvedic hair oil with bhringraj, amla, and hibiscus for thick, lustrous hair growth. Traditional formula for healthy scalp and strong roots.",
@@ -79,7 +79,7 @@ Ideal for those experiencing hair thinning, premature graying, dry scalp, or sim
     ],
   },
   {
-    id: "4",
+    id: "550e8400-e29b-41d4-a716-446655440004",
     name: "Active Protein Powder",
     slug: "active-protein-powder",
     description: "Herbal protein blend with ashwagandha, shatavari, and moringa for muscle strength and vitality.",
@@ -150,7 +150,7 @@ Free from whey, soy, gluten, and artificial sweeteners. Naturally flavored with 
     ],
   },
   {
-    id: "3",
+    id: "550e8400-e29b-41d4-a716-446655440003",
     name: "Diabetes Care Supplement",
     slug: "diabetes-care-supplement",
     description: "Ayurvedic herbal formula with karela, jamun, and gudmar to support healthy blood sugar levels naturally.",
@@ -219,7 +219,7 @@ This natural approach to blood sugar management works best when combined with a 
     ],
   },
   {
-    id: "2",
+    id: "550e8400-e29b-41d4-a716-446655440002",
     name: "Ayurvedic Cough Syrup",
     slug: "ayurvedic-cough-syrup",
     description: "Natural herbal cough syrup with tulsi, ginger, and honey for respiratory relief and throat soothing.",
@@ -289,7 +289,7 @@ This non-drowsy formula contains no artificial colors, flavors, or alcohol, maki
     ],
   },
   {
-    id: "5",
+    id: "550e8400-e29b-41d4-a716-446655440005",
     name: "Liver Care Capsules",
     slug: "liver-care-capsules",
     description: "Protective liver support with kutki, punarnava, and bhumi amla for detoxification and liver health.",
@@ -358,7 +358,7 @@ This supplement is ideal for those looking to support liver health after illness
     ],
   },
   {
-    id: "6",
+    id: "550e8400-e29b-41d4-a716-446655440006",
     name: "Liver Oil Extract",
     slug: "liver-oil-extract",
     description: "Concentrated liver oil with omega fatty acids and Ayurvedic herbs for liver regeneration.",

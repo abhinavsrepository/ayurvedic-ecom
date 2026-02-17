@@ -9,6 +9,8 @@ import { DEFAULT_METADATA, ORGANIZATION_SCHEMA, WEBSITE_SCHEMA, LOCAL_BUSINESS_S
 import StructuredData from "@/components/seo/StructuredData";
 import FloatingMenu from "@/components/shared/FloatingMenu";
 import { UIProvider } from "@/contexts/UIContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ExtensionCleanup from "@/components/shared/ExtensionCleanup";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -47,28 +49,35 @@ export default function RootLayout({
       lang="en" 
       className="scroll-smooth" 
       suppressHydrationWarning
-      data-extension-cleaned="false"
     >
       <head>
-        {/* Anti-extension: Remove injected elements immediately */}
+        <style dangerouslySetInnerHTML={{__html: `
+          .supplier-app-container, .supplier-app-mini, [class*="react-draggable"], [class*="supplier-app"] { 
+            display: none !important; 
+            visibility: hidden !important; 
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            z-index: -9999 !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+          }
+        `}} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                // Remove any existing extension elements
-                document.querySelectorAll('div[class*="supplier"], div[class*="react-draggable"]').forEach(el => el.remove());
+                function clean() {
+                  try {
+                    document.querySelectorAll('[class*="supplier"], [class*="draggable"]').forEach(function(el) {
+                      el.remove();
+                    });
+                  } catch(e) {}
+                }
                 
-                // Block future injections
-                const originalAppendChild = Element.prototype.appendChild;
-                Element.prototype.appendChild = function(node) {
-                  if (node.nodeType === 1) {
-                    const className = node.className || '';
-                    if (className.includes && (className.includes('supplier') || className.includes('react-draggable'))) {
-                      return node;
-                    }
-                  }
-                  return originalAppendChild.call(this, node);
-                };
+                clean();
+                for(var i=0; i<5; i++) setTimeout(clean, i*100);
               })();
             `,
           }}
@@ -101,14 +110,17 @@ export default function RootLayout({
         </a>
 
         <QueryProvider>
-          <UIProvider>
-            <CartProvider>
-              <Toaster position="top-right" richColors />
-              {children}
-              <GamificationWrapper />
-              <FloatingMenu />
-            </CartProvider>
-          </UIProvider>
+          <AuthProvider>
+            <UIProvider>
+              <CartProvider>
+                <Toaster position="top-right" richColors />
+                {children}
+                <GamificationWrapper />
+                <FloatingMenu />
+                <ExtensionCleanup />
+              </CartProvider>
+            </UIProvider>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

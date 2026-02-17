@@ -16,6 +16,8 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  ParseUUIDPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -40,22 +42,30 @@ export class ReviewsController {
   @Public()
   @Get('product/:productId')
   @ApiOperation({ summary: 'Get reviews for a product' })
-  @ApiParam({ name: 'productId', description: 'Product ID' })
+  @ApiParam({ name: 'productId', description: 'Product ID (UUID)' })
   @ApiResponse({ status: 200, description: 'Reviews retrieved successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid product ID format' })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async getProductReviews(
     @Param('productId') productId: string,
     @Query() query: QueryReviewDto,
   ) {
+    if (!this.isValidUUID(productId)) {
+      throw new BadRequestException('Product ID must be a valid UUID');
+    }
     return this.reviewsService.getProductReviews(productId, query);
   }
 
   @Public()
   @Get('product/:productId/stats')
   @ApiOperation({ summary: 'Get rating statistics for a product' })
-  @ApiParam({ name: 'productId', description: 'Product ID' })
+  @ApiParam({ name: 'productId', description: 'Product ID (UUID)' })
   @ApiResponse({ status: 200, description: 'Rating stats retrieved' })
+  @ApiResponse({ status: 400, description: 'Invalid product ID format' })
   async getProductRatingStats(@Param('productId') productId: string) {
+    if (!this.isValidUUID(productId)) {
+      throw new BadRequestException('Product ID must be a valid UUID');
+    }
     return this.reviewsService.getProductRatingStats(productId);
   }
 
@@ -85,7 +95,7 @@ export class ReviewsController {
   @ApiResponse({ status: 403, description: 'Cannot edit others review' })
   @ApiResponse({ status: 404, description: 'Review not found' })
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateReviewDto,
     @CurrentUser('customerId') customerId: string,
   ) {
@@ -103,7 +113,7 @@ export class ReviewsController {
   @ApiResponse({ status: 403, description: 'Cannot delete others review' })
   @ApiResponse({ status: 404, description: 'Review not found' })
   async delete(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser('customerId') customerId: string,
   ) {
     return this.reviewsService.delete(id, customerId);
@@ -118,7 +128,7 @@ export class ReviewsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Review not found' })
   async markHelpful(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser('sub') userId: string,
   ) {
     return this.reviewsService.markHelpful(id, userId);
@@ -132,5 +142,11 @@ export class ReviewsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getUserReviews(@CurrentUser('customerId') customerId: string) {
     return this.reviewsService.getUserReviews(customerId);
+  }
+
+  private isValidUUID(value: string): boolean {
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(value);
   }
 }

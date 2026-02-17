@@ -7,9 +7,20 @@ import {
   TwoFaVerifyRequest,
 } from './types';
 
+interface RegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+  fullName: string;
+}
+
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     return apiClient.post<LoginResponse>('/api/auth/login', credentials);
+  },
+
+  register: async (data: RegisterRequest): Promise<LoginResponse> => {
+    return apiClient.post<LoginResponse>('/api/auth/register', data);
   },
 
   logout: async (): Promise<void> => {
@@ -26,6 +37,10 @@ export const authApi = {
   },
 
   getCurrentUser: async (): Promise<UserProfileResponse> => {
+    return apiClient.get<UserProfileResponse>('/api/auth/me');
+  },
+
+  getProfile: async (): Promise<UserProfileResponse> => {
     return apiClient.get<UserProfileResponse>('/api/auth/me');
   },
 

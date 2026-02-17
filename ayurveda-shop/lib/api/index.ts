@@ -10,3 +10,4 @@ export * from './blog';
 export * from './addresses';
 export * from './users';
 export * from './payments';
+export * from './analytics';

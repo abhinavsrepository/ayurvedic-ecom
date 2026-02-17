@@ -10,6 +10,7 @@ import React, {
 import { toast } from "sonner";
 import {
   cartApi,
+  isValidUUID,
   type CartItem as ApiCartItem,
   type Cart,
 } from "@/lib/api/cart";
@@ -119,8 +120,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, mounted, apiAvailable]);
 
   const addToCart = async (item: Omit<CartItem, "id" | "lineTotal">) => {
+    // Check if productId is a valid UUID - mock products use simple numeric IDs
+    const isMockProduct = !isValidUUID(item.productId);
+    
     try {
-      if (apiAvailable) {
+      if (apiAvailable && !isMockProduct) {
         const cart = await cartApi.addItem({
           productId: item.productId,
           quantity: item.quantity,
@@ -131,6 +135,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setSubtotal(cart.subtotal);
         setItemCount(cart.itemCount);
       } else {
+        // Use local mode for mock products or when API is unavailable
+        if (isMockProduct) {
+          console.debug('Using local cart for mock product:', item.name);
+        }
         // Local mode
         setItems((prev) => {
           const existingIndex = prev.findIndex(
@@ -164,11 +172,50 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         description: `${item.name} has been added to your cart`,
       });
     } catch (error: any) {
-      // Fallback to local mode
-      if (error?.message === 'API_UNAVAILABLE') {
+      // Fallback to local mode for API errors (validation errors, not found, etc.)
+      const statusCode = error?.response?.status || error?.status;
+      const isValidationError = statusCode === 400 || statusCode === 404;
+      const isNetworkError = error?.message === 'API_UNAVAILABLE' || error?.code === 'ERR_NETWORK' || error?.code === 'ECONNREFUSED';
+      
+      if (isNetworkError || isValidationError) {
         setApiAvailable(false);
         // Retry with local mode
-        await addToCart(item);
+        setItems((prev) => {
+          const existingIndex = prev.findIndex(
+            (i) => i.productId === item.productId && i.variantId === item.variantId
+          );
+          
+          let newItems;
+          if (existingIndex >= 0) {
+            newItems = prev.map((i, idx) => 
+              idx === existingIndex 
+                ? { ...i, quantity: i.quantity + item.quantity, lineTotal: i.price * (i.quantity + item.quantity) }
+                : i
+            );
+          } else {
+            const newItem: CartItem = {
+              ...item,
+              id: `local_${Date.now()}`,
+              lineTotal: item.price * item.quantity,
+            };
+            newItems = [...prev, newItem];
+          }
+          
+          const { subtotal, count } = calculateTotals(newItems);
+          setSubtotal(subtotal);
+          setItemCount(count);
+          
+          // Save to localStorage for persistence
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('local_cart', JSON.stringify(newItems));
+          }
+          
+          return newItems;
+        });
+        
+        toast.success("Added to cart", {
+          description: `${item.name} has been added to your cart`,
+        });
         return;
       }
       toast.error("Failed to add item to cart");
