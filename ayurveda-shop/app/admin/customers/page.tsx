@@ -43,7 +43,7 @@ export default function CustomersPage() {
       setCustomers(transformedCustomers);
       setPagination((prev) => ({
         ...prev,
-        total: response.totalElements || response.total,
+        total: response.totalElements,
         totalPages: response.totalPages,
       }));
     } catch (error: any) {
@@ -79,7 +79,7 @@ export default function CustomersPage() {
       setCustomers(transformedCustomers);
       setPagination((prev) => ({
         ...prev,
-        total: response.totalElements || response.total,
+        total: response.totalElements,
         totalPages: response.totalPages,
         page: 0,
       }));

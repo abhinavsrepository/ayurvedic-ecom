@@ -121,10 +121,13 @@ class ApiClient {
   }
 
   async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    console.log('[DEBUG API] POST', url, data);
     try {
       const response = await this.client.post<T>(url, data, config);
+      console.log('[DEBUG API] Response:', response.data);
       return response.data;
     } catch (error) {
+      console.log('[DEBUG API] Error:', (error as any)?.response?.status, (error as any)?.response?.data);
       this.handleError(error);
       throw error;
     }

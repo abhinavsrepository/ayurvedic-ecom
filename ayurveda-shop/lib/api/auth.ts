@@ -24,8 +24,14 @@ export const authApi = {
   },
 
   logout: async (): Promise<void> => {
-    await apiClient.post<void>('/api/auth/logout');
-    apiClient.clearTokens();
+    try {
+      await apiClient.post<void>('/api/auth/logout');
+    } catch (error) {
+      // Even if the API call fails (e.g., token expired), we still want to clear local tokens
+      // This ensures the user can still "log out" locally
+    } finally {
+      apiClient.clearTokens();
+    }
   },
 
   refreshToken: async (refreshToken: string): Promise<LoginResponse> => {

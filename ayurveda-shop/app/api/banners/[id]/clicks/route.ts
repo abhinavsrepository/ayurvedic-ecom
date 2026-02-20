@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+
 interface RouteParams {
   params: Promise<{
     id: string;
@@ -13,15 +15,23 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+    const response = await fetch(`${BACKEND_URL}/api/banners/${id}/clicks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
 
-    // For now, just return success
-    // In the future, this should proxy to backend API
-    return NextResponse.json({ success: true });
+    const payload = await response.json().catch(() => ({}));
+    return NextResponse.json(payload, {
+      status: response.status,
+    });
   } catch (error: any) {
     console.error('Error tracking click:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to track click' },
-      { status: 500 }
+      { status: 502 }
     );
   }
 }

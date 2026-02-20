@@ -13,50 +13,26 @@ import {
   type ProductUpdateRequest,
 } from '@/lib/api/schemas';
 import { revalidateTag, unstable_cache } from 'next/cache';
-import { featuredProducts as mockProducts } from '@/lib/data/products';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
-const USE_MOCK_DATA = false;
+const normalizePageResponse = (raw: any) => {
+  const page = raw?.number ?? raw?.page ?? 0;
+  const totalPages = raw?.totalPages ?? 0;
+  const content = Array.isArray(raw?.content) ? raw.content : [];
 
-// Mock data transformation
-function transformMockProduct(mock: any): ProductResponse {
   return {
-    id: mock.id,
-    sku: `SKU-${mock.id}`,
-    name: mock.name,
-    slug: mock.slug,
-    description: mock.longDescription || mock.description,
-    shortDescription: mock.shortDescription || mock.description.substring(0, 100) + '...',
-    price: mock.price,
-    compareAtPrice: mock.originalPrice,
-    costPrice: undefined,
-    status: 'active',
-    category: mock.category,
-    brand: 'Ayurveda Haven',
-    tags: mock.keywords || [],
-    ingredients: mock.ingredients || [],
-    benefits: mock.benefits || [],
-    usage: mock.howToUse,
-    images: [{ url: mock.image, altText: mock.name }],
-    weightGrams: undefined,
-    isFeatured: mock.isBestseller || false,
-    seoTitle: mock.metaTitle,
-    seoDescription: mock.metaDescription,
-    stockQuantity: mock.inStock ? 100 : 0,
-    lowStock: false,
-    rating: mock.rating,
-    reviewCount: mock.reviewCount,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    // Additional SEO fields stored as custom properties
-    warnings: mock.warnings,
-    shelfLife: mock.shelfLife,
-    madeIn: mock.madeIn,
-    certifications: mock.certifications,
-    doshaType: mock.doshaType,
+    ...raw,
+    content,
+    totalElements: raw?.totalElements ?? raw?.total ?? content.length,
+    last: raw?.last ?? page >= Math.max(totalPages - 1, 0),
+    first: raw?.first ?? page === 0,
+    numberOfElements: raw?.numberOfElements ?? content.length,
+    number: page,
+    sort: raw?.sort ?? [],
+    empty: raw?.empty ?? content.length === 0,
   };
-}
+};
 
 // Cached product list with 60s revalidation
 export const getProducts = unstable_cache(
@@ -93,47 +69,9 @@ export const getProducts = unstable_cache(
       }
 
       const data = await response.json();
-      return PageProductResponseSchema.parse(data);
-    } catch (error) {
-      // Silently use mock data when backend is unavailable
-
-      let filteredProducts = mockProducts.map(transformMockProduct);
-
-      if (validatedParams.status) {
-        const statusLower = validatedParams.status.toLowerCase();
-        filteredProducts = filteredProducts.filter(p => p.status === statusLower);
-      }
-
-      if (validatedParams.category) {
-        filteredProducts = filteredProducts.filter(p => p.category === validatedParams.category);
-      }
-
-      if (validatedParams.search) {
-        const searchLower = validatedParams.search.toLowerCase();
-        filteredProducts = filteredProducts.filter(p =>
-          p.name.toLowerCase().includes(searchLower) ||
-          p.description?.toLowerCase().includes(searchLower)
-        );
-      }
-
-      const size = validatedParams.size || 20;
-      const page = validatedParams.page || 0;
-      const startIndex = page * size;
-      const endIndex = startIndex + size;
-      const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
-      return {
-        totalPages: Math.ceil(filteredProducts.length / size),
-        totalElements: filteredProducts.length,
-        last: endIndex >= filteredProducts.length,
-        first: page === 0,
-        numberOfElements: paginatedProducts.length,
-        size,
-        content: paginatedProducts,
-        number: page,
-        sort: [],
-        empty: paginatedProducts.length === 0,
-      };
+      return PageProductResponseSchema.parse(normalizePageResponse(data));
+    } catch (error: any) {
+      throw new Error(`Failed to fetch products: ${error?.message || 'Unknown error'}`);
     }
   },
   ['products-list'],
@@ -162,26 +100,14 @@ export const getProductBySlug = unstable_cache(
       });
 
       if (!response.ok) {
-        if (response.status === 404) {
-          // Check mock data as fallback when backend returns 404
-          const mockProduct = mockProducts.find(p => p.slug === slug);
-          if (mockProduct) {
-            return transformMockProduct(mockProduct);
-          }
-          return null;
-        }
+        if (response.status === 404) return null;
         throw new Error(`Backend returned ${response.status}`);
       }
 
       const data = await response.json();
       return ProductResponseSchema.parse(data);
-    } catch (error) {
-      // Silently use mock data when backend is unavailable
-      const mockProduct = mockProducts.find(p => p.slug === slug);
-      if (mockProduct) {
-        return transformMockProduct(mockProduct);
-      }
-      return null;
+    } catch (error: any) {
+      throw new Error(`Failed to fetch product '${slug}': ${error?.message || 'Unknown error'}`);
     }
   },
   ['product-by-slug'],
@@ -200,21 +126,8 @@ export const searchProducts = unstable_cache(
       status: 'ACTIVE',
     };
 
-    try {
-      const result = await getProducts(params);
-      return result.content;
-    } catch (error) {
-      console.warn('Backend not available, using mock data for search:', query);
-      const searchLower = query.toLowerCase();
-      const searchResults = mockProducts
-        .filter(p =>
-          p.name.toLowerCase().includes(searchLower) ||
-          p.description.toLowerCase().includes(searchLower)
-        )
-        .slice(0, limit)
-        .map(transformMockProduct);
-      return searchResults;
-    }
+    const result = await getProducts(params);
+    return result.content;
   },
   ['product-search'],
   {
@@ -225,35 +138,27 @@ export const searchProducts = unstable_cache(
 // Get featured products
 export const getFeaturedProducts = unstable_cache(
   async (limit: number = 8): Promise<ProductResponse[]> => {
-    try {
-      const url = `${BACKEND_URL}/api/products?size=${limit}&sort=is_featured,desc&status=ACTIVE`;
+    const url = `${BACKEND_URL}/api/products?size=${limit}&sort=is_featured,desc&status=ACTIVE`;
 
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        next: {
-          revalidate: 300,
-          tags: ['featured-products'],
-        },
-        signal: AbortSignal.timeout(3000), // 3 second timeout
-      });
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      next: {
+        revalidate: 300,
+        tags: ['featured-products'],
+      },
+      signal: AbortSignal.timeout(3000), // 3 second timeout
+    });
 
-      if (!response.ok) {
-        throw new Error('Backend not available');
-      }
-
-      const data = await response.json();
-      const parsed = PageProductResponseSchema.parse(data);
-      return parsed.content;
-    } catch (error) {
-      console.warn('Backend not available, using mock data for featured products:', error);
-      return mockProducts
-        .filter(p => p.isBestseller)
-        .slice(0, limit)
-        .map(transformMockProduct);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch featured products: ${response.status}`);
     }
+
+    const data = await response.json();
+    const parsed = PageProductResponseSchema.parse(normalizePageResponse(data));
+    return parsed.content;
   },
   ['featured-products'],
   {
@@ -272,30 +177,7 @@ export const getProductsByCategory = unstable_cache(
       status: 'ACTIVE',
     };
 
-    try {
-      return await getProducts(params);
-    } catch (error) {
-      console.warn('Backend not available, using mock data for category:', category);
-      const categoryProducts = mockProducts
-        .filter(p => p.category === category)
-        .map(transformMockProduct);
-
-      const startIndex = page * size;
-      const paginatedProducts = categoryProducts.slice(startIndex, startIndex + size);
-
-      return {
-        totalPages: Math.ceil(categoryProducts.length / size),
-        totalElements: categoryProducts.length,
-        last: startIndex + size >= categoryProducts.length,
-        first: page === 0,
-        numberOfElements: paginatedProducts.length,
-        size,
-        content: paginatedProducts,
-        number: page,
-        sort: [],
-        empty: paginatedProducts.length === 0,
-      };
-    }
+    return await getProducts(params);
   },
   ['products-by-category'],
   {

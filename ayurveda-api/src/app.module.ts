@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -18,6 +19,7 @@ import { BlogModule } from './blog/blog.module';
 import { AddressesModule } from './addresses/addresses.module';
 import { UsersModule } from './users/users.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { BannersModule } from './banners/banners.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -44,6 +46,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     AddressesModule,
     UsersModule,
     AnalyticsModule,
+    BannersModule,
   ],
   controllers: [AppController],
   providers: [

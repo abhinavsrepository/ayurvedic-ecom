@@ -1,24 +1,40 @@
 import type { Banner } from '@/types/banner';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+const mapBanner = (banner: any): Banner => ({
+  ...banner,
+  startDate: banner.startDate ? new Date(banner.startDate) : undefined,
+  endDate: banner.endDate ? new Date(banner.endDate) : undefined,
+  createdAt: new Date(banner.createdAt),
+  updatedAt: new Date(banner.updatedAt),
+});
 
 export const bannersApi = {
+  getBanners: async (params?: {
+    position?: 'hero' | 'middle' | 'footer' | 'popup';
+    status?: 'active' | 'inactive' | 'scheduled';
+  }): Promise<Banner[]> => {
+    const query = new URLSearchParams();
+    if (params?.position) query.set('position', params.position);
+    if (params?.status) query.set('status', params.status);
+
+    const response = await fetch(`/api/banners${query.toString() ? `?${query}` : ''}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch banners: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return (data.banners || []).map(mapBanner);
+  },
+
   // Get active banners by position
   getActiveBanners: async (position: 'hero' | 'middle' | 'footer' | 'popup'): Promise<Banner[]> => {
     try {
-      const response = await fetch(`/api/banners?position=${position}&status=active`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch banners: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.banners || [];
+      return await bannersApi.getBanners({ position, status: 'active' });
     } catch (error) {
       console.error('Error fetching banners:', error);
       return [];

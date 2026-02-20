@@ -8,10 +8,63 @@ import WisdomSection from "@/components/shared/WisdomSection";
 import BeforeAfter from "@/components/shared/BeforeAfter";
 import VideoTestimonials from "@/components/shared/VideoTestimonials";
 import BannerDisplay from "@/components/frontend/BannerDisplay";
-import { featuredProducts, testimonials, wisdomPosts, beforeAfterData, videoTestimonials } from "@/lib/data/products";
+import { testimonials, wisdomPosts, beforeAfterData, videoTestimonials } from "@/lib/data/products";
+import type { Product } from "@/components/product/ProductCard";
 import { generatePageMetadata, REVALIDATION_TIMES, SITE_CONFIG } from '@/lib/seo/config';
 import StructuredData, { generateArticleSchema, generateReviewSchema, generateVideoSchema } from '@/components/seo/StructuredData';
 import { Suspense } from 'react';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+
+const mapBackendProduct = (backendProduct: any): Product => ({
+  id: backendProduct.id,
+  name: backendProduct.name,
+  slug: backendProduct.slug,
+  description: backendProduct.short_description || backendProduct.description || '',
+  shortDescription: backendProduct.short_description || undefined,
+  longDescription: backendProduct.description || undefined,
+  price: Number(backendProduct.price),
+  originalPrice: backendProduct.compare_at_price
+    ? Number(backendProduct.compare_at_price)
+    : undefined,
+  image:
+    backendProduct.image ||
+    backendProduct.product_images?.[0]?.url ||
+    'https://via.placeholder.com/400?text=Product',
+  category: backendProduct.category || 'Uncategorized',
+  inStock: backendProduct.status === 'ACTIVE',
+  rating: backendProduct.rating || 0,
+  reviewCount: backendProduct.review_count || 0,
+  benefits: Array.isArray(backendProduct.benefits)
+    ? backendProduct.benefits
+    : [],
+});
+
+async function getHomepageProducts(): Promise<Product[]> {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/api/products?status=ACTIVE&size=8`,
+      {
+        next: { revalidate: 1800, tags: ['homepage-products'] },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`Products API returned ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const content = Array.isArray(payload?.content)
+      ? payload.content
+      : Array.isArray(payload)
+        ? payload
+        : [];
+    return content.map(mapBackendProduct);
+  } catch (error) {
+    console.error('Failed to fetch homepage products:', error);
+    return [];
+  }
+}
 
 // Enable ISR - revalidate homepage every 30 minutes
 export const revalidate = 1800; // 30 minutes
@@ -112,7 +165,9 @@ export const metadata: Metadata = generatePageMetadata({
     })
   );
 
-export default function Home() {
+export default async function Home() {
+  const homepageProducts = await getHomepageProducts();
+
   return (
     <div className="min-h-screen">
       {/* FAQ, Review, Aggregate Rating, and Video Structured Data */}
@@ -135,7 +190,7 @@ export default function Home() {
 
         {/* Featured Products */}
         <ProductGrid
-          products={featuredProducts.slice(0, 8)}
+          products={homepageProducts}
           title="Featured Products"
           subtitle="Discover our bestselling Ayurvedic treasures crafted with care"
         />

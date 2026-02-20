@@ -96,6 +96,34 @@ let MlService = MlService_1 = class MlService {
             throw error;
         }
     }
+    async runPlayground(inputData) {
+        const url = `${this.mlServiceUrl}/api/ml/playground`;
+        try {
+            const { data } = await (0, rxjs_1.firstValueFrom)(this.httpService.post(url, inputData).pipe((0, operators_1.catchError)((error) => {
+                this.logger.error(error.response?.data || error.message);
+                throw new common_1.HttpException(error.response?.data || 'Failed to run playground prediction', error.response?.status || common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+            })));
+            return data;
+        }
+        catch (error) {
+            this.logger.error(`Error running playground prediction: ${error.message}`);
+            throw error;
+        }
+    }
+    async getModelsInfo() {
+        const url = `${this.mlServiceUrl}/api/ml/models/info`;
+        try {
+            const { data } = await (0, rxjs_1.firstValueFrom)(this.httpService.get(url).pipe((0, operators_1.catchError)((error) => {
+                this.logger.error(error.response?.data || error.message);
+                throw new common_1.HttpException(error.response?.data || 'Failed to fetch model information', error.response?.status || common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+            })));
+            return data;
+        }
+        catch (error) {
+            this.logger.error(`Error fetching model information: ${error.message}`);
+            throw error;
+        }
+    }
 };
 exports.MlService = MlService;
 exports.MlService = MlService = MlService_1 = __decorate([

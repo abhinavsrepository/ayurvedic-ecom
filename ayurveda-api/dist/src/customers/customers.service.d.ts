@@ -10,16 +10,16 @@ export declare class CustomersService {
     findAll(query: QueryCustomerDto): Promise<{
         content: {
             id: string;
-            created_at: Date;
             email: string;
             phone_number: string | null;
+            created_at: Date;
             updated_at: Date;
             first_name: string;
             last_name: string;
             total_orders: number | null;
-            total_spent: import("@prisma/client/runtime/library").Decimal | null;
-            lifetime_value: import("@prisma/client/runtime/library").Decimal | null;
-            average_order_value: import("@prisma/client/runtime/library").Decimal | null;
+            total_spent: import("@prisma/client-runtime-utils").Decimal | null;
+            lifetime_value: import("@prisma/client-runtime-utils").Decimal | null;
+            average_order_value: import("@prisma/client-runtime-utils").Decimal | null;
             last_order_at: Date | null;
             accepts_marketing: boolean | null;
         }[];
@@ -33,15 +33,15 @@ export declare class CustomersService {
             id: string;
             created_at: Date;
             status: string;
-            total: import("@prisma/client/runtime/library").Decimal;
+            total: import("@prisma/client-runtime-utils").Decimal;
             order_number: string;
             payment_status: string;
         }[];
     } & {
         id: string;
-        created_at: Date;
         email: string;
         phone_number: string | null;
+        created_at: Date;
         updated_at: Date;
         version: bigint | null;
         deleted_at: Date | null;
@@ -49,9 +49,9 @@ export declare class CustomersService {
         first_name: string;
         last_name: string;
         total_orders: number | null;
-        total_spent: import("@prisma/client/runtime/library").Decimal | null;
-        lifetime_value: import("@prisma/client/runtime/library").Decimal | null;
-        average_order_value: import("@prisma/client/runtime/library").Decimal | null;
+        total_spent: import("@prisma/client-runtime-utils").Decimal | null;
+        lifetime_value: import("@prisma/client-runtime-utils").Decimal | null;
+        average_order_value: import("@prisma/client-runtime-utils").Decimal | null;
         last_order_at: Date | null;
         address_line1: string | null;
         address_line2: string | null;
@@ -69,9 +69,9 @@ export declare class CustomersService {
     }>;
     update(id: string, updateCustomerDto: UpdateCustomerDto): Promise<{
         id: string;
-        created_at: Date;
         email: string;
         phone_number: string | null;
+        created_at: Date;
         updated_at: Date;
         version: bigint | null;
         deleted_at: Date | null;
@@ -79,9 +79,9 @@ export declare class CustomersService {
         first_name: string;
         last_name: string;
         total_orders: number | null;
-        total_spent: import("@prisma/client/runtime/library").Decimal | null;
-        lifetime_value: import("@prisma/client/runtime/library").Decimal | null;
-        average_order_value: import("@prisma/client/runtime/library").Decimal | null;
+        total_spent: import("@prisma/client-runtime-utils").Decimal | null;
+        lifetime_value: import("@prisma/client-runtime-utils").Decimal | null;
+        average_order_value: import("@prisma/client-runtime-utils").Decimal | null;
         last_order_at: Date | null;
         address_line1: string | null;
         address_line2: string | null;
@@ -107,31 +107,31 @@ export declare class CustomersService {
         };
         stats: {
             totalOrders: number;
-            totalSpent: number | import("@prisma/client/runtime/library").Decimal;
-            averageOrderValue: number | import("@prisma/client/runtime/library").Decimal;
-            lifetimeValue: number | import("@prisma/client/runtime/library").Decimal;
+            totalSpent: number | import("@prisma/client-runtime-utils").Decimal;
+            averageOrderValue: number | import("@prisma/client-runtime-utils").Decimal;
+            lifetimeValue: number | import("@prisma/client-runtime-utils").Decimal;
             lastOrderAt: Date | null;
         };
         recentOrders: {
             id: string;
             created_at: Date;
             status: string;
-            total: import("@prisma/client/runtime/library").Decimal;
+            total: import("@prisma/client-runtime-utils").Decimal;
             order_number: string;
         }[];
     }>;
     search(query: string, queryDto: QueryCustomerDto): Promise<{
         content: {
             id: string;
-            created_at: Date;
             email: string;
             phone_number: string | null;
+            created_at: Date;
             first_name: string;
             last_name: string;
             total_orders: number | null;
-            total_spent: import("@prisma/client/runtime/library").Decimal | null;
-            lifetime_value: import("@prisma/client/runtime/library").Decimal | null;
-            average_order_value: import("@prisma/client/runtime/library").Decimal | null;
+            total_spent: import("@prisma/client-runtime-utils").Decimal | null;
+            lifetime_value: import("@prisma/client-runtime-utils").Decimal | null;
+            average_order_value: import("@prisma/client-runtime-utils").Decimal | null;
             last_order_at: Date | null;
         }[];
         total: number;
@@ -141,15 +141,15 @@ export declare class CustomersService {
     }>;
     export(queryDto: QueryCustomerDto): Promise<{
         id: string;
-        created_at: Date;
         email: string;
         phone_number: string | null;
+        created_at: Date;
         first_name: string;
         last_name: string;
         total_orders: number | null;
-        total_spent: import("@prisma/client/runtime/library").Decimal | null;
-        lifetime_value: import("@prisma/client/runtime/library").Decimal | null;
-        average_order_value: import("@prisma/client/runtime/library").Decimal | null;
+        total_spent: import("@prisma/client-runtime-utils").Decimal | null;
+        lifetime_value: import("@prisma/client-runtime-utils").Decimal | null;
+        average_order_value: import("@prisma/client-runtime-utils").Decimal | null;
         last_order_at: Date | null;
     }[]>;
     private invalidateCustomerCaches;

@@ -13,7 +13,7 @@ export const productsApi = {
     return apiClient.get<PageResponse<ProductResponse>>('/api/products', { params });
   },
 
-  getById: async (id: number): Promise<ProductResponse> => {
+  getById: async (id: string): Promise<ProductResponse> => {
     return apiClient.get<ProductResponse>(`/api/products/${id}`);
   },
 
@@ -21,11 +21,11 @@ export const productsApi = {
     return apiClient.post<ProductResponse>('/api/products', product);
   },
 
-  update: async (id: number, product: ProductUpdateRequest): Promise<ProductResponse> => {
+  update: async (id: string, product: ProductUpdateRequest): Promise<ProductResponse> => {
     return apiClient.put<ProductResponse>(`/api/products/${id}`, product);
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     return apiClient.delete<void>(`/api/products/${id}`);
   },
 
@@ -35,7 +35,7 @@ export const productsApi = {
     });
   },
 
-  updateStock: async (id: number, quantity: number): Promise<ProductResponse> => {
+  updateStock: async (id: string, quantity: number): Promise<ProductResponse> => {
     return apiClient.patch<ProductResponse>(`/api/products/${id}/stock`, { quantity });
   },
 };

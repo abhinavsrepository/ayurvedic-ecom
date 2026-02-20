@@ -69,4 +69,33 @@ export class QueryOrderDto {
   @IsOptional()
   @IsEnum(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc' = 'desc';
+
+  @ApiPropertyOptional({ description: 'Filter by fulfillment status' })
+  @IsOptional()
+  @IsString()
+  fulfillmentStatus?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter orders created on or after this date (YYYY-MM-DD)',
+  })
+  @IsOptional()
+  @IsString()
+  fromDate?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter orders created on or before this date (YYYY-MM-DD)',
+  })
+  @IsOptional()
+  @IsString()
+  toDate?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by customer email' })
+  @IsOptional()
+  @IsString()
+  customerEmail?: string;
+
+  @ApiPropertyOptional({ description: 'Search query (order/customer)' })
+  @IsOptional()
+  @IsString()
+  q?: string;
 }

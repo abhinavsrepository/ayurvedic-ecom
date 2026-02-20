@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { allProducts } from '@/lib/data/allProducts';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
@@ -45,7 +44,7 @@ function transformProduct(backendProduct: any) {
   };
 }
 
-// GET all products - Proxy to backend with fallback to mock data
+// GET all products - Proxy to backend
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -61,12 +60,13 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.warn(`Backend returned ${response.status} for products endpoint, using mock data`);
-      return NextResponse.json({
-        success: true,
-        products: allProducts,
-        message: 'Using mock data - Backend products endpoint not available'
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Backend returned ${response.status} for products endpoint`,
+        },
+        { status: response.status },
+      );
     }
 
     const data = await response.json();
@@ -74,15 +74,6 @@ export async function GET(request: NextRequest) {
     // Transform backend response to match frontend expectations
     // Backend returns paginated data with 'content' array
     const backendProducts = data.content || data || [];
-    
-    // If backend returns empty, use mock data
-    if (backendProducts.length === 0) {
-      return NextResponse.json({
-        success: true,
-        products: allProducts,
-        message: 'Using mock data - Backend returned empty'
-      });
-    }
     
     // Transform each product to match frontend interface
     const products = backendProducts.map(transformProduct);
@@ -99,14 +90,10 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Error fetching products from backend:', error);
-
-    // Return mock data when backend is not available
-    console.warn('Backend is not running - returning mock products');
-    return NextResponse.json({
-      success: true,
-      products: allProducts,
-      message: 'Using mock data - Backend is not running'
-    });
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to fetch products' },
+      { status: 502 },
+    );
   }
 }
 

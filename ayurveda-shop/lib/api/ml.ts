@@ -1,13 +1,22 @@
 import axios from 'axios';
 
-const ML_API_URL = process.env.NEXT_PUBLIC_ML_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+const ML_HEALTH_URL = process.env.NEXT_PUBLIC_ML_URL || 'http://localhost:5000';
 
 const mlClient = axios.create({
-  baseURL: ML_API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
   timeout: 30000,
+});
+
+const mlHealthClient = axios.create({
+  baseURL: ML_HEALTH_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 10000,
 });
 
 // Add response interceptor to handle errors gracefully
@@ -23,7 +32,7 @@ mlClient.interceptors.response.use(
 export const mlApi = {
   // Health check
   healthCheck: async () => {
-    const response = await mlClient.get('/health');
+    const response = await mlHealthClient.get('/health');
     return response.data;
   },
 

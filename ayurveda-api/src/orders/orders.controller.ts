@@ -28,6 +28,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { QueryOrderDto } from './dto/query-order.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 
 @ApiTags('Orders')
 @Controller('orders')
@@ -37,28 +38,47 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   /**
-   * Get all orders for the current user
+   * Get all orders (admin: all orders, user: own orders)
    */
   @Get()
-  @ApiOperation({ summary: 'Get all orders for current user' })
+  @ApiOperation({ summary: 'Get orders (admin: all, user: own)' })
   @ApiResponse({ status: 200, description: 'Orders retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  findAll(@CurrentUser('email') userId: string, @Query() query: QueryOrderDto) {
-    return this.ordersService.findUserOrders(userId, query);
+  findAll(
+    @CurrentUser('email') userEmail: string,
+    @CurrentUser('roles') roles: string[] = [],
+    @Query() query: QueryOrderDto,
+  ) {
+    if (this.hasAdminRole(roles)) {
+      return this.ordersService.findAllOrders(query);
+    }
+    return this.ordersService.findUserOrders(userEmail, query);
   }
 
   /**
-   * Get a specific order by ID
+   * Search orders (Admin only)
    */
-  @Get(':id')
-  @ApiOperation({ summary: 'Get order by ID' })
-  @ApiParam({ name: 'id', description: 'Order ID' })
-  @ApiResponse({ status: 200, description: 'Order found' })
+  @Get('search')
+  @Roles('admin', 'manager')
+  @ApiOperation({ summary: 'Search orders (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Orders found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - not your order' })
-  @ApiResponse({ status: 404, description: 'Order not found' })
-  findOne(@Param('id') id: string, @CurrentUser('email') userId: string) {
-    return this.ordersService.findOne(id, userId);
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  searchOrders(@Query('q') query: string, @Query() queryDto: QueryOrderDto) {
+    return this.ordersService.searchOrders(query, queryDto);
+  }
+
+  /**
+   * Export orders to CSV (Admin only)
+   */
+  @Get('export')
+  @Roles('admin', 'manager')
+  @ApiOperation({ summary: 'Export orders to CSV (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Export initiated' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  export(@Query() queryDto: QueryOrderDto) {
+    return this.ordersService.export(queryDto);
   }
 
   /**
@@ -74,10 +94,33 @@ export class OrdersController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   create(
-    @CurrentUser('email') userId: string,
+    @CurrentUser('email') userEmail: string,
     @Body() createOrderDto: CreateOrderDto,
   ) {
-    return this.ordersService.createOrder(userId, createOrderDto);
+    return this.ordersService.createOrder(userEmail, createOrderDto);
+  }
+
+  /**
+   * Track an order
+   */
+  @Get(':id/track')
+  @ApiOperation({ summary: 'Get order tracking information' })
+  @ApiParam({ name: 'id', description: 'Order ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tracking info retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  trackOrder(
+    @Param('id') id: string,
+    @CurrentUser('email') userEmail: string,
+    @CurrentUser('roles') roles: string[] = [],
+  ) {
+    if (this.hasAdminRole(roles)) {
+      return this.ordersService.trackOrder(id);
+    }
+    return this.ordersService.trackOrder(id, userEmail);
   }
 
   /**
@@ -92,44 +135,88 @@ export class OrdersController {
     description: 'Cannot cancel order in current status',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - not your order' })
   @ApiResponse({ status: 404, description: 'Order not found' })
   cancelOrder(
     @Param('id') id: string,
-    @CurrentUser('email') userId: string,
+    @CurrentUser('email') userEmail: string,
+    @CurrentUser('roles') roles: string[] = [],
     @Body('reason') reason?: string,
   ) {
-    return this.ordersService.cancelOrder(id, userId, reason);
+    if (this.hasAdminRole(roles)) {
+      return this.ordersService.cancelOrderAdmin(id, reason);
+    }
+    return this.ordersService.cancelOrder(id, userEmail, reason);
   }
 
   /**
-   * Track an order
+   * Update order status (Admin only)
    */
-  @Get(':id/track')
-  @ApiOperation({ summary: 'Get order tracking information' })
+  @Patch(':id/status')
+  @Roles('admin', 'manager')
+  @ApiOperation({ summary: 'Update order status (Admin only)' })
   @ApiParam({ name: 'id', description: 'Order ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Tracking info retrieved successfully',
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - not your order' })
-  @ApiResponse({ status: 404, description: 'Order not found' })
-  trackOrder(@Param('id') id: string, @CurrentUser('email') userId: string) {
-    return this.ordersService.trackOrder(id, userId);
-  }
-
-  /**
-   * Export orders to CSV (Admin only)
-   */
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @Get('export')
-  @ApiOperation({ summary: 'Export orders to CSV (Admin only)' })
-  @ApiResponse({ status: 200, description: 'Export initiated' })
+  @ApiResponse({ status: 200, description: 'Order status updated' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  async export(@Query() queryDto: QueryOrderDto) {
-    return this.ordersService.export(queryDto);
+  updateStatus(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      status: string;
+      paymentStatus?: string;
+      trackingNumber?: string;
+      carrier?: string;
+      notes?: string;
+    },
+  ) {
+    return this.ordersService.updateOrderStatus(id, body);
+  }
+
+  /**
+   * Refund an order (Admin only)
+   */
+  @Post(':id/refund')
+  @Roles('admin', 'manager')
+  @ApiOperation({ summary: 'Refund an order (Admin only)' })
+  @ApiParam({ name: 'id', description: 'Order ID' })
+  @ApiResponse({ status: 200, description: 'Order refunded' })
+  @ApiResponse({ status: 400, description: 'Invalid refund request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  refundOrder(
+    @Param('id') id: string,
+    @CurrentUser('sub') adminUserId: string,
+    @Body() body: { amount: number; reason: string },
+  ) {
+    return this.ordersService.processRefund(
+      id,
+      body.amount,
+      body.reason,
+      adminUserId,
+    );
+  }
+
+  /**
+   * Get a specific order by ID
+   */
+  @Get(':id')
+  @ApiOperation({ summary: 'Get order by ID' })
+  @ApiParam({ name: 'id', description: 'Order ID' })
+  @ApiResponse({ status: 200, description: 'Order found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  findOne(
+    @Param('id') id: string,
+    @CurrentUser('email') userEmail: string,
+    @CurrentUser('roles') roles: string[] = [],
+  ) {
+    if (this.hasAdminRole(roles)) {
+      return this.ordersService.findOneAdmin(id);
+    }
+    return this.ordersService.findOne(id, userEmail);
+  }
+
+  private hasAdminRole(roles: string[]): boolean {
+    return roles?.includes('admin') || roles?.includes('manager');
   }
 }

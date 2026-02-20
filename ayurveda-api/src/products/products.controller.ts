@@ -48,16 +48,6 @@ export class ProductsController {
   }
 
   @Public()
-  @Get(':id')
-  @ApiOperation({ summary: 'Get product by ID' })
-  @ApiParam({ name: 'id', description: 'Product ID' })
-  @ApiResponse({ status: 200, description: 'Product found' })
-  @ApiResponse({ status: 404, description: 'Product not found' })
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
-  }
-
-  @Public()
   @Get('slug/:slug')
   @ApiOperation({ summary: 'Get product by slug' })
   @ApiParam({ name: 'slug', description: 'Product slug' })
@@ -150,6 +140,16 @@ export class ProductsController {
   @ApiResponse({ status: 400, description: 'Invalid query parameter' })
   async search(@Query('q') query: string, @Query() queryDto: QueryProductDto) {
     return this.productsService.search(query, queryDto);
+  }
+
+  @Public()
+  @Get(':id')
+  @ApiOperation({ summary: 'Get product by ID' })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiResponse({ status: 200, description: 'Product found' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  findOne(@Param('id') id: string) {
+    return this.productsService.findOne(id);
   }
 
   @Patch(':id/stock')

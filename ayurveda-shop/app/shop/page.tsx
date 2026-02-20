@@ -6,16 +6,30 @@ import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductCard, { Product } from "@/components/product/ProductCard";
-import { allProducts, categories, doshaTypes, benefits, priceRanges } from "@/lib/data/allProducts";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/motion-variants";
 
 type SortOption = "featured" | "price-low" | "price-high" | "rating" | "newest";
+type DoshaOption = { value: string; label: string; icon: string };
+type PriceRange = { min: number; max: number; label: string };
+
+const PRICE_RANGES: PriceRange[] = [
+  { min: 0, max: 300, label: "Under Rs.300" },
+  { min: 300, max: 600, label: "Rs.300 - Rs.600" },
+  { min: 600, max: 1000, label: "Rs.600 - Rs.1000" },
+  { min: 1000, max: Infinity, label: "Above Rs.1000" },
+];
+
+const DOSHA_LABELS: Record<string, DoshaOption> = {
+  all: { value: "all", label: "All Doshas", icon: "A" },
+  vata: { value: "vata", label: "Vata", icon: "V" },
+  pitta: { value: "pitta", label: "Pitta", icon: "P" },
+  kapha: { value: "kapha", label: "Kapha", icon: "K" },
+};
 
 export default function ShopPage() {
-  // Use local data which has all filter fields (doshaType, benefits, etc.)
-  // API products don't have these fields needed for filtering
-  const [products] = useState<Product[]>(allProducts);
-  const [loading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [selectedDosha, setSelectedDosha] = useState<string>("all");
@@ -24,6 +38,64 @@ export default function ShopPage() {
   const [sortBy, setSortBy] = useState<SortOption>("featured");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showInStockOnly, setShowInStockOnly] = useState(false);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setLoadError(null);
+        const response = await fetch("/api/products?status=ACTIVE&size=200", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Products API returned ${response.status}`);
+        }
+
+        const payload = await response.json();
+        setProducts(payload.products || []);
+      } catch (error: any) {
+        console.error("Failed to load products:", error);
+        setProducts([]);
+        setLoadError(error?.message || "Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const categories = useMemo(() => {
+    const unique = new Set<string>();
+    products.forEach((product) => {
+      if (product.category) unique.add(product.category);
+    });
+    return ["All Products", ...Array.from(unique).sort()];
+  }, [products]);
+
+  const doshaTypes = useMemo<DoshaOption[]>(() => {
+    const unique = new Set<string>();
+    products.forEach((product) => {
+      if (product.doshaType) unique.add(String(product.doshaType).toLowerCase());
+    });
+
+    const dynamic = Array.from(unique)
+      .filter((value) => DOSHA_LABELS[value])
+      .map((value) => DOSHA_LABELS[value]);
+
+    return [DOSHA_LABELS.all, ...dynamic];
+  }, [products]);
+
+  const benefits = useMemo(() => {
+    const unique = new Set<string>();
+    products.forEach((product) => {
+      (product.benefits || []).forEach((benefit) => {
+        if (benefit) unique.add(benefit);
+      });
+    });
+    return Array.from(unique).sort();
+  }, [products]);
 
   // Filter products
   const filteredProducts = useMemo(() => {
@@ -178,6 +250,10 @@ export default function ShopPage() {
             <aside className="hidden lg:block w-72 xl:w-80 flex-shrink-0">
               <div className="sticky top-24">
                 <FilterSidebar
+                  categories={categories}
+                  doshaTypes={doshaTypes}
+                  benefits={benefits}
+                  priceRanges={PRICE_RANGES}
                   selectedCategory={selectedCategory}
                   setSelectedCategory={setSelectedCategory}
                   selectedDosha={selectedDosha}
@@ -237,7 +313,15 @@ export default function ShopPage() {
               </div>
 
               {/* Products Grid */}
-              {filteredProducts.length > 0 ? (
+              {loading ? (
+                <motion.div
+                  className="text-center py-12 sm:py-20"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <p className="text-xl sm:text-2xl font-serif text-text-secondary mb-2">Loading products...</p>
+                </motion.div>
+              ) : filteredProducts.length > 0 ? (
                 <motion.div
                   className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6"
                   variants={staggerContainer}
@@ -257,7 +341,9 @@ export default function ShopPage() {
                   animate={{ opacity: 1 }}
                 >
                   <p className="text-xl sm:text-2xl font-serif text-text-secondary mb-4">No products found</p>
-                  <p className="text-text-muted mb-6 px-4">Try adjusting your filters or search terms</p>
+                  <p className="text-text-muted mb-6 px-4">
+                    {loadError ? "Could not load products from backend. Please try again." : "Try adjusting your filters or search terms"}
+                  </p>
                   <button
                     onClick={clearAllFilters}
                     className="px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-dark transition-colors tap-target"
@@ -301,6 +387,10 @@ export default function ShopPage() {
                   </button>
                 </div>
                 <FilterSidebar
+                  categories={categories}
+                  doshaTypes={doshaTypes}
+                  benefits={benefits}
+                  priceRanges={PRICE_RANGES}
                   selectedCategory={selectedCategory}
                   setSelectedCategory={setSelectedCategory}
                   selectedDosha={selectedDosha}
@@ -333,6 +423,10 @@ export default function ShopPage() {
 
 // Filter Sidebar Component
 function FilterSidebar({
+  categories,
+  doshaTypes,
+  benefits,
+  priceRanges,
   selectedCategory,
   setSelectedCategory,
   selectedDosha,
@@ -346,6 +440,10 @@ function FilterSidebar({
   clearAllFilters,
   activeFiltersCount,
 }: {
+  categories: string[];
+  doshaTypes: DoshaOption[];
+  benefits: string[];
+  priceRanges: PriceRange[];
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
   selectedDosha: string;

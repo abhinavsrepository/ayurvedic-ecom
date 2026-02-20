@@ -21,7 +21,6 @@ const query_customer_dto_1 = require("./dto/query-customer.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
-const public_decorator_1 = require("../common/decorators/public.decorator");
 let CustomersController = class CustomersController {
     customersService;
     constructor(customersService) {
@@ -29,6 +28,12 @@ let CustomersController = class CustomersController {
     }
     findAll(query) {
         return this.customersService.findAll(query);
+    }
+    async search(query, queryDto) {
+        return this.customersService.search(query, queryDto);
+    }
+    async export(queryDto) {
+        return this.customersService.export(queryDto);
     }
     findOne(id) {
         return this.customersService.findOne(id);
@@ -38,12 +43,6 @@ let CustomersController = class CustomersController {
     }
     getStats(id) {
         return this.customersService.getCustomerStats(id);
-    }
-    async search(query, queryDto) {
-        return this.customersService.search(query, queryDto);
-    }
-    async export(queryDto) {
-        return this.customersService.export(queryDto);
     }
 };
 exports.CustomersController = CustomersController;
@@ -62,6 +61,38 @@ __decorate([
     __metadata("design:paramtypes", [query_customer_dto_1.QueryCustomerDto]),
     __metadata("design:returntype", void 0)
 ], CustomersController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('search'),
+    (0, roles_decorator_1.Roles)('admin', 'manager'),
+    (0, swagger_1.ApiOperation)({ summary: 'Search customers by query (Admin only)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Customers found' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid query parameter' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - Admin access required',
+    }),
+    __param(0, (0, common_1.Query)('q')),
+    __param(1, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, query_customer_dto_1.QueryCustomerDto]),
+    __metadata("design:returntype", Promise)
+], CustomersController.prototype, "search", null);
+__decorate([
+    (0, common_1.Get)('export'),
+    (0, roles_decorator_1.Roles)('admin', 'manager'),
+    (0, swagger_1.ApiOperation)({ summary: 'Export customers to CSV (Admin only)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Export initiated' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - Admin access required',
+    }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [query_customer_dto_1.QueryCustomerDto]),
+    __metadata("design:returntype", Promise)
+], CustomersController.prototype, "export", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, roles_decorator_1.Roles)('admin', 'manager'),
@@ -118,41 +149,6 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], CustomersController.prototype, "getStats", null);
-__decorate([
-    (0, public_decorator_1.Public)(),
-    (0, common_1.Get)('search'),
-    (0, roles_decorator_1.Roles)('admin', 'manager'),
-    (0, swagger_1.ApiOperation)({ summary: 'Search customers by query (Admin only)' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Customers found' }),
-    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid query parameter' }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
-    (0, swagger_1.ApiResponse)({
-        status: 403,
-        description: 'Forbidden - Admin access required',
-    }),
-    __param(0, (0, common_1.Query)('q')),
-    __param(1, (0, common_1.Query)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, query_customer_dto_1.QueryCustomerDto]),
-    __metadata("design:returntype", Promise)
-], CustomersController.prototype, "search", null);
-__decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin', 'manager'),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.Get)('export'),
-    (0, swagger_1.ApiOperation)({ summary: 'Export customers to CSV (Admin only)' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Export initiated' }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
-    (0, swagger_1.ApiResponse)({
-        status: 403,
-        description: 'Forbidden - Admin access required',
-    }),
-    __param(0, (0, common_1.Query)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [query_customer_dto_1.QueryCustomerDto]),
-    __metadata("design:returntype", Promise)
-], CustomersController.prototype, "export", null);
 exports.CustomersController = CustomersController = __decorate([
     (0, swagger_1.ApiTags)('Customers'),
     (0, common_1.Controller)('customers'),

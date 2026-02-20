@@ -7,6 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
+require("dotenv/config");
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const throttler_1 = require("@nestjs/throttler");
@@ -27,6 +28,7 @@ const blog_module_1 = require("./blog/blog.module");
 const addresses_module_1 = require("./addresses/addresses.module");
 const users_module_1 = require("./users/users.module");
 const analytics_module_1 = require("./analytics/analytics.module");
+const banners_module_1 = require("./banners/banners.module");
 const jwt_auth_guard_1 = require("./auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("./common/guards/roles.guard");
 let AppModule = class AppModule {
@@ -56,6 +58,7 @@ exports.AppModule = AppModule = __decorate([
             addresses_module_1.AddressesModule,
             users_module_1.UsersModule,
             analytics_module_1.AnalyticsModule,
+            banners_module_1.BannersModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

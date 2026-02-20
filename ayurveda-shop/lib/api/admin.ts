@@ -1,6 +1,14 @@
 import { apiClient } from './client';
 
-type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'refunded';
+type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled'
+  | 'returned'
+  | 'refunded';
 type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
 interface Order {
@@ -33,14 +41,87 @@ interface PageResponse<T> {
   empty: boolean;
 }
 
-// Dashboard & Analytics
+const toNumber = (value: unknown): number => {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') return Number(value);
+  if (value && typeof value === 'object' && 'toString' in value) {
+    return Number((value as { toString: () => string }).toString());
+  }
+  return 0;
+};
+
+const lower = (value: unknown): string =>
+  typeof value === 'string' ? value.toLowerCase() : '';
+
+const mapOrder = (order: any): Order => {
+  const customerNameFromRelation = [
+    order.customers?.first_name,
+    order.customers?.last_name,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber || order.order_number || '',
+    customerName:
+      order.customerName ||
+      customerNameFromRelation ||
+      order.customers?.email ||
+      'Guest',
+    customerEmail: order.customerEmail || order.customers?.email || '',
+    customerPhone:
+      order.customerPhone || order.customers?.phone_number || order.phone || '',
+    status: lower(order.status) as OrderStatus,
+    paymentStatus: lower(
+      order.paymentStatus ?? order.payment_status,
+    ) as PaymentStatus,
+    paymentMethod: order.paymentMethod || order.payment_method || 'N/A',
+    total: toNumber(order.total),
+    subtotal: toNumber(order.subtotal),
+    tax: toNumber(order.tax ?? order.tax_amount),
+    shipping: toNumber(order.shipping ?? order.shipping_amount),
+    discount: toNumber(order.discount ?? order.discount_amount),
+    items: order.items || order.order_items || [],
+    createdAt: order.createdAt || order.created_at,
+  };
+};
+
+const mapOrdersPage = (response: any): PageResponse<Order> => {
+  const content = (response.content || []).map(mapOrder);
+  const number = response.number ?? response.page ?? 0;
+  const totalElements = response.totalElements ?? response.total ?? 0;
+  return {
+    content,
+    totalElements,
+    totalPages: response.totalPages ?? 0,
+    size: response.size ?? 20,
+    number,
+    first: response.first ?? number === 0,
+    last: response.last ?? false,
+    numberOfElements: response.numberOfElements ?? content.length,
+    empty: response.empty ?? content.length === 0,
+  };
+};
+
+const buildQuery = (params?: Record<string, unknown>) => {
+  const queryParams = new URLSearchParams();
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, String(value));
+      }
+    });
+  }
+  return queryParams.toString();
+};
+
 export const adminApi = {
-  // Dashboard Stats
   getDashboardStats: async () => {
     return apiClient.get('/api/admin/dashboard/stats');
   },
 
-  // Orders
   getOrders: async (params?: {
     page?: number;
     size?: number;
@@ -51,57 +132,56 @@ export const adminApi = {
     toDate?: string;
     customerEmail?: string;
   }): Promise<PageResponse<Order>> => {
-    const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, String(value));
-        }
-      });
-    }
-    return apiClient.get(`/api/orders?${queryParams.toString()}`);
+    const qs = buildQuery(params);
+    const response = await apiClient.get<any>(`/api/orders${qs ? `?${qs}` : ''}`);
+    return mapOrdersPage(response);
   },
 
   getOrder: async (orderId: string): Promise<Order> => {
-    return apiClient.get(`/api/orders/${orderId}`);
+    const response = await apiClient.get<any>(`/api/orders/${orderId}`);
+    return mapOrder(response);
   },
 
-  // ✅ Updated to use backend's cancel endpoint
   cancelOrder: async (orderId: string, reason?: string): Promise<Order> => {
-    return apiClient.patch(`/api/orders/${orderId}/cancel`, { reason });
+    const response = await apiClient.patch<any>(`/api/orders/${orderId}/cancel`, {
+      reason,
+    });
+    return mapOrder(response);
   },
 
-  // ✅ Updated to use backend's refund endpoint
-  processRefund: async (orderId: string, amount: number, reason: string): Promise<Order> => {
-    return apiClient.post(`/api/orders/${orderId}/refund`, { amount, reason });
+  processRefund: async (
+    orderId: string,
+    amount: number,
+    reason: string,
+  ): Promise<Order> => {
+    const response = await apiClient.post<any>(`/api/orders/${orderId}/refund`, {
+      amount,
+      reason,
+    });
+    return mapOrder(response);
   },
 
-  // ✅ Add tracking endpoint
   trackOrder: async (orderId: string): Promise<any> => {
     return apiClient.get(`/api/orders/${orderId}/track`);
   },
 
-  // ✅ Add customer search
-  searchCustomers: async (query: string, params?: {
-    page?: number;
-    size?: number;
-  }) => {
-    const queryParams = new URLSearchParams();
-    queryParams.append('q', query);
-    if (params?.page) queryParams.append('page', String(params.page));
-    if (params?.size) queryParams.append('size', String(params.size));
-
-    return apiClient.get(`/api/customers?${queryParams.toString()}`);
+  searchCustomers: async (
+    query: string,
+    params?: {
+      page?: number;
+      size?: number;
+    },
+  ) => {
+    const qs = buildQuery({ q: query, ...params });
+    return apiClient.get(`/api/customers/search${qs ? `?${qs}` : ''}`);
   },
 
-  // ✅ Add customer export
   exportCustomers: async (): Promise<Blob> => {
     return apiClient.get<Blob>('/api/customers/export', {
       responseType: 'blob',
     });
   },
 
-  // Products
   getProducts: async (params?: {
     page?: number;
     size?: number;
@@ -109,15 +189,8 @@ export const adminApi = {
     status?: string;
     category?: string;
   }) => {
-    const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, String(value));
-        }
-      });
-    }
-    return apiClient.get(`/api/products?${queryParams.toString()}`);
+    const qs = buildQuery(params);
+    return apiClient.get(`/api/products${qs ? `?${qs}` : ''}`);
   },
 
   getProduct: async (productId: string) => {
@@ -136,34 +209,27 @@ export const adminApi = {
     return apiClient.delete(`/api/products/${productId}`);
   },
 
-  // Customers
   getCustomers: async (params?: {
     page?: number;
     size?: number;
     search?: string;
   }) => {
-    const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, String(value));
-        }
-      });
-    }
-    return apiClient.get(`/api/customers?${queryParams.toString()}`);
+    const normalizedParams = params
+      ? { ...params, query: params.search, search: undefined }
+      : undefined;
+    const qs = buildQuery(normalizedParams as Record<string, unknown> | undefined);
+    return apiClient.get(`/api/customers${qs ? `?${qs}` : ''}`);
   },
 
   getCustomer: async (customerId: string) => {
     return apiClient.get(`/api/customers/${customerId}`);
   },
 
-  // ✅ Add customer stats endpoint
   getCustomerStats: async (customerId: string) => {
     return apiClient.get(`/api/customers/${customerId}/stats`);
   },
 };
 
-// Export individual API modules for better organization
 export const ordersApi = {
   list: adminApi.getOrders,
   get: adminApi.getOrder,

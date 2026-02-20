@@ -46,4 +46,14 @@ export class MlController {
   async predictClv(@Body() customerData: any) {
     return this.mlService.predictClv(customerData);
   }
+
+  @Post('playground')
+  async runPlayground(@Body() inputData: any) {
+    return this.mlService.runPlayground(inputData);
+  }
+
+  @Get('models/info')
+  async getModelsInfo() {
+    return this.mlService.getModelsInfo();
+  }
 }

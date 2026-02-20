@@ -15,7 +15,7 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const cache_service_1 = require("../cache/cache.service");
 const cache_constants_1 = require("../cache/cache.constants");
-const library_1 = require("@prisma/client/runtime/library");
+const client_1 = require("@prisma/client");
 let OrdersService = OrdersService_1 = class OrdersService {
     prisma;
     cacheService;
@@ -49,10 +49,10 @@ let OrdersService = OrdersService_1 = class OrdersService {
                 throw new common_1.BadRequestException(`Insufficient stock for product ${product.name}. Available: ${stock?.quantity || 0}`);
             }
         }
-        let subtotal = new library_1.Decimal(0);
+        let subtotal = new client_1.Prisma.Decimal(0);
         const orderItems = createOrderDto.items.map((item) => {
             const product = products.find((p) => p.id === item.productId);
-            const lineTotal = new library_1.Decimal(product.price.toString()).mul(item.quantity);
+            const lineTotal = new client_1.Prisma.Decimal(product.price.toString()).mul(item.quantity);
             subtotal = subtotal.add(lineTotal);
             return {
                 product_id: product.id,
@@ -61,12 +61,12 @@ let OrdersService = OrdersService_1 = class OrdersService {
                 quantity: item.quantity,
                 unit_price: product.price,
                 line_total: lineTotal,
-                discount_amount: new library_1.Decimal(0),
+                discount_amount: new client_1.Prisma.Decimal(0),
             };
         });
         const taxAmount = subtotal.mul(0.1);
-        const shippingAmount = new library_1.Decimal(10);
-        const discountAmount = new library_1.Decimal(0);
+        const shippingAmount = new client_1.Prisma.Decimal(10);
+        const discountAmount = new client_1.Prisma.Decimal(0);
         const total = subtotal
             .add(taxAmount)
             .add(shippingAmount)
@@ -168,6 +168,30 @@ let OrdersService = OrdersService_1 = class OrdersService {
             if (filters.paymentStatus) {
                 where.payment_status = filters.paymentStatus;
             }
+            if (filters.fulfillmentStatus) {
+                where.fulfillment_status = filters.fulfillmentStatus;
+            }
+            if (filters.fromDate || filters.toDate) {
+                where.created_at = {};
+                if (filters.fromDate) {
+                    where.created_at.gte = new Date(filters.fromDate);
+                }
+                if (filters.toDate) {
+                    where.created_at.lte = new Date(filters.toDate);
+                }
+            }
+            if (filters.q) {
+                where.OR = [
+                    { order_number: { contains: filters.q, mode: 'insensitive' } },
+                    {
+                        order_items: {
+                            some: {
+                                product_name: { contains: filters.q, mode: 'insensitive' },
+                            },
+                        },
+                    },
+                ];
+            }
             const [orders, total] = await Promise.all([
                 this.prisma.order.findMany({
                     where,
@@ -192,14 +216,111 @@ let OrdersService = OrdersService_1 = class OrdersService {
                 }),
                 this.prisma.order.count({ where }),
             ]);
+            const totalPages = Math.ceil(total / size);
             return {
                 content: orders,
                 total,
+                totalElements: total,
                 page,
+                number: page,
                 size,
-                totalPages: Math.ceil(total / size),
+                totalPages,
+                first: page === 0,
+                last: page >= Math.max(totalPages - 1, 0),
+                numberOfElements: orders.length,
+                empty: orders.length === 0,
             };
         }, cache_constants_1.CACHE_TTL.SHORT);
+    }
+    async findAllOrders(query) {
+        const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = query;
+        const where = {};
+        if (filters.status) {
+            where.status = filters.status;
+        }
+        if (filters.paymentStatus) {
+            where.payment_status = filters.paymentStatus;
+        }
+        if (filters.fulfillmentStatus) {
+            where.fulfillment_status = filters.fulfillmentStatus;
+        }
+        if (filters.customerEmail) {
+            where.customers = {
+                is: {
+                    email: {
+                        contains: filters.customerEmail,
+                        mode: 'insensitive',
+                    },
+                },
+            };
+        }
+        if (filters.fromDate || filters.toDate) {
+            where.created_at = {};
+            if (filters.fromDate) {
+                where.created_at.gte = new Date(filters.fromDate);
+            }
+            if (filters.toDate) {
+                where.created_at.lte = new Date(filters.toDate);
+            }
+        }
+        if (filters.q) {
+            where.OR = [
+                { order_number: { contains: filters.q, mode: 'insensitive' } },
+                {
+                    customers: {
+                        is: {
+                            email: { contains: filters.q, mode: 'insensitive' },
+                        },
+                    },
+                },
+            ];
+        }
+        const [orders, total] = await Promise.all([
+            this.prisma.order.findMany({
+                where,
+                skip: page * size,
+                take: size,
+                orderBy: {
+                    [sortBy === 'createdAt' ? 'created_at' : sortBy]: sortOrder,
+                },
+                include: {
+                    order_items: {
+                        select: {
+                            id: true,
+                            product_id: true,
+                            sku: true,
+                            product_name: true,
+                            quantity: true,
+                            unit_price: true,
+                            line_total: true,
+                        },
+                    },
+                    customers: {
+                        select: {
+                            id: true,
+                            email: true,
+                            first_name: true,
+                            last_name: true,
+                        },
+                    },
+                },
+            }),
+            this.prisma.order.count({ where }),
+        ]);
+        const totalPages = Math.ceil(total / size);
+        return {
+            content: orders,
+            total,
+            totalElements: total,
+            page,
+            number: page,
+            size,
+            totalPages,
+            first: page === 0,
+            last: page >= Math.max(totalPages - 1, 0),
+            numberOfElements: orders.length,
+            empty: orders.length === 0,
+        };
     }
     async findOne(id, userId) {
         const cacheKey = cache_constants_1.CACHE_KEYS.ORDER_BY_ID(id);
@@ -239,6 +360,38 @@ let OrdersService = OrdersService_1 = class OrdersService {
             return order;
         }, cache_constants_1.CACHE_TTL.SHORT);
     }
+    async findOneAdmin(id) {
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+            include: {
+                order_items: {
+                    select: {
+                        id: true,
+                        product_id: true,
+                        sku: true,
+                        product_name: true,
+                        quantity: true,
+                        unit_price: true,
+                        line_total: true,
+                        discount_amount: true,
+                    },
+                },
+                customers: {
+                    select: {
+                        id: true,
+                        email: true,
+                        first_name: true,
+                        last_name: true,
+                        phone_number: true,
+                    },
+                },
+            },
+        });
+        if (!order) {
+            throw new common_1.NotFoundException(`Order with ID '${id}' not found`);
+        }
+        return order;
+    }
     async cancelOrder(id, userId, reason) {
         const order = await this.findOne(id, userId);
         if (!['PENDING', 'CONFIRMED'].includes(order.status)) {
@@ -269,6 +422,38 @@ let OrdersService = OrdersService_1 = class OrdersService {
         });
         await this.invalidateOrderCaches(order.customer_id, id);
         this.logger.log(`Order cancelled: ${id} - ${order.order_number}`);
+        return updatedOrder;
+    }
+    async cancelOrderAdmin(id, reason) {
+        const order = await this.findOneAdmin(id);
+        if (!['PENDING', 'CONFIRMED'].includes(order.status)) {
+            throw new common_1.BadRequestException(`Cannot cancel order with status ${order.status}. Only PENDING or CONFIRMED orders can be cancelled.`);
+        }
+        const updatedOrder = await this.prisma.$transaction(async (tx) => {
+            const cancelled = await tx.order.update({
+                where: { id },
+                data: {
+                    status: 'CANCELLED',
+                    cancelled_at: new Date(),
+                    cancelled_reason: reason || 'Cancelled by admin',
+                },
+                include: {
+                    order_items: true,
+                },
+            });
+            for (const item of cancelled.order_items) {
+                await tx.stock.updateMany({
+                    where: { product_id: item.product_id },
+                    data: {
+                        quantity: { increment: item.quantity },
+                        reserved_quantity: { decrement: item.quantity },
+                    },
+                });
+            }
+            return cancelled;
+        });
+        await this.invalidateOrderCaches(order.customer_id, id);
+        this.logger.log(`Order cancelled by admin: ${id} - ${order.order_number}`);
         return updatedOrder;
     }
     async trackOrder(id, userId) {
@@ -324,6 +509,74 @@ let OrdersService = OrdersService_1 = class OrdersService {
             updatedAt: order.updated_at,
         };
     }
+    async updateOrderStatus(id, updates) {
+        await this.findOneAdmin(id);
+        const order = await this.prisma.order.update({
+            where: { id },
+            data: {
+                status: updates.status?.toUpperCase(),
+                payment_status: updates.paymentStatus?.toUpperCase(),
+                tracking_number: updates.trackingNumber,
+                carrier: updates.carrier,
+                notes: updates.notes,
+                updated_at: new Date(),
+            },
+            include: {
+                order_items: true,
+                customers: {
+                    select: {
+                        id: true,
+                        email: true,
+                        first_name: true,
+                        last_name: true,
+                        phone_number: true,
+                    },
+                },
+            },
+        });
+        await this.invalidateOrderCaches(order.customer_id, id);
+        return order;
+    }
+    async processRefund(id, amount, reason, adminUserId) {
+        const order = await this.findOneAdmin(id);
+        const orderTotal = Number(order.total);
+        if (!['PAID', 'REFUNDED', 'PARTIALLY_REFUNDED'].includes(order.payment_status)) {
+            throw new common_1.BadRequestException('Order is not in a refundable payment state');
+        }
+        if (amount <= 0 || amount > orderTotal) {
+            throw new common_1.BadRequestException('Refund amount is invalid');
+        }
+        const updatedOrder = await this.prisma.order.update({
+            where: { id },
+            data: {
+                payment_status: amount >= orderTotal ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
+                status: amount >= orderTotal ? 'REFUNDED' : order.status,
+                cancelled_reason: reason || 'Refund processed by admin',
+                notes: `Refund of ${amount} processed by ${adminUserId}`,
+                updated_at: new Date(),
+            },
+            include: {
+                order_items: true,
+                customers: {
+                    select: {
+                        id: true,
+                        email: true,
+                        first_name: true,
+                        last_name: true,
+                        phone_number: true,
+                    },
+                },
+            },
+        });
+        await this.invalidateOrderCaches(order.customer_id, id);
+        return updatedOrder;
+    }
+    async searchOrders(query, queryDto) {
+        return this.findAllOrders({
+            ...queryDto,
+            q: query,
+        });
+    }
     async export(queryDto) {
         const { page = 0, size = 20, sortBy = 'created_at', sortOrder = 'desc', ...filters } = queryDto;
         const where = {};
@@ -332,6 +585,40 @@ let OrdersService = OrdersService_1 = class OrdersService {
         }
         if (filters.paymentStatus) {
             where.payment_status = filters.paymentStatus;
+        }
+        if (filters.fulfillmentStatus) {
+            where.fulfillment_status = filters.fulfillmentStatus;
+        }
+        if (filters.fromDate || filters.toDate) {
+            where.created_at = {};
+            if (filters.fromDate) {
+                where.created_at.gte = new Date(filters.fromDate);
+            }
+            if (filters.toDate) {
+                where.created_at.lte = new Date(filters.toDate);
+            }
+        }
+        if (filters.customerEmail) {
+            where.customers = {
+                is: {
+                    email: {
+                        contains: filters.customerEmail,
+                        mode: 'insensitive',
+                    },
+                },
+            };
+        }
+        if (filters.q) {
+            where.OR = [
+                { order_number: { contains: filters.q, mode: 'insensitive' } },
+                {
+                    customers: {
+                        is: {
+                            email: { contains: filters.q, mode: 'insensitive' },
+                        },
+                    },
+                },
+            ];
         }
         const orders = await this.prisma.order.findMany({
             where,

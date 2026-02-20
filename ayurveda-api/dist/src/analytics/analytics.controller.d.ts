@@ -14,8 +14,8 @@ export declare class AnalyticsController {
         country: string | null;
         session_id: string | null;
         region: string | null;
-        latitude: import("@prisma/client/runtime/library").Decimal | null;
-        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        latitude: import("@prisma/client-runtime-utils").Decimal | null;
+        longitude: import("@prisma/client-runtime-utils").Decimal | null;
         timezone: string | null;
         accuracy: string | null;
         ip_hash: string | null;

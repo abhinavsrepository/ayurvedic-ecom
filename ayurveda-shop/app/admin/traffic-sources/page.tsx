@@ -33,20 +33,12 @@ export default function TrafficSourcesPage() {
     } catch (error: any) {
       console.error('Failed to fetch traffic sources:', error);
       toast.error('Failed to load traffic sources');
-      // Set mock data for demonstration
-      setTrafficData([
-        { name: 'Organic Search', visits: 1250, conversions: 45, revenue: 125000, conversionRate: '3.60' },
-        { name: 'Direct', visits: 890, conversions: 32, revenue: 89000, conversionRate: '3.60' },
-        { name: 'Social Media', visits: 650, conversions: 18, revenue: 45000, conversionRate: '2.77' },
-        { name: 'Referral', visits: 320, conversions: 12, revenue: 28000, conversionRate: '3.75' },
-        { name: 'Email', visits: 210, conversions: 15, revenue: 35000, conversionRate: '7.14' },
-        { name: 'Paid Ads', visits: 180, conversions: 8, revenue: 22000, conversionRate: '4.44' },
-      ]);
+      setTrafficData([]);
       setSummary({
-        totalVisits: 3500,
-        totalConversions: 130,
-        totalRevenue: 344000,
-        avgConversionRate: '3.71',
+        totalVisits: 0,
+        totalConversions: 0,
+        totalRevenue: 0,
+        avgConversionRate: '0.00',
       });
     } finally {
       setLoading(false);

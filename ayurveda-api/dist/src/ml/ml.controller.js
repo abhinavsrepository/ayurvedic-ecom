@@ -35,6 +35,12 @@ let MlController = class MlController {
     async predictClv(customerData) {
         return this.mlService.predictClv(customerData);
     }
+    async runPlayground(inputData) {
+        return this.mlService.runPlayground(inputData);
+    }
+    async getModelsInfo() {
+        return this.mlService.getModelsInfo();
+    }
 };
 exports.MlController = MlController;
 __decorate([
@@ -72,6 +78,19 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MlController.prototype, "predictClv", null);
+__decorate([
+    (0, common_1.Post)('playground'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MlController.prototype, "runPlayground", null);
+__decorate([
+    (0, common_1.Get)('models/info'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], MlController.prototype, "getModelsInfo", null);
 exports.MlController = MlController = __decorate([
     (0, common_1.Controller)('ml'),
     __metadata("design:paramtypes", [ml_service_1.MlService])

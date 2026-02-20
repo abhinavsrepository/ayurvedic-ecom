@@ -19,4 +19,9 @@ export declare class QueryOrderDto {
     paymentStatus?: PaymentStatus;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
+    fulfillmentStatus?: string;
+    fromDate?: string;
+    toDate?: string;
+    customerEmail?: string;
+    q?: string;
 }

@@ -36,6 +36,11 @@ class QueryOrderDto {
     paymentStatus;
     sortBy = 'created_at';
     sortOrder = 'desc';
+    fulfillmentStatus;
+    fromDate;
+    toDate;
+    customerEmail;
+    q;
 }
 exports.QueryOrderDto = QueryOrderDto;
 __decorate([
@@ -89,4 +94,38 @@ __decorate([
     (0, class_validator_1.IsEnum)(['asc', 'desc']),
     __metadata("design:type", String)
 ], QueryOrderDto.prototype, "sortOrder", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by fulfillment status' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], QueryOrderDto.prototype, "fulfillmentStatus", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Filter orders created on or after this date (YYYY-MM-DD)',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], QueryOrderDto.prototype, "fromDate", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Filter orders created on or before this date (YYYY-MM-DD)',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], QueryOrderDto.prototype, "toDate", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by customer email' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], QueryOrderDto.prototype, "customerEmail", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Search query (order/customer)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], QueryOrderDto.prototype, "q", void 0);
 //# sourceMappingURL=query-order.dto.js.map

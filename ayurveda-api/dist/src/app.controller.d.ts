@@ -13,17 +13,17 @@ export declare class AppController {
         success: boolean;
         content: {
             id: string;
-            name: string;
-            description: string | null;
             created_at: Date;
             updated_at: Date;
             version: bigint | null;
+            name: string;
+            description: string | null;
             sku: string;
             slug: string;
             short_description: string | null;
-            price: import("@prisma/client/runtime/library").Decimal;
-            compare_at_price: import("@prisma/client/runtime/library").Decimal | null;
-            cost_price: import("@prisma/client/runtime/library").Decimal | null;
+            price: import("@prisma/client-runtime-utils").Decimal;
+            compare_at_price: import("@prisma/client-runtime-utils").Decimal | null;
+            cost_price: import("@prisma/client-runtime-utils").Decimal | null;
             status: string;
             category: string | null;
             subcategory: string | null;

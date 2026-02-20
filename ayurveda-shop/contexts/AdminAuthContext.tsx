@@ -54,8 +54,10 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (credentials: LoginRequest) => {
+    console.log('[DEBUG] Login called with:', credentials);
     try {
       const response = await authApi.login(credentials);
+      console.log('[DEBUG] Login response:', response);
 
       // Store tokens
       apiClient.setTokens(response.accessToken, response.refreshToken);
@@ -83,11 +85,11 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     try {
       await authApi.logout();
     } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      handleLogout();
-      toast.success('Logged out successfully');
+      // Silently handle logout errors - tokens are already cleared by authApi.logout()
+      console.log('Logout API call failed, but local session cleared');
     }
+    handleLogout();
+    toast.success('Logged out successfully');
   };
 
   const handleLogout = () => {

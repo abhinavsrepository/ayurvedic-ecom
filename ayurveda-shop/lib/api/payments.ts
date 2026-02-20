@@ -26,7 +26,16 @@ export const paymentsApi = {
 
   // Get payment status for an order
   getStatus: async (orderId: string): Promise<PaymentStatusResponse> => {
-    return apiClient.get<PaymentStatusResponse>(`/api/payments/status/${orderId}`);
+    const response = await apiClient.get<any>(`/api/payments/status/${orderId}`);
+    return {
+      ...response,
+      paymentStatus: typeof response.paymentStatus === 'string'
+        ? response.paymentStatus.toLowerCase()
+        : response.paymentStatus,
+      orderStatus: typeof response.orderStatus === 'string'
+        ? response.orderStatus.toLowerCase()
+        : response.orderStatus,
+    };
   },
 
   // Process refund (Admin only)

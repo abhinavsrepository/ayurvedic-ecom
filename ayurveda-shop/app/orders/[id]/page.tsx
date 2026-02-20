@@ -117,7 +117,7 @@ export default function OrderDetailPage() {
   };
 
   const canCancel = (status: string) => {
-    return ['PENDING', 'CONFIRMED'].includes(status);
+    return [OrderStatus.PENDING, OrderStatus.CONFIRMED].includes(status as OrderStatus);
   };
 
   const getOrderTimeline = (status: string) => {

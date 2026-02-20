@@ -130,17 +130,17 @@ export interface Order {
 }
 
 export enum PaymentStatus {
-  PENDING = 'PENDING',
-  PAID = 'PAID',
-  FAILED = 'FAILED',
-  REFUNDED = 'REFUNDED',
-  PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
+  PENDING = 'pending',
+  PAID = 'paid',
+  FAILED = 'failed',
+  REFUNDED = 'refunded',
+  PARTIALLY_REFUNDED = 'partially_refunded',
 }
 
 export enum FulfillmentStatus {
-  UNFULFILLED = 'UNFULFILLED',
-  PARTIALLY_FULFILLED = 'PARTIALLY_FULFILLED',
-  FULFILLED = 'FULFILLED',
+  UNFULFILLED = 'unfulfilled',
+  PARTIALLY_FULFILLED = 'partially_fulfilled',
+  FULFILLED = 'fulfilled',
 }
 
 export interface OrderItem {

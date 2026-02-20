@@ -89,11 +89,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   };
 
   const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
+    await logout();
   };
 
   const getUserInitials = () => {

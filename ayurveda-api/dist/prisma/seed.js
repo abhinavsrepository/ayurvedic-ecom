@@ -34,10 +34,23 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
+const adapter_pg_1 = require("@prisma/adapter-pg");
+const pg_1 = require("pg");
 const bcrypt = __importStar(require("bcrypt"));
-const prisma = new client_1.PrismaClient();
+require('dotenv').config();
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+    throw new Error('DATABASE_URL is not defined. Please check your .env file.');
+}
+const pool = new pg_1.Pool({
+    connectionString: databaseUrl,
+});
+const adapter = new adapter_pg_1.PrismaPg(pool);
+const prisma = new client_1.PrismaClient({
+    adapter,
+});
 async function main() {
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash('Test@1234', 10);
     const adminRole = await prisma.role.upsert({
         where: { name: 'ADMIN' },
         update: {},
@@ -55,10 +68,15 @@ async function main() {
         },
     });
     const adminUser = await prisma.user.upsert({
-        where: { username: 'admin' },
-        update: {},
+        where: { username: 'admin@ayurveda.com' },
+        update: {
+            password: hashedPassword,
+            enabled: true,
+            account_locked: false,
+            failed_login_attempts: 0,
+        },
         create: {
-            username: 'admin',
+            username: 'admin@ayurveda.com',
             email: 'admin@ayurshop.com',
             password: hashedPassword,
             full_name: 'System Administrator',
@@ -70,7 +88,10 @@ async function main() {
             },
         },
     });
-    console.log({ adminUser });
+    console.log('✅ Admin user created/updated:');
+    console.log('   Username: admin@ayurveda.com');
+    console.log('   Password: Test@1234');
+    console.log('   Email: admin@ayurshop.com');
     const products = [
         {
             sku: 'AYUR-HAIR-001',
@@ -199,7 +220,7 @@ async function main() {
             update: {},
             create: product,
         });
-        console.log(`Created product: ${createdProduct.name}`);
+        console.log(`✅ Created product: ${createdProduct.name}`);
     }
     console.log(`\n✅ Seeded ${products.length} products successfully!`);
     const blogPosts = [
@@ -333,7 +354,7 @@ async function main() {
                 },
             },
         });
-        console.log(`Created blog post: ${createdPost.title}`);
+        console.log(`✅ Created blog post: ${createdPost.title}`);
     }
     console.log(`\n✅ Seeded ${blogPosts.length} blog posts successfully!`);
 }

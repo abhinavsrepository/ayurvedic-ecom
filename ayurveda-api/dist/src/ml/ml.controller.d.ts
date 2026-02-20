@@ -13,4 +13,6 @@ export declare class MlController {
     detectAnomalies(metric: string): Promise<any>;
     predictChurn(customerData: any): Promise<any>;
     predictClv(customerData: any): Promise<any>;
+    runPlayground(inputData: any): Promise<any>;
+    getModelsInfo(): Promise<any>;
 }

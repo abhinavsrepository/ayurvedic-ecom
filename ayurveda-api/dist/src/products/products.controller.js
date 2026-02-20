@@ -31,9 +31,6 @@ let ProductsController = class ProductsController {
     findAll(query) {
         return this.productsService.findAll(query);
     }
-    findOne(id) {
-        return this.productsService.findOne(id);
-    }
     findBySlug(slug) {
         return this.productsService.findBySlug(slug);
     }
@@ -57,6 +54,9 @@ let ProductsController = class ProductsController {
     async search(query, queryDto) {
         return this.productsService.search(query, queryDto);
     }
+    findOne(id) {
+        return this.productsService.findOne(id);
+    }
     async updateStock(id, quantity) {
         return this.productsService.updateStock(id, quantity);
     }
@@ -72,18 +72,6 @@ __decorate([
     __metadata("design:paramtypes", [query_product_dto_1.QueryProductDto]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findAll", null);
-__decorate([
-    (0, public_decorator_1.Public)(),
-    (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get product by ID' }),
-    (0, swagger_1.ApiParam)({ name: 'id', description: 'Product ID' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Product found' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Product not found' }),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ProductsController.prototype, "findOne", null);
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Get)('slug/:slug'),
@@ -191,6 +179,18 @@ __decorate([
     __metadata("design:paramtypes", [String, query_product_dto_1.QueryProductDto]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "search", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get product by ID' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'Product ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Product found' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Product not found' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id/stock'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

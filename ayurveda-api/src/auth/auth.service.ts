@@ -26,26 +26,54 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.prisma.user.findUnique({
+    console.log('[DEBUG] validateUser called with username:', username);
+    
+    let user = await this.prisma.user.findUnique({
       where: { username },
       include: { user_roles: { include: { roles: true } } },
     });
 
     if (!user) {
+      user = await this.prisma.user.findUnique({
+        where: { email: username },
+        include: { user_roles: { include: { roles: true } } },
+      });
+      console.log('[DEBUG] Tried email lookup:', user ? 'found' : 'not found');
+    }
+
+    console.log('[DEBUG] User found:', user ? 'YES' : 'NO');
+    
+    if (!user) {
+      console.log('[DEBUG] User not found, returning null');
       return null;
     }
 
+    console.log('[DEBUG] User details:', { 
+      id: user.id, 
+      username: user.username, 
+      enabled: user.enabled, 
+      locked: user.account_locked,
+      failedAttempts: user.failed_login_attempts,
+      hasPassword: !!user.password,
+      passwordLength: user.password?.length
+    });
+
     if (!user.enabled) {
+      console.log('[DEBUG] Account is disabled');
       throw new UnauthorizedException('Account is disabled');
     }
 
     if (user.account_locked) {
+      console.log('[DEBUG] Account is locked');
       throw new UnauthorizedException('Account is locked');
     }
 
+    console.log('[DEBUG] Comparing password...');
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('[DEBUG] Password valid:', isPasswordValid);
 
     if (!isPasswordValid) {
+      console.log('[DEBUG] Password invalid, incrementing failed attempts');
       // Increment failed login attempts
       await this.prisma.user.update({
         where: { id: user.id },

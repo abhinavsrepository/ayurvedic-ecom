@@ -124,4 +124,46 @@ export class MlService {
       throw error;
     }
   }
+
+  async runPlayground(inputData: any) {
+    const url = `${this.mlServiceUrl}/api/ml/playground`;
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.post(url, inputData).pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response?.data || error.message);
+            throw new HttpException(
+              error.response?.data || 'Failed to run playground prediction',
+              error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+          }),
+        ),
+      );
+      return data;
+    } catch (error) {
+      this.logger.error(`Error running playground prediction: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async getModelsInfo() {
+    const url = `${this.mlServiceUrl}/api/ml/models/info`;
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get(url).pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response?.data || error.message);
+            throw new HttpException(
+              error.response?.data || 'Failed to fetch model information',
+              error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+          }),
+        ),
+      );
+      return data;
+    } catch (error) {
+      this.logger.error(`Error fetching model information: ${error.message}`);
+      throw error;
+    }
+  }
 }
